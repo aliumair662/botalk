@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="44" height="44" viewBox="0 0 44 44">
+  <defs>
+    <filter id="Ellipse_24" x="0" y="0" width="44" height="44" filterUnits="userSpaceOnUse">
+      <feOffset input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feFlood flood-opacity="0.239"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_4023" data-name="Group 4023" transform="translate(-156.5 -114.5)">
+    <g id="Group_4013" data-name="Group 4013" transform="translate(-141 -508)">
+      <g transform="matrix(1, 0, 0, 1, 297.5, 622.5)" filter="url(#Ellipse_24)">
+        <circle id="Ellipse_24-2" data-name="Ellipse 24" cx="14.5" cy="14.5" r="14.5" transform="translate(7.5 7.5)" fill="#f36f23"/>
+      </g>
+    </g>
+    <g id="Group_4015" data-name="Group 4015" transform="translate(-130.063 1.036)">
+      <circle id="Ellipse_30" data-name="Ellipse 30" cx="1.5" cy="1.5" r="1.5" transform="translate(303.063 133.964)" fill="#fff"/>
+      <circle id="Ellipse_31" data-name="Ellipse 31" cx="1.5" cy="1.5" r="1.5" transform="translate(307.063 133.964)" fill="#fff"/>
+      <circle id="Ellipse_32" data-name="Ellipse 32" cx="1.5" cy="1.5" r="1.5" transform="translate(311.063 133.964)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

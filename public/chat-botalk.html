@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- Font Awesome Cdn-->
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+    <!-- Owl carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+    <link rel="stylesheet" href="files/css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="files/css/owl.theme.default.min.css" />
+    <link rel="stylesheet" href="files/css/style.css" />
+    <title>BotaFoga Messenger</title>
+</head>
+<body>
+<!-- Desktop View Messenger Start -->
+<div class="container-fluid custom-container desktop-tablet-view">
+    <div class="row">
+        <div class="col-xl-3 col-lg-4 col-md-5 pr-0">
+            <div class="chat-wrapper">
+                <div class="row" style="align-items: center; display: flex;">
+                    <div class="col-6">
+                        <h6>
+                            Messages
+                        </h6>
+                    </div>
+                    <div class="col-6">
+                        <div class="messenger-share text-right" width="100%">
+                            <a href="#"  onclick="showUserList();">
+                                <i class="fas fa-comment-alt-lines"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="messenger-search">
+                    <form action="">
+                        <div class="form-group has-search">
+                            <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" class="form-control" placeholder="Search Messages" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="chat-list" id="users">
+
+            </div>
+        </div>
+        <div class="col-xl-9 col-lg-8 col-md-7" id="message-box" style="background-color: rgb(243 243 243);">
+            <div id="chat-div" class="row chat-box">
+                <div class="col-12 user-top">
+                    <div class="user-top-details">
+                        <div class="row message-grid show-chat-area d-none">
+                            <div class="avatar-image chat-details">
+                                <img src="files/images/avatar.jpg" alt="" />
+                                <span><i class="fas fa-circle"></i></span>
+                            </div>
+                            <div class="user-chat">
+                                <h5 id="room-name"></h5>
+                                <span>online</span>
+                            </div>
+                            <div class="time-message text-right">
+                                <a href="">
+                                    <i class="fa fa-video"></i>
+                                </a>
+                                <a href="">
+                                    <i class="fas fa-phone" style="font-size: 20px;"></i>
+                                </a>
+
+                                <a>
+                                    <i id="click-button" class="fad fa-info-circle"></i>
+                                </a>
+                                <a href="">
+                                    <i class="fal fa-ellipsis-v"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 no-message-found">
+                    <div class="message-body">
+                    no message found ,please select any channel first
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="message-body chat-messages">
+
+                    </div>
+                </div>
+                <div class="col-12" >
+                    <div class="type-message-box show-chat-area d-none">
+                        <a href="" class="plus-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </a>
+                        <a href="">
+                            <i class="fas fa-camera"></i>
+                        </a>
+                        <a href="">
+                            <i class="fas fa-image"></i>
+                        </a>
+                        <a href="">
+                            <i class="fal fa-microphone"></i>
+                        </a>
+                        <div class="message-form-width">
+                            <form action="" id="chat-form">
+                                <div class="position-relative">
+                                    <div class="input-emoji-msg">
+                                        <a href="">
+                                            <i class="far fa-smile"></i>
+                                        </a>
+                                    </div>
+                                    <input type="text" id="msg" placeholder="type your message here...." />
+                                </div>
+                            </form>
+                        </div>
+                        <a href="" class="thumbs-up">
+                            <i class="fas fa-thumbs-up"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-5 d-none" id="detail-box">
+            <div class="details-wrapper">
+                <div class="details-avatar">
+                    <img src="files/images/avatar.jpg" alt="" />
+                </div>
+                <div class="details-title text-center">
+                    <h5>Marques Brownlee</h5>
+                    <span>
+                                Active 21 hours ago
+                            </span>
+                </div>
+                <div class="border-bottom"></div>
+                <div class="support-messenger">
+                    <h6><a href="#" onclick="return showOrHide('menulink');">Customise Chat</a></h6>
+                    <ul id="menulink" class="list-unstyled">
+                        <li><i class="fas fa-dot-circle mr-2"></i><a href="">Change Theme</a></li>
+                        <li><i class="far fa-smile mr-2"></i><a href="">Change Emoji</a></li>
+                        <li><i class="fas fa-pencil-alt mr-2"></i><a href="">Edit Emoji</a></li>
+                    </ul>
+                    <h6><a href="#" onclick="return showOrHide('menulink1');">Privacy & Support</a></h6>
+                    <ul id="menulink1" class="list-unstyled">
+                        <li><i class="fas fa-volume-mute mr-2"></i><a href="">Mute Chat</a></li>
+                        <li><i class="fal fa-comment-alt-times mr-2"></i><a href="">Ignore Messages</a></li>
+                        <li><i class="far fa-ban mr-2"></i><a href="">Block User</a></li>
+                        <li><i class="fas fa-flag mr-2"></i><a href="">Report</a></li>
+                    </ul>
+                </div>
+                <div class="border-bottom"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Desktop View Messenger End -->
+
+
+
+<script>
+    function showOrHide(zap) {
+        if (document.getElementById) {
+            var abra = document.getElementById(zap).style;
+            if (abra.display == "block") {
+                abra.display = "none";
+            } else {
+                abra.display = "block";
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+</script>
+<script>
+    function showOrHide(zap) {
+        if (document.getElementById) {
+            var abra = document.getElementById(zap).style;
+            if (abra.display == "block") {
+                abra.display = "none";
+            } else {
+                abra.display = "block";
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+</script>
+
+
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/owl.carousel.min.js"></script>
+<script src="https://use.fontawesome.com/826a7e3dce.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+    $(".owl-carousel").owlCarousel({
+        loop: true,
+        margin: 10,
+        nav: true,
+        navText: ["<i class='fa fa-chevron-right'></i>", "<i class='fa fa-chevron-right'></i>"],
+        autoplay: false,
+        loop: false,
+        responsive: {
+            300: {
+                items: 4,
+            },
+            500: {
+                items: 6,
+            },
+            600: {
+                items: 10,
+            },
+            1000: {
+                items: 10,
+            },
+        },
+    });
+</script>
+<script>
+    $("#click-button").click(function (e){
+        e.preventDefault();
+        if($("#message-box").hasClass("col-xl-9")){
+            $("#message-box").removeClass("col-xl-9");
+            $("#message-box").addClass("col-xl-6");
+            $("#detail-box").removeClass("d-none");
+        }else{
+            $("#message-box").removeClass("col-xl-6");
+            $("#message-box").addClass("col-xl-9");
+            $("#detail-box").addClass("d-none");
+
+        }
+
+
+
+    });
+</script>
+</body>
+</html>

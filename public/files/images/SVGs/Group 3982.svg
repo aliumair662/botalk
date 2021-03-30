@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="412" height="36" viewBox="0 0 412 36">
+  <g id="Group_3982" data-name="Group 3982" transform="translate(-0.056)">
+    <g id="Section_Rounded" data-name="Section Rounded" transform="translate(0.056)" fill="#fff" stroke="#dfdfdf" stroke-width="1">
+      <rect width="412" height="36" rx="18" stroke="none"/>
+      <rect x="0.5" y="0.5" width="411" height="35" rx="17.5" fill="none"/>
+    </g>
+    <text id="Aa_Text" data-name="Aa Text" transform="translate(15.528 24)" fill="#9d9d9d" font-size="16" font-family="Roboto-Regular, Roboto"><tspan x="0" y="0">Aa</tspan></text>
+    <g id="Group_4" data-name="Group 4" transform="translate(381.056 8)">
+      <path id="Subtraction_5" data-name="Subtraction 5" d="M10,20A10,10,0,1,1,20,10,10.011,10.011,0,0,1,10,20ZM10,2a8,8,0,1,0,8,8A8.009,8.009,0,0,0,10,2Z" transform="translate(0)" fill="#0083fe"/>
+      <circle id="Ellipse_6" data-name="Ellipse 6" cx="1.5" cy="1.5" r="1.5" transform="translate(5 6)" fill="#0084fb"/>
+      <circle id="Ellipse_7" data-name="Ellipse 7" cx="1.5" cy="1.5" r="1.5" transform="translate(12 6)" fill="#0084fb"/>
+      <path id="smile" d="M8.841,0A5.185,5.185,0,0,1,4.42,2.471,5.185,5.185,0,0,1,0,0" transform="translate(5.57 12.329)" fill="none" stroke="#27a9dc" stroke-width="1.5"/>
+    </g>
+  </g>
+</svg>

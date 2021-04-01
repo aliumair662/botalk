@@ -173,7 +173,8 @@ button:hover {
     position: absolute;
     bottom: 0px;
     right: 0px;
-    color: #90c63e;
+    /*color: #90c63e;*/
+    color: darkred;
     font-size: 10px;
 }
 .message-sent p {
@@ -225,15 +226,18 @@ button:hover {
 .user-top-details .message-grid {
     padding-right: 0px;
 }
-.type-message-box form input {
+.type-message-box form input,.type-message-box form textarea,.type-message-box .emojionearea{
     border-radius: 20px;
     outline: none;
     width: 100%;
-    font-size: 16px;
-    padding: 5px 15px;
+    /*font-size: 16px;*/
+    /*padding: 5px 15px;*/
     border-width: 1px;
     border-color: #00000026;
     padding-right: 30px;
+}
+form#chat-form .emojionearea .emojionearea-editor{
+    min-height: auto;
 }
 .type-message-box {
     display: flex;
@@ -245,6 +249,9 @@ button:hover {
     font-size: 20px;
     padding: 0px 7px;
     color: #6c757d;
+}
+.chat-messages img.emojioneemoji,#users img.emojioneemoji{
+    width: 20px;
 }
 .message-form-width {
     width: 100%;

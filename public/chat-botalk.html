@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8" />
@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="files/css/owl.carousel.min.css" />
     <link rel="stylesheet" href="files/css/owl.theme.default.min.css" />
     <link rel="stylesheet" href="files/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.css" integrity="sha512-vEia6TQGr3FqC6h55/NdU3QSM5XR6HSl5fW71QTKrgeER98LIMGwymBVM867C1XHIkYD9nMTfWK2A0xcodKHNA==" crossorigin="anonymous" />
     <title>BotaFoga Messenger</title>
 </head>
 <body>
@@ -56,12 +57,12 @@
                     <div class="user-top-details">
                         <div class="row message-grid show-chat-area d-none">
                             <div class="avatar-image chat-details">
-                                <img src="files/images/avatar.jpg" alt="" />
-                                <span><i class="fas fa-circle"></i></span>
+                                <img src="files/images/avatar.jpg" alt=""  id="room_avatar"/>
+                                <span><i class="fas fa-circle" id="status_circle"></i></span>
                             </div>
                             <div class="user-chat">
                                 <h5 id="room-name"></h5>
-                                <span>online</span>
+                                <span id="room_status"></span>
                             </div>
                             <div class="time-message text-right">
                                 <a href="">
@@ -93,7 +94,10 @@
                 </div>
                 <div class="col-12" >
                     <div class="type-message-box show-chat-area d-none">
-                        <a href="" class="plus-icon">
+                        <form id="plus-icon-form">
+                            <input type="file"  id="plus-icon-file" multiple  style="display: none;"/>
+                        </form>
+                        <a href="" class="plus-icon" id="plus-icon">
                             <i class="fas fa-plus-circle"></i>
                         </a>
                         <a href="">
@@ -106,18 +110,23 @@
                             <i class="fal fa-microphone"></i>
                         </a>
                         <div class="message-form-width">
-                            <form action="" id="chat-form">
+                            <form action="" id="chat-form" enctype="multipart/form-data">
                                 <div class="position-relative">
                                     <div class="input-emoji-msg">
                                         <a href="">
                                             <i class="far fa-smile"></i>
                                         </a>
                                     </div>
-                                    <input type="text" id="msg" placeholder="type your message here...." />
+                                    <!--<input type="text" id="msg" placeholder="type your message here...." />-->
+                                    <textarea type="text" id="msg" placeholder="type your message here...." /></textarea>
+
+                                </div>
+                                <div class="span6">
+                                    <div id="standalone"></div>
                                 </div>
                             </form>
                         </div>
-                        <a href="" class="thumbs-up">
+                        <a href="" class="thumbs-up" id="thumbs-up">
                             <i class="fas fa-thumbs-up"></i>
                         </a>
                     </div>
@@ -204,7 +213,10 @@
 <script src="https://use.fontawesome.com/826a7e3dce.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io-client/socket.io-file-client.js"></script>
 <script src="js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js" integrity="sha512-hkvXFLlESjeYENO4CNi69z3A1puvONQV5Uh+G4TUDayZxSLyic5Kba9hhuiNLbHqdnKNMk2PxXKm0v7KDnWkYA==" crossorigin="anonymous"></script>
+
 
 <script>
     $(".owl-carousel").owlCarousel({
@@ -245,6 +257,68 @@
         }
 
 
+
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var el =$("#msg").emojioneArea({
+            pickerPosition: "top",
+            filtersPosition: "bottom",
+            tonesStyle: "checkbox",
+            events: {
+                keypress: function (editor, event) {
+                    if(event.which == 13){
+                        event.preventDefault();
+                        $('#chat-form').submit();
+                    }
+                }
+            }
+
+        });
+
+        /*var el = $("#mytext").emojioneArea({
+            pickerPosition: "bottom",
+           // hideSource: true,
+            saveEmojisAs:"unicode",
+            events: {
+                keypress: function (editor, event) {
+                    event.preventDefault();
+                    var keycode = (event.keyCode ? event.keyCode : event.which);
+                    console.log(keycode);
+                    if(keycode == '13'){
+
+                        console.log('event:enter');
+                       $("#chat-form").submit();
+                    }
+                },
+                click: function (editor, event) {
+                    console.log('event:click');
+                }
+            },
+
+
+
+
+        });*/
+       /* el[0].emojioneArea.on("emojibtn.click",function(btn) {
+
+            $("#msg").val(btn.html());
+        });*/
+
+        /*$('body').on('keypress', '.emojionearea', function(event) {
+
+            console.log('emojionearea-editor:kepress');
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            console.log(keycode);
+            if(keycode == '13'){
+                console.log('event:enter');
+                $("#chat-form").submit();
+            }
+        });*/
+        $("#msg").keypress(function(){
+                console.info("tyouing");
+        });
 
     });
 </script>

@@ -2,43 +2,118 @@ const chatForm =document.getElementById('chat-form');
 const chatMessages =document.querySelector('.chat-messages');
 const roomName =document.getElementById('room-name');
 const userList =document.getElementById('users');
-
+const uploadform = document.getElementById('plus-icon-form');
 //Get username and room from u
 const { username } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
 const socket = io();
+if(username){
 //Join chatroom
-socket.emit('userConnected',username);
+    socket.emit('userConnected',username);
+}
 //listen from server
 socket.on('userConnected',function (user){
     getrecentMessages(user.username);
 });
-socket.on('setOnline',function (username){
+socket.on('online',function (username){
     onlineUsers(username);
 });
+socket.on('offline',function (username){
+    offlineUsers(username);
+});
+//var uploader = new SocketIOFileClient(socket);
 var sender=username;
 var receiver='';
 //Submit Message
-chatForm.addEventListener('submit',(e) => {
+/*chatForm.submit(function(e){
     e.preventDefault();
     const message = e.target.elements.msg.value;
     //Emit message to server
-
+    console.log(message);
     socket.emit('sendMessage',{
         sender:sender,
         receiver:receiver,
         message:message,
     });
-    outputMessage({
-        text:message,
-        time:formatAMPM(new Date),
-        class:'user-sent-message'
-
-    });
     //Clear input
     e.target.elements.msg.value='';
     e.target.elements.msg.focus();
+});*/
+
+
+
+$( "#chat-form" ).submit(function( e ) {
+    e.preventDefault();
+    const message = $(".emojionearea-editor").html();
+    //Emit message to server
+    if(message!=''){
+        socket.emit('sendMessage',{
+            sender:sender,
+            receiver:receiver,
+            message:message,
+        });
+        //Clear input
+        $(".emojionearea-editor").html('');
+        e.target.elements.msg.value='';
+        e.target.elements.msg.focus();
+    }
+});
+//send thumbs up as message
+$("#thumbs-up").click(function (e){
+    e.preventDefault();
+   var message='<img alt="????" class="emojioneemoji" src="files/images/thumbs-up.png">';
+    socket.emit('sendMessage',{
+        sender:sender,
+        receiver:receiver,
+        message:message,
+    });
+});
+
+//upload file as message
+
+/*$("#plus-icon").click(function (e){
+    e.preventDefault();
+    $("#plus-icon-file").click();
+});
+$("#plus-icon-file").change(function (){
+    plus-icon-form.submit();
+});
+uploader.on('start', function(fileInfo) {
+    console.log('Start uploading', fileInfo);
+});
+uploader.on('stream', function(fileInfo) {
+    console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
+});
+uploader.on('complete', function(fileInfo) {
+    console.log('Upload Complete', fileInfo);
+});
+uploader.on('error', function(err) {
+    console.log('Error!', err);
+});
+uploader.on('abort', function(fileInfo) {
+    console.log('Aborted: ', fileInfo);
+});
+uploadform.onsubmit = function(ev) {
+    ev.preventDefault();
+    var fileEl = document.getElementById('plus-icon-file');
+    var uploadIds = uploader.upload(fileEl, {
+        data: {
+
+        }
+    });
+};*/
+//show message to server
+socket.on('showmemessage',message => {
+    outputMessage({
+        text:message.text,
+        time:message.time,
+        class:'user-sent-message',
+        username:message.username,
+        status:message.status,
+        avatar:message.avatar,
+
+    });
     chatMessages.scrollTop=chatMessages.scrollHeight;
 });
 
@@ -54,7 +129,6 @@ socket.on('message',message => {
         }
         outputUsers(message);
     }
-
     //Scroll down
     chatMessages.scrollTop=chatMessages.scrollHeight;
 });
@@ -65,8 +139,8 @@ function outputMessage(message){
     const div=document.createElement('div');
         div.classList.add(message.class);
         div.innerHTML=`<div class="avatar-image chat-details">
-                       <img src="files/images/avatar.jpg" alt="">
-                       <span><i class="fas fa-circle"></i></span>
+                       <img src="${message.avatar}" alt="">
+                       <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
                        </div>
                        <div class="message-sent">
                        <p>${message.text}</p>
@@ -81,25 +155,22 @@ function outputRoomName(room){
 //Add Users to Dom
 function  outputUsers(message){
 
-    userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}');"><div class="avatar-image" >
-<img src="files/images/avatar.jpg" alt="">
-<span><i class="fas fa-circle"></i></span>
+        userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}');"><div class="avatar-image" >
+<img src="${message.avatar}" alt="">
+<span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
 <div class="user-chat">
 <h5>${message.username}</h5><span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
-
 `;
     //userList.appendChild(div);
 }
 
 function selectUser(username){
-    console.info(username);
     document.getElementById('room-name').innerText=username;
     receiver=username;
     $(".show-chat-area").removeClass('d-none');
     $(".no-message-found").addClass('d-none');
     document.querySelector('.chat-messages').innerHTML='';
-
     //call an ajax
     $.ajax({
         url: "http://localhost:3000/get_messages",
@@ -110,23 +181,43 @@ function selectUser(username){
         },
         success: function(result){
             //console.log(result);
-
-
             var messages=JSON.parse(result);
             for(var a=0;a<messages.length;a++){
                 var messageclass='user-receive-message';
+                var status=messages[a].status;
+                var avatar=messages[a].receiver_avatar;
+                var username=messages[a].receiver_username;
                 if(messages[a].sender==sender){
                     messageclass='user-sent-message';
+                     status='online';
+                    avatar=messages[a].sender_avatar;
+                    username=messages[a].sender_username;
                 }
                 outputMessage({
                     class:messageclass,
                     text:messages[a].text,
-                    time:messages[a].message_time
+                    time:messages[a].message_time,
+                    username:username,
+                    status:status,
+                    avatar:avatar,
                 });
                 chatMessages.scrollTop=chatMessages.scrollHeight;
             }
         }});
-    getrecentMessages(sender);
+
+        if( $(".user_"+username).find('.fa-circle').hasClass('online')){
+            $("#room_status").text('online');
+            $("#status_circle").addClass('online');
+            $("#status_circle").addClass('status_circle_'+username);
+        }else{
+            $("#room_status").text('offline');
+            $("#status_circle").removeClass('online');
+            $("#status_circle").removeClass('status_circle_'+username);
+        }
+        var avatar=$(".user_"+username).find('.avatar-image').find('img').attr('src');
+        $("#room_avatar").attr("src",avatar);
+
+
 }
 function getrecentMessages(username){
     //call an ajax
@@ -137,19 +228,19 @@ function getrecentMessages(username){
             username:username,
         },
         success: function(result){
-            console.log(result);
+           // console.log(result);
             userList.innerHTML='';
-
             var messages=JSON.parse(result);
             for(var a=0;a<messages.length;a++){
                 outputUsers({
                     text:messages[a].text,
                     username:messages[a].username,
-                    time:messages[a].time
+                    time:messages[a].time,
+                    status:messages[a].status,
+                    avatar:messages[a].avatar
                 });
             }
         }});
-
 }
 function formatAMPM(date) {
     var hours = date.getHours();
@@ -169,30 +260,35 @@ function showUserList(){
             username:username
         },
         success: function(result){
-            console.log(result);
+            //console.log(result);
             userList.innerHTML='';
+            console.info(result);
             var userlist=JSON.parse(result);
             for(var a=0;a<userlist.length;a++){
                 outputUsers({
                     text:'',
                     username:userlist[a].username,
-                    time:''
+                    time:'',
+                    status:userlist[a].status,
+                    avatar:messages[a].avatar
                 });
             }
         }});
+    $(".show-chat-area").addClass('d-none');
+    $(".no-message-found").removeClass('d-none');
+    chatMessages.innerHTML='';
     return ;
-
 }
 
 function onlineUsers(username){
-    console.info(username);
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').addClass('online');
+        $(".status_circle_"+username).addClass('online');
     }
 }
-function onfflineUsers(username){
-    console.info(username);
+function offlineUsers(username){
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').removeClass('online');
+        $(".status_circle_"+username).removeClass('online');
     }
 }

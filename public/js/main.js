@@ -58,7 +58,7 @@ $("#thumbs-up").click(function (e){
 
 //upload file as message
 
-$("#plus-icon").click(function (e){
+$(".upload-file-icon").click(function (e){
     e.preventDefault();
     $("#plus-icon-file").click();
 });
@@ -74,7 +74,19 @@ uploader.on('stream', function(fileInfo) {
 uploader.on('complete', function(fileInfo) {
     console.log('Upload Complete', fileInfo);
     if(fileInfo){
-        var message='<a href="'+fileInfo.uploadDir+'" class="emojioneemoji"  target="_blank" download><img src="'+fileInfo.uploadDir+'">'+fileInfo.name+'</a>';
+        var mime_images=['image/png', 'image/jpg','image/jpeg','image/gif'];
+        var mime_audio=['audio/mpeg', 'audio/mp3'];
+        var mime_videos=['video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'];
+        if(mime_images.includes(fileInfo.mime)){
+            var message='<img class="upload_image" src="files/uploads/'+fileInfo.name+'">';
+        }else if(mime_videos.includes(fileInfo.mime)){
+            var message='<video ><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></video>';
+        }
+        else if(mime_audio.includes(fileInfo.mime)){
+            var message='<audio controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></audio>';
+        }else{
+            var message='<img src="files/images/file.svg" class="upload_file_icon"> <a href="files/uploads/'+fileInfo.name+'" class="upload_file"   target="_blank" download>'+fileInfo.name+'</a>';
+        }
         socket.emit('sendMessage',{
             sender:sender,
             receiver:receiver,
@@ -330,3 +342,16 @@ function offlineUsers(username){
         $(".status_circle_"+username).removeClass('online');
     }
 }
+
+$("body").on('click', '.upload_image', function() {
+
+    var src=$(this).attr("src");
+    console.info(src);
+    $("#popup_image").attr("src", src);
+    $("#ImagePopModal").removeClass('d-none');
+    $("#ImagePopModalLink").attr("href", src);
+});
+$("body").on('click', '.closeimage', function() {
+    $("#ImagePopModal").addClass('d-none');
+});
+

@@ -193,9 +193,9 @@ io.on('connection',socket => {
 
     //start uploading file to server
     var uploader = new SocketIOFile(socket, {
-        uploadDir: 'files/uploads',							// simple directory
-        accepts: ['image/png', 'image/jpg','image/jpeg','audio/mpeg', 'audio/mp3'],		// chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
-        maxFileSize: 4194304, 						// 4 MB. default is undefined(no limit)
+        uploadDir: 'public/files/uploads',							// simple directory
+        //accepts: ['image/png', 'image/jpg','image/jpeg','image/gif','audio/mpeg', 'audio/mp3','video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'],		// chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
+        maxFileSize: 25194304, 						// 25 MB. default is undefined(no limit)
         chunkSize: 10240,							// default is 10240(1KB)
         transmissionDelay: 0,						// delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
         overwrite: true 							// overwrite file if exists, default is true.

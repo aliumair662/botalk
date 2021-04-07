@@ -97,15 +97,15 @@
                 <div class="col-12" >
                     <div class="type-message-box show-chat-area d-none">
                         <form id="plus-icon-form">
-                            <input type="file"  id="plus-icon-file" multiple  style="display: none;"/>
+                            <input type="file"  id="plus-icon-file" multiple  style="display: none;" />
                         </form>
-                        <a href="" class="plus-icon" id="plus-icon">
+                        <a href="" class="plus-icon upload-file-icon" >
                             <i class="fas fa-plus-circle"></i>
                         </a>
                         <a href="">
                             <i class="fas fa-camera"></i>
                         </a>
-                        <a href="">
+                        <a href="" class="upload-file-icon">
                             <i class="fas fa-image"></i>
                         </a>
                         <a href="">
@@ -115,7 +115,7 @@
                             <form action="" id="chat-form" enctype="multipart/form-data">
                                 <div class="position-relative">
                                     <div class="input-emoji-msg">
-                                        <a href="">
+                                        <a href="" >
                                             <i class="far fa-smile"></i>
                                         </a>
                                     </div>
@@ -168,8 +168,15 @@
     </div>
 </div>
 <!-- Desktop View Messenger End -->
-
-
+<!-- Start Modal -->
+<!-- The Image Modal -->
+<div id="ImagePopModal" class="modalimage d-none">
+    <div class="image-action">
+        <a href="#" download id="ImagePopModalLink"><i class="fal fa-arrow-to-bottom"></i></a>
+        <span class="closeimage"><i class="fal fa-times"></i></span>
+    </div>
+    <img class="modal-content" id="popup_image">
+</div>
 
 <script>
     function showOrHide(zap) {

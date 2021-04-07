@@ -9,10 +9,13 @@ const formateMessage =require ('./utils/messages');
 const app = express();
 const server =http.createServer(app);
 const io = socketio(server);
+
+
 const users = [];
 const usersbysocket = [];
 //Create body parser instance
 var bodyParser = require("body-parser");
+var SocketIOFileUpload = require('socketio-file-upload');
 //enable url encoded
 app.use(bodyParser.urlencoded());
 //Create instance of mysql
@@ -42,6 +45,10 @@ app.post("/get_messages",function (request,result){
     connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,user){
         connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +user[0].id+ "') OR (from_id= '" +user[0].id+ "' and to_id='" +users[request.body.sender].id+ "')" ,function(error,messages){
             //json response
+            var user_live=false;
+            if(users[request.body.receiver]){
+                user_live=true;
+            }
             var list=[];
             if(messages){
                 for(var a=0;a<messages.length;a++){
@@ -51,10 +58,11 @@ app.post("/get_messages",function (request,result){
                     message.receiver_username=user[0].username;
                     message.sender_avatar=users[request.body.sender].avatar;
                     message.sender_username=users[request.body.sender].username;
+                    message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
                     list[a]=message;
                 }
             }
-            result.end(JSON.stringify(messages));
+            result.end(JSON.stringify(list));
 
             });
     });
@@ -111,23 +119,25 @@ io.on('connection',socket => {
     socket.on('userConnected',(username) => {
         console.log(`userConnected`+username);
         connection.query("SELECT  * FROM   users WHERE username='" +username+ "'" ,function(error,user){
-            users[username]={
-                socketid:socket.id,
-                id:user[0].id,
-                username:user[0].username,
-                email:user[0].email,
-                avatar:user[0].avatar,
-            };
-            usersbysocket[socket.id]={
-                socketid:socket.id,
-                id:user[0].id,
-                username:user[0].username,
-                email:user[0].email,
-                avatar:user[0].avatar,
-            };
-            //io.emit('userConnected',users[username]);
-            io.to(socket.id).emit('userConnected',users[username]);
+           if(user){
+               users[username]={
+                   socketid:socket.id,
+                   id:user[0].id,
+                   username:user[0].username,
+                   email:user[0].email,
+                   avatar:user[0].avatar,
+               };
+               usersbysocket[socket.id]={
+                   socketid:socket.id,
+                   id:user[0].id,
+                   username:user[0].username,
+                   email:user[0].email,
+                   avatar:user[0].avatar,
+               };
+               //io.emit('userConnected',users[username]);
+               io.to(socket.id).emit('userConnected',users[username]);
 
+           }
         });
         //users[username]=socket.id;
 
@@ -183,12 +193,8 @@ io.on('connection',socket => {
 
     //start uploading file to server
     var uploader = new SocketIOFile(socket, {
-        // uploadDir: {			// multiple directories
-        // 	music: 'data/music',
-        // 	document: 'data/document'
-        // },
-        uploadDir: 'data',							// simple directory
-        accepts: ['image/png', 'image/jpg'],		// chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
+        uploadDir: 'files/uploads',							// simple directory
+        accepts: ['image/png', 'image/jpg','image/jpeg','audio/mpeg', 'audio/mp3'],		// chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
         maxFileSize: 4194304, 						// 4 MB. default is undefined(no limit)
         chunkSize: 10240,							// default is 10240(1KB)
         transmissionDelay: 0,						// delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
@@ -211,14 +217,67 @@ io.on('connection',socket => {
     uploader.on('abort', (fileInfo) => {
         console.log('Aborted: ', fileInfo);
     });
+
+    /*from server side we will emit 'display' event once the user starts typing
+     so that on the client side we can capture this event and display
+     '<data.user> is typing...' */
+    socket.on('typing', (data)=>{
+        if(users[data.receiver]){
+            var socketId=users[data.receiver].socketid;
+            if(socketId){
+                io.to(socketId).emit('display', data);
+            }
+        }
+
+    })
 });
 //user leaves chat
 function  userLeave(id){
 const user=usersbysocket[id];
+    if(user){
+        connection.query("update users set last_seen='" +new Date()+ "' where id='" +user.id+ "' " ,function(error,result){
+        });
+    }
+
    return user;
 
 }
+///Convert Last seen
+function timeDifference(previous) {
+    var current=new Date();
+    var previous=new Date(previous);
+    var msPerMinute = 60 * 1000;
+    var msPerHour = msPerMinute * 60;
+    var msPerDay = msPerHour * 24;
+    var msPerMonth = msPerDay * 30;
+    var msPerYear = msPerDay * 365;
 
+    var elapsed = current - previous;
+
+    if (elapsed < msPerMinute) {
+        return 'last seen : ' + Math.round(elapsed/1000) + ' seconds ago';
+    }
+
+    else if (elapsed < msPerHour) {
+        return 'last seen : ' + Math.round(elapsed/msPerMinute) + ' minutes ago';
+    }
+
+    else if (elapsed < msPerDay ) {
+        return 'last seen : ' + Math.round(elapsed/msPerHour ) + ' hours ago';
+    }
+
+    else if (elapsed < msPerMonth) {
+        return 'last seen : ' + Math.round(elapsed/msPerDay) + ' days ago';
+    }
+
+    else if (elapsed < msPerYear) {
+        return 'last seen : ' + Math.round(elapsed/msPerMonth) + ' months ago';
+    }
+
+    else {
+        return 'last seen : ' + Math.round(elapsed/msPerYear ) + ' years ago';
+    }
+}
 
 
 const PORT = 3000 || process.env.PORT;

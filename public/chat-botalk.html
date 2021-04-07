@@ -63,6 +63,8 @@
                             <div class="user-chat">
                                 <h5 id="room-name"></h5>
                                 <span id="room_status"></span>
+                                <span id="last_seen"></span>
+
                             </div>
                             <div class="time-message text-right">
                                 <a href="">
@@ -213,7 +215,9 @@
 <script src="https://use.fontawesome.com/826a7e3dce.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/socket.io-client/socket.io-file-client.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>-->
+
+<script src="https://cdn.jsdelivr.net/npm/socket.io-file-client@2.0.2/socket.io-file-client.js"></script>
 <script src="js/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js" integrity="sha512-hkvXFLlESjeYENO4CNi69z3A1puvONQV5Uh+G4TUDayZxSLyic5Kba9hhuiNLbHqdnKNMk2PxXKm0v7KDnWkYA==" crossorigin="anonymous"></script>
 
@@ -260,67 +264,6 @@
 
     });
 </script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        var el =$("#msg").emojioneArea({
-            pickerPosition: "top",
-            filtersPosition: "bottom",
-            tonesStyle: "checkbox",
-            events: {
-                keypress: function (editor, event) {
-                    if(event.which == 13){
-                        event.preventDefault();
-                        $('#chat-form').submit();
-                    }
-                }
-            }
 
-        });
-
-        /*var el = $("#mytext").emojioneArea({
-            pickerPosition: "bottom",
-           // hideSource: true,
-            saveEmojisAs:"unicode",
-            events: {
-                keypress: function (editor, event) {
-                    event.preventDefault();
-                    var keycode = (event.keyCode ? event.keyCode : event.which);
-                    console.log(keycode);
-                    if(keycode == '13'){
-
-                        console.log('event:enter');
-                       $("#chat-form").submit();
-                    }
-                },
-                click: function (editor, event) {
-                    console.log('event:click');
-                }
-            },
-
-
-
-
-        });*/
-       /* el[0].emojioneArea.on("emojibtn.click",function(btn) {
-
-            $("#msg").val(btn.html());
-        });*/
-
-        /*$('body').on('keypress', '.emojionearea', function(event) {
-
-            console.log('emojionearea-editor:kepress');
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            console.log(keycode);
-            if(keycode == '13'){
-                console.log('event:enter');
-                $("#chat-form").submit();
-            }
-        });*/
-        $("#msg").keypress(function(){
-                console.info("tyouing");
-        });
-
-    });
-</script>
 </body>
 </html>

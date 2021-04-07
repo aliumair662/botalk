@@ -22,27 +22,13 @@ socket.on('online',function (username){
 socket.on('offline',function (username){
     offlineUsers(username);
 });
-//var uploader = new SocketIOFileClient(socket);
+var uploader = new SocketIOFileClient(socket);
+
 var sender=username;
 var receiver='';
+var typing=false;
+var timeout=undefined;
 //Submit Message
-/*chatForm.submit(function(e){
-    e.preventDefault();
-    const message = e.target.elements.msg.value;
-    //Emit message to server
-    console.log(message);
-    socket.emit('sendMessage',{
-        sender:sender,
-        receiver:receiver,
-        message:message,
-    });
-    //Clear input
-    e.target.elements.msg.value='';
-    e.target.elements.msg.focus();
-});*/
-
-
-
 $( "#chat-form" ).submit(function( e ) {
     e.preventDefault();
     const message = $(".emojionearea-editor").html();
@@ -72,12 +58,12 @@ $("#thumbs-up").click(function (e){
 
 //upload file as message
 
-/*$("#plus-icon").click(function (e){
+$("#plus-icon").click(function (e){
     e.preventDefault();
     $("#plus-icon-file").click();
 });
 $("#plus-icon-file").change(function (){
-    plus-icon-form.submit();
+    $("#plus-icon-form").submit();
 });
 uploader.on('start', function(fileInfo) {
     console.log('Start uploading', fileInfo);
@@ -87,6 +73,15 @@ uploader.on('stream', function(fileInfo) {
 });
 uploader.on('complete', function(fileInfo) {
     console.log('Upload Complete', fileInfo);
+    if(fileInfo){
+        var message='<a href="'+fileInfo.uploadDir+'" class="emojioneemoji"  target="_blank" download><img src="'+fileInfo.uploadDir+'">'+fileInfo.name+'</a>';
+        socket.emit('sendMessage',{
+            sender:sender,
+            receiver:receiver,
+            message:message,
+        });
+
+    }
 });
 uploader.on('error', function(err) {
     console.log('Error!', err);
@@ -102,7 +97,7 @@ uploadform.onsubmit = function(ev) {
 
         }
     });
-};*/
+};
 //show message to server
 socket.on('showmemessage',message => {
     outputMessage({
@@ -134,6 +129,47 @@ socket.on('message',message => {
 });
 
 
+//start typing function
+$(document).ready(function() {
+    var el =$("#msg").emojioneArea({
+        pickerPosition: "top",
+        filtersPosition: "bottom",
+        tonesStyle: "checkbox",
+        events: {
+            keypress: function (editor, event) {
+                if(event.which !== 13){
+                    socket.emit('typing', {sender:sender,receiver:receiver, typing:true});
+                    setTimeout(function(){
+                        socket.emit('typing', {sender:sender,receiver:receiver, typing:false});
+                    }, 3000);
+                }else{
+                    socket.emit('typing', {sender:sender,receiver:receiver, typing:false});
+                    event.preventDefault();
+                    $('#chat-form').submit();
+                }
+            }
+        }
+    });
+//Reverse from server code explained later
+    socket.on('display', (data)=>{
+        console.info(data.typing);
+        if(data.typing==true){
+            //$('#typing_status').text(`${data.sender} is typing...`);
+            $('#room_status').text(`typing...`);
+            $(".typing_"+data.sender).text(`typing...`);
+        }else{
+            $('#room_status').text("online");
+            $(".typing_"+data.sender).text('');
+        }
+
+    })
+
+});
+
+
+
+
+//Start Function //
 //Out put message to Dom
 function outputMessage(message){
     const div=document.createElement('div');
@@ -160,7 +196,8 @@ function  outputUsers(message){
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
 <div class="user-chat">
-<h5>${message.username}</h5><span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
+<h5>${message.username} <span class="typing_${message.username}"></span></h5>
+<span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
     //userList.appendChild(div);
 }
@@ -180,8 +217,10 @@ function selectUser(username){
           receiver:receiver,
         },
         success: function(result){
-            //console.log(result);
             var messages=JSON.parse(result);
+            var last_seen=messages[0].last_seen;
+            console.info(last_seen);
+                $("#last_seen").text(last_seen);
             for(var a=0;a<messages.length;a++){
                 var messageclass='user-receive-message';
                 var status=messages[a].status;
@@ -216,7 +255,6 @@ function selectUser(username){
         }
         var avatar=$(".user_"+username).find('.avatar-image').find('img').attr('src');
         $("#room_avatar").attr("src",avatar);
-
 
 }
 function getrecentMessages(username){

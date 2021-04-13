@@ -99,7 +99,7 @@ app.post("/get_user_list",function (request,result){
             for(var a=0;a<userlist.length;a++){
                 var user=userlist[a];
                 user.avatar=domain+user.avatar;
-                console.log(user.username);
+                console.log(user);
                 user.status=(users[user.username] ? 'online' : 'offline');
                 list[a]=user;
             }

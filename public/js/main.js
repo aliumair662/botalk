@@ -224,7 +224,8 @@ function selectUser(username){
     document.querySelector('.chat-messages').innerHTML='';
     //call an ajax
     $.ajax({
-        url: "http://localhost:3000/get_messages",
+        //url: "http://localhost:3000/get_messages",
+        url: document.location.origin+"/get_messages",
         method:"POST",
         data:{
           sender:sender,
@@ -274,7 +275,7 @@ function selectUser(username){
 function getrecentMessages(username){
     //call an ajax
     $.ajax({
-        url: "http://localhost:3000/get_recent_messages",
+        url: document.location.origin+"/get_recent_messages",
         method:"POST",
         data:{
             username:username,
@@ -306,7 +307,7 @@ function formatAMPM(date) {
 }
 function showUserList(){
     $.ajax({
-        url: "http://localhost:3000/get_user_list",
+        url: document.location.origin+"/get_user_list",
         method:"POST",
         data:{
             username:username

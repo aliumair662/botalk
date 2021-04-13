@@ -9,6 +9,7 @@ const uploadform = document.getElementById('plus-icon-form');
 const { username } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
+var domain='https://vyzmo.com/';
 const socket = io();
 if(username){
 //Join chatroom

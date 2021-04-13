@@ -22,9 +22,9 @@ app.use(bodyParser.urlencoded());
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    'user':"develope_botafoga",
-    'password':"develope_botafoga",
-    'database':"develope_botafoga",
+    'user':"root",
+    'password':"",
+    'database':"tbl_chat",
 
 });
 //connect
@@ -43,7 +43,7 @@ app.post("/get_messages",function (request,result){
        //get all messages from database
 
     connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,user){
-        connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +user[0].id+ "') OR (from_id= '" +user[0].id+ "' and to_id='" +users[request.body.sender].id+ "')" ,function(error,messages){
+        connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +user[0].id+ "') OR (from_id= '" +user[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
             //json response
             var user_live=false;
             if(users[request.body.receiver]){
@@ -154,7 +154,7 @@ io.on('connection',socket => {
                 var socketId=users[data.receiver].socketid;
                 if(socketId){
                     formatedMessage.status='online';
-                    formatedMessage.avatar=domain+users[data.sender].avatar;
+                    formatedMessage.avatar=users[data.sender].avatar;
                     formatedMessage.username=users[data.sender].username;
                 }
                 io.to(socketId).emit('message',formatedMessage);
@@ -162,7 +162,7 @@ io.on('connection',socket => {
             // show message on to sender  while sending
             if(users[data.sender]){
                     formatedMessage.status='online';
-                    formatedMessage.avatar=domain+users[data.sender].avatar;
+                    formatedMessage.avatar=users[data.sender].avatar;
                     formatedMessage.username=users[data.sender].username;
                 io.to(users[data.sender].socketid).emit('showmemessage',formatedMessage);
             }

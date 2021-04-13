@@ -24,7 +24,7 @@ var connection =mysql.createConnection({
     'host':"localhost",
     'user':"develope_botafoga",
     'password':"develope_botafoga",
-    'database':"develope_botafoga",
+    'database':"develope_tbl_chat",
 
 });
 //connect

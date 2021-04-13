@@ -22,9 +22,9 @@ app.use(bodyParser.urlencoded());
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    'user':"root",
-    'password':"",
-    'database':"tbl_chat",
+    'user':"develope_botafoga",
+    'password':"develope_botafoga",
+    'database':"develope_botafoga",
 
 });
 //connect

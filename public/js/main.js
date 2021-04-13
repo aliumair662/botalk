@@ -235,7 +235,7 @@ function selectUser(username){
         success: function(result){
             var messages=JSON.parse(result);
             var last_seen=messages[0].last_seen;
-            console.info(last_seen);
+            //console.info(last_seen);
                 $("#last_seen").text(last_seen);
             for(var a=0;a<messages.length;a++){
                 var messageclass='user-receive-message';
@@ -338,12 +338,22 @@ function onlineUsers(username){
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').addClass('online');
         $(".status_circle_"+username).addClass('online');
+        if($("#room-name").text()==username){
+            $("#room_status").text('Online');
+            $("#last_seen").text('');
+            $("#status_circle").addClass('online');
+        }
     }
 }
 function offlineUsers(username){
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').removeClass('online');
         $(".status_circle_"+username).removeClass('online');
+    }
+    if($("#room-name").text()==username){
+        $("#room_status").text('offline');
+        $("#last_seen").text('');
+        $("#status_circle").removeClass('online');
     }
 }
 

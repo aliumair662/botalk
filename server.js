@@ -56,7 +56,7 @@ app.post("/get_messages",function (request,result){
                     message.status=(users[message.sender] ? 'online' : 'offline');
                     message.receiver_avatar=domain+user[0].avatar;
                     message.receiver_username=user[0].username;
-                    message.sender_avatar=domain+users[request.body.sender].avatar;
+                    message.sender_avatar=users[request.body.sender].avatar;
                     message.sender_username=users[request.body.sender].username;
                     message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
                     list[a]=message;
@@ -99,7 +99,7 @@ app.post("/get_user_list",function (request,result){
             for(var a=0;a<userlist.length;a++){
                 var user=userlist[a];
                 user.avatar=domain+user.avatar;
-                console.log(user);
+                //console.log(user);
                 user.status=(users[user.username] ? 'online' : 'offline');
                 list[a]=user;
             }

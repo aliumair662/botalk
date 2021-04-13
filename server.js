@@ -9,7 +9,7 @@ const formateMessage =require ('./utils/messages');
 const app = express();
 const server =http.createServer(app);
 const io = socketio(server);
-var domain='http://vyzmo.com/';
+var domain='https://vyzmo.com/';
 
 const users = [];
 const usersbysocket = [];

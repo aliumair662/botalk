@@ -4,6 +4,8 @@ const roomName =document.getElementById('room-name');
 const userList =document.getElementById('users');
 const uploadform = document.getElementById('plus-icon-form');
 //Get username and room from u
+//const getUserMedia = require('get-user-media-promise');
+//const MicrophoneStream = require('microphone-stream');
 const { username } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });

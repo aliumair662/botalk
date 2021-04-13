@@ -9,7 +9,7 @@ const formateMessage =require ('./utils/messages');
 const app = express();
 const server =http.createServer(app);
 const io = socketio(server);
-
+var domain='http://vyzmo.com/';
 
 const users = [];
 const usersbysocket = [];
@@ -54,9 +54,9 @@ app.post("/get_messages",function (request,result){
                 for(var a=0;a<messages.length;a++){
                     var message=messages[a];
                     message.status=(users[message.sender] ? 'online' : 'offline');
-                    message.receiver_avatar=user[0].avatar;
+                    message.receiver_avatar=domain+user[0].avatar;
                     message.receiver_username=user[0].username;
-                    message.sender_avatar=users[request.body.sender].avatar;
+                    message.sender_avatar=domain+users[request.body.sender].avatar;
                     message.sender_username=users[request.body.sender].username;
                     message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
                     list[a]=message;
@@ -79,6 +79,7 @@ app.post("/get_recent_messages",function (request,result){
         if(recentmessages){
             for(var a=0;a<recentmessages.length;a++){
                 var message=recentmessages[a];
+                message.avatar=domain+message.avatar;
                 message.status=(users[message.username] ? 'online' : 'offline');
                 list[a]=message;
             }
@@ -91,7 +92,7 @@ app.post("/get_recent_messages",function (request,result){
 //Get all user list
 app.post("/get_user_list",function (request,result){
     //get all messages from database
-    connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "' " ,function(error,userlist){
+    connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' "  ,function(error,userlist){
         //json response
         var list=[];
         if(userlist){
@@ -125,14 +126,14 @@ io.on('connection',socket => {
                    id:user[0].id,
                    username:user[0].username,
                    email:user[0].email,
-                   avatar:user[0].avatar,
+                   avatar:domain+user[0].avatar,
                };
                usersbysocket[socket.id]={
                    socketid:socket.id,
                    id:user[0].id,
                    username:user[0].username,
                    email:user[0].email,
-                   avatar:user[0].avatar,
+                   avatar:domain+user[0].avatar,
                };
                //io.emit('userConnected',users[username]);
                io.to(socket.id).emit('userConnected',users[username]);
@@ -152,7 +153,7 @@ io.on('connection',socket => {
                 var socketId=users[data.receiver].socketid;
                 if(socketId){
                     formatedMessage.status='online';
-                    formatedMessage.avatar=users[data.sender].avatar;
+                    formatedMessage.avatar=domain+users[data.sender].avatar;
                     formatedMessage.username=users[data.sender].username;
                 }
                 io.to(socketId).emit('message',formatedMessage);
@@ -160,7 +161,7 @@ io.on('connection',socket => {
             // show message on to sender  while sending
             if(users[data.sender]){
                     formatedMessage.status='online';
-                    formatedMessage.avatar=users[data.sender].avatar;
+                    formatedMessage.avatar=domain+users[data.sender].avatar;
                     formatedMessage.username=users[data.sender].username;
                 io.to(users[data.sender].socketid).emit('showmemessage',formatedMessage);
             }

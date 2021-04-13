@@ -75,6 +75,7 @@ app.post("/get_recent_messages",function (request,result){
     //get all messages from database
     connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentmessages){
         //json response
+        console.log(recentmessages[0]);
         var list=[];
         if(recentmessages){
             for(var a=0;a<recentmessages.length;a++){

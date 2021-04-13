@@ -323,7 +323,7 @@ function showUserList(){
                     username:userlist[a].username,
                     time:'',
                     status:userlist[a].status,
-                    avatar:messages[a].avatar
+                    avatar:userlist[a].avatar
                 });
             }
         }});

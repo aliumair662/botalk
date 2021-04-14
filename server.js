@@ -11,7 +11,7 @@ const server =http.createServer(app);
 const io = socketio(server);
 var fs = require("fs");
 var domain='https://vyzmo.com/';
-var ENV='local';
+var ENV='live';
 
 const users = [];
 const usersbysocket = [];

@@ -9,7 +9,9 @@ const formateMessage =require ('./utils/messages');
 const app = express();
 const server =http.createServer(app);
 const io = socketio(server);
+var fs = require("fs");
 var domain='https://vyzmo.com/';
+var ENV='local';
 
 const users = [];
 const usersbysocket = [];
@@ -22,9 +24,9 @@ app.use(bodyParser.urlencoded());
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    'user':"develope_botafoga",
-    'password':"develope_botafoga",
-    'database':"develope_tbl_chat",
+    'user':(ENV = 'local') ? "root" : "develope_botafoga",
+    'password':(ENV = 'local') ? "" : "develope_botafoga",
+    'database':(ENV = 'local') ? "tbl_chat" : "develope_tbl_chat",
 
 });
 //connect
@@ -111,7 +113,14 @@ app.post("/get_user_list",function (request,result){
 
 });
 
+//upload voice clip to sever //
+app.post("/upload-voice-clip",function (request,result){
+    var base64Data = request.body.file.replace(/^data:audio\/webm;codecs=opus;base64,/, "");
+    fs.writeFile("public/files/uploads/"+request.body.name, base64Data, 'base64', function(err) {
+        result.end(JSON.stringify(request.body.name));
+    });
 
+});
 //Set static folder
 app.use(express.static(path.join(__dirname,'public')));
 const botName='Botalk Bot';
@@ -120,7 +129,7 @@ const botName='Botalk Bot';
 //Run when client connect
 io.on('connection',socket => {
     socket.on('userConnected',(username) => {
-        console.log(`userConnected`+username);
+        //console.log(`userConnected`+username);
         connection.query("SELECT  * FROM   users WHERE username='" +username+ "'" ,function(error,user){
            if(user){
                users[username]={
@@ -204,21 +213,21 @@ io.on('connection',socket => {
         overwrite: true 							// overwrite file if exists, default is true.
     });
     uploader.on('start', (fileInfo) => {
-        console.log('Start uploading');
-        console.log(fileInfo);
+       // console.log('Start uploading');
+        //console.log(fileInfo);
     });
     uploader.on('stream', (fileInfo) => {
-        console.log(`${fileInfo.wrote} / ${fileInfo.size} byte(s)`);
+        //console.log(`${fileInfo.wrote} / ${fileInfo.size} byte(s)`);
     });
     uploader.on('complete', (fileInfo) => {
-        console.log('Upload Complete.');
-        console.log(fileInfo);
+        //console.log('Upload Complete.');
+        //console.log(fileInfo);
     });
     uploader.on('error', (err) => {
-        console.log('Error!', err);
+        //console.log('Error!', err);
     });
     uploader.on('abort', (fileInfo) => {
-        console.log('Aborted: ', fileInfo);
+        //console.log('Aborted: ', fileInfo);
     });
 
     /*from server side we will emit 'display' event once the user starts typing

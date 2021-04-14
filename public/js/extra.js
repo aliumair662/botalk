@@ -47,39 +47,13 @@ function replaceAudio(src) {
 */
 
 function stopRecordingCallback() {
-
-    var blob=URL.createObjectURL(recorder.getBlob());
-
-   // $("#plus-icon-file").val(blob);
-   /* var fileEl = document.getElementById('plus-icon-file');
-    var uploadIds = uploader.upload(fileEl, {
-        data: {
-
-        }
-    });*/
     var blob = recorder.getBlob();
-    var file = new File([blob], getFileName('mp3'), {
-        type: 'audio/mp3'
+    recorder.getDataURL(function(dataURI) {
+        uploadVoiceClip(dataURI);
     });
-
-    recorder.getDataURL(function(dataURL) {
-
-        var fd = new FormData();
-        fd.append('fname', 'test.wav');
-        fd.append('data', dataURL);
-        var uploadIds = uploader.upload(fd, {
-            data: {
-
-            }
-        });
-    });
-    console.info(uploadIds);
-    /*var uploadIds = uploader.upload(fileEl, {
-        data: {
-
-        }
-    });*/
     btnStartRecording.disabled = false;
+    $("#btn-start-recording").removeClass('d-none');
+    $("#btn-stop-recording").addClass('d-none');
 //Start uploading voice clip
     /*replaceAudio(URL.createObjectURL(recorder.getBlob()));
     setTimeout(function() {
@@ -100,6 +74,7 @@ function stopRecordingCallback() {
     if(isSafari) {
         click(btnReleaseMicrophone);
     }*/
+
 }
 
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
@@ -151,7 +126,8 @@ btnStartRecording.onclick = function(e) {
         type: 'audio',
         numberOfAudioChannels: isEdge ? 1 : 2,
         checkForInactiveTracks: true,
-        bufferSize: 16384
+        bufferSize: 16384,
+        duration:1 * 1000 * 60
     };
 
     if(isSafari || isEdge) {
@@ -176,6 +152,9 @@ btnStartRecording.onclick = function(e) {
     recorder = RecordRTC(microphone, options);
 
     recorder.startRecording();
+    $("#btn-start-recording").addClass('d-none');
+    $("#btn-stop-recording").removeClass('d-none');
+
 
     btnStopRecording.disabled = false;
     //btnDownloadRecording.disabled = true;
@@ -243,7 +222,7 @@ function getFileName(fileExtension) {
     var year = d.getFullYear();
     var month = d.getMonth();
     var date = d.getDate();
-    return 'RecordRTC-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
+    return sender+'-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
 }
 
 /*
@@ -276,3 +255,38 @@ function SaveToDisk(fileURL, fileName) {
         _window.close();
     }
 }*/
+
+function uploadVoiceClip(dataURI){
+    $.ajax({
+        url: document.location.origin+"/upload-voice-clip",
+        method:"POST",
+        data:{
+            file:dataURI,
+            name:getFileName('mp3')
+        },
+        success: function(result){
+            if(result){
+                var result=JSON.parse(result);
+                var message='<audio controls><source src="files/uploads/'+result+'" type="audio/mpeg"></audio>';
+                socket.emit('sendMessage',{
+                    sender:sender,
+                    receiver:receiver,
+                    message:message,
+                });
+
+            }
+            // console.log(result);
+            /*userList.innerHTML='';
+            var messages=JSON.parse(result);
+            for(var a=0;a<messages.length;a++){
+                outputUsers({
+                    text:messages[a].text,
+                    username:messages[a].username,
+                    time:messages[a].time,
+                    status:messages[a].status,
+                    avatar:messages[a].avatar
+                });
+            }*/
+        }});
+
+}

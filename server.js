@@ -24,9 +24,9 @@ app.use(bodyParser.urlencoded());
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    'user':(ENV = 'local') ? "root" : "develope_botafoga",
-    'password':(ENV = 'local') ? "" : "develope_botafoga",
-    'database':(ENV = 'local') ? "tbl_chat" : "develope_tbl_chat",
+    'user': "develope_botafoga",
+    'password':"develope_botafoga",
+    'database':"develope_tbl_chat",
 
 });
 //connect

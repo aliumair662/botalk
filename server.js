@@ -8,8 +8,18 @@ const formateMessage =require ('./utils/messages');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
 //const server =https.createServer(app);
-const io = socketio(server);
 var fs = require("fs");
+
+const options = {
+    key: fs.readFileSync('client-key.pem'),
+    cert: fs.readFileSync('client-cert.pem')
+};
+const server =https.createServer(options, function (req, res) {
+    res.writeHead(200);
+    res.end("hello world\n");
+}).listen(3000);
+const io = socketio(server);
+
 var domain='https://vyzmo.com/';
 var ENV='local';
 
@@ -301,12 +311,12 @@ function timeDifference(previous) {
 
 const PORT = 3000 || process.env.PORT;
 //server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));*/
-const options = {
+/*const options = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem')
 };
 https.createServer(options, function (req, res) {
     res.writeHead(200);
     res.end("hello world\n");
-}).listen(PORT);
+}).listen(PORT);*/
 

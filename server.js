@@ -1,5 +1,6 @@
 const path=require('path');
-const https =require('https');
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const socketio=require('socket.io');
 const SocketIOFile = require('socket.io-file');
@@ -10,14 +11,13 @@ const app = express();
 //const server =https.createServer(app);
 var fs = require("fs");
 
-const options = {
-    key: fs.readFileSync('client-key.pem'),
-    cert: fs.readFileSync('client-cert.pem')
-};
-const server =https.createServer(options, function (req, res) {
-    res.writeHead(200);
-    res.end("hello world\n");
-}).listen(3000);
+var privateKey  = fs.readFileSync('client-key.pem', 'utf8');
+var certificate = fs.readFileSync('client-cert.pem', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+httpServer.listen(8080);
+server.listen(8443);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';
@@ -311,12 +311,4 @@ function timeDifference(previous) {
 
 const PORT = 3000 || process.env.PORT;
 //server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));*/
-/*const options = {
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem')
-};
-https.createServer(options, function (req, res) {
-    res.writeHead(200);
-    res.end("hello world\n");
-}).listen(PORT);*/
 

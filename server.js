@@ -300,4 +300,13 @@ function timeDifference(previous) {
 
 
 const PORT = 3000 || process.env.PORT;
-server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));
+//server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));*/
+const options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
+server.createServer(options, function (req, res) {
+    res.writeHead(200);
+    res.end("hello world\n");
+}).listen(PORT);
+

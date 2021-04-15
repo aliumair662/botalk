@@ -27,7 +27,7 @@ const usersbysocket = [];
 var bodyParser = require("body-parser");
 var SocketIOFileUpload = require('socketio-file-upload');
 //enable url encoded
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 //Create instance of mysql
 var mysql = require("mysql");
 var connection =mysql.createConnection({

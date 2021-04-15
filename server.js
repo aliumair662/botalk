@@ -1,5 +1,6 @@
 const path=require('path');
 const https =require('https');
+const http =require('http');
 const express = require('express');
 const socketio=require('socket.io');
 const SocketIOFile = require('socket.io-file');
@@ -12,11 +13,13 @@ const options = {
     key: fs.readFileSync('client-key.pem'),
     cert: fs.readFileSync('client-cert.pem')
 };
+
+//const server =http.createServer(app);
 const server =https.createServer(options,app);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';
-var ENV='local';
+
 
 const users = [];
 const usersbysocket = [];
@@ -27,20 +30,17 @@ var SocketIOFileUpload = require('socketio-file-upload');
 app.use(bodyParser.urlencoded());
 //Create instance of mysql
 var mysql = require("mysql");
-/*var connection =mysql.createConnection({
-    'host':"localhost",
-    'user':(ENV = 'local') ? "root" : "develope_botafoga",
-    'password':(ENV = 'local') ? "" : "develope_botafoga",
-    'database':(ENV = 'local') ? "tbl_chat" : "develope_tbl_chat",
-
-});*/
 var connection =mysql.createConnection({
     'host':"localhost",
+    /*'user':"root",
+    'password':"",
+    'database':"tbl_chat",*/
     'user':"develope_botafoga",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",
 
 });
+
 //connect
 connection.connect(function (error){
     //show if any error

@@ -90,7 +90,6 @@ var btnStopRecording = document.getElementById('btn-stop-recording');
 
 btnStartRecording.onclick = function(e) {
     e.preventDefault();
-    return; false;
     this.disabled = true;
     this.style.border = '';
     this.style.fontSize = '';

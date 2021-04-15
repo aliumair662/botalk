@@ -1,5 +1,5 @@
 const path=require('path');
-const http =require('http');
+const https =require('https');
 const express = require('express');
 const socketio=require('socket.io');
 const SocketIOFile = require('socket.io-file');
@@ -7,11 +7,11 @@ const formateMessage =require ('./utils/messages');
 //const { userJoin , getCurrentUser ,userLeave,getRoomUsers } = require ('./utils/users');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
-const server =http.createServer(app);
+const server =https.createServer(app);
 const io = socketio(server);
 var fs = require("fs");
 var domain='https://vyzmo.com/';
-var ENV='live';
+var ENV='local';
 
 const users = [];
 const usersbysocket = [];
@@ -22,9 +22,16 @@ var SocketIOFileUpload = require('socketio-file-upload');
 app.use(bodyParser.urlencoded());
 //Create instance of mysql
 var mysql = require("mysql");
+/*var connection =mysql.createConnection({
+    'host':"localhost",
+    'user':(ENV = 'local') ? "root" : "develope_botafoga",
+    'password':(ENV = 'local') ? "" : "develope_botafoga",
+    'database':(ENV = 'local') ? "tbl_chat" : "develope_tbl_chat",
+
+});*/
 var connection =mysql.createConnection({
     'host':"localhost",
-    'user': "develope_botafoga",
+    'user':"develope_botafoga",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",
 

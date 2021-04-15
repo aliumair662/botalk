@@ -1,6 +1,5 @@
 const path=require('path');
-const http = require('http');
-const https = require('https');
+const https =require('https');
 const express = require('express');
 const socketio=require('socket.io');
 const SocketIOFile = require('socket.io-file');
@@ -8,16 +7,12 @@ const formateMessage =require ('./utils/messages');
 //const { userJoin , getCurrentUser ,userLeave,getRoomUsers } = require ('./utils/users');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
-//const server =https.createServer(app);
 var fs = require("fs");
-
-var privateKey  = fs.readFileSync('client-key.pem', 'utf8');
-var certificate = fs.readFileSync('client-cert.pem', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
-var httpServer = http.createServer(app);
-var httpsServer = https.createServer(credentials, app);
-httpServer.listen(8080);
-server.listen(8443);
+const options = {
+    key: fs.readFileSync('client-key.pem'),
+    cert: fs.readFileSync('client-cert.pem')
+};
+const server =https.createServer(options,app);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';
@@ -310,5 +305,5 @@ function timeDifference(previous) {
 
 
 const PORT = 3000 || process.env.PORT;
-//server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));*/
+server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));
 

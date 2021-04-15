@@ -7,7 +7,7 @@ const formateMessage =require ('./utils/messages');
 //const { userJoin , getCurrentUser ,userLeave,getRoomUsers } = require ('./utils/users');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
-const server =https.createServer(app);
+//const server =https.createServer(app);
 const io = socketio(server);
 var fs = require("fs");
 var domain='https://vyzmo.com/';
@@ -305,7 +305,7 @@ const options = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem')
 };
-server.createServer(options, function (req, res) {
+https.createServer(options, function (req, res) {
     res.writeHead(200);
     res.end("hello world\n");
 }).listen(PORT);

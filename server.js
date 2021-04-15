@@ -1,5 +1,5 @@
 const path=require('path');
-const https =require('https');
+const http =require('http');
 const express = require('express');
 const socketio=require('socket.io');
 const SocketIOFile = require('socket.io-file');
@@ -7,7 +7,7 @@ const formateMessage =require ('./utils/messages');
 //const { userJoin , getCurrentUser ,userLeave,getRoomUsers } = require ('./utils/users');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
-const server =https.createServer(app);
+const server =http.createServer(app);
 const io = socketio(server);
 var fs = require("fs");
 var domain='https://vyzmo.com/';

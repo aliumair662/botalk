@@ -49,6 +49,9 @@ function replaceAudio(src) {
 function stopRecordingCallback() {
     typeMessageBar.style.display='flex';
     voiceMessageRecordingBar.style.display='none';
+    recordingCountdown.innerHTML = '';
+    progressBarWidth=0;
+    recordingProgress.style.width=progressBarWidth+'%';
     var blob = recorder.getBlob();
     recorder.getDataURL(function(dataURI) {
         uploadVoiceClip(dataURI);
@@ -88,8 +91,12 @@ var btnStopRecording = document.getElementById('btn-stop-recording');
 var btnCancelRecording = document.getElementById('btn-cancel-recording');
 var voiceMessageRecordingBar = document.getElementById('voice-message-recording-bar');
 var typeMessageBar = document.getElementById('type-message-box');
-var maxAudioLength=1 * 1000 * 60;
+var recordingCountdown = document.getElementById('recording-countdown');
+var recordingProgress = document.getElementById('voice-recording-progress-bar');
+var maxAudioLength=2 * 1000 * 60;
 var recordingInterval=null;
+var recordingStarted;
+var progressBarWidth=0;
 //var btnReleaseMicrophone = document.querySelector('#btn-release-microphone');
 //var btnDownloadRecording = document.getElementById('btn-download-recording');
 
@@ -160,12 +167,15 @@ btnStartRecording.onclick = function(e) {
     typeMessageBar.style.display='none';
     voiceMessageRecordingBar.style.display='flex';
     btnStopRecording.disabled = false;
-    recordingInterval=setInterval(function(){startTimer()}, 1000);
+    recordingCountdown.innerHTML='';
+    recordingProgress.style.width='0%';
+    recordingStarted=new Date().getTime();
+    showCounter();
     //btnDownloadRecording.disabled = true;
 
 
 };
-
+recordingInterval
 btnStopRecording.onclick = function(e) {
     e.preventDefault();
     this.disabled = true;
@@ -176,6 +186,9 @@ btnCancelRecording.onclick = function(e) {
     recorder.clearRecordedData();
     typeMessageBar.style.display='flex';
     voiceMessageRecordingBar.style.display='none';
+    recordingCountdown.innerHTML = '';
+    progressBarWidth=0;
+    recordingProgress.style.width=progressBarWidth+'%';
 
 };
 
@@ -238,7 +251,34 @@ function getFileName(fileExtension) {
     var date = d.getDate();
     return sender+'-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
 }
+function calculateTimeDuration(secs) {
+    var hr = Math.floor(secs / 3600);
+    var min = Math.floor((secs - (hr * 3600)) / 60);
+    var sec = Math.floor(secs - (hr * 3600) - (min * 60));
 
+    if (min < 10) {
+        min = "0" + min;
+    }
+
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+
+    if(hr <= 0) {
+        return min + ':' + sec;
+    }
+
+    return hr + ':' + min + ':' + sec;
+}
+function showCounter() {
+    if(!recorder) {
+        return;
+    }
+    recordingCountdown.innerHTML = calculateTimeDuration((new Date().getTime() - recordingStarted) / 1000);
+    setTimeout(showCounter, 1000);
+    progressBarWidth++;
+    recordingProgress.style.width=progressBarWidth+'%';
+}
 /*
 function SaveToDisk(fileURL, fileName) {
     // for non-IE

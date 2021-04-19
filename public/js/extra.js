@@ -47,13 +47,13 @@ function replaceAudio(src) {
 */
 
 function stopRecordingCallback() {
+    typeMessageBar.style.display='flex';
+    voiceMessageRecordingBar.style.display='none';
     var blob = recorder.getBlob();
     recorder.getDataURL(function(dataURI) {
         uploadVoiceClip(dataURI);
     });
     btnStartRecording.disabled = false;
-    $("#btn-start-recording").removeClass('d-none');
-    $("#btn-stop-recording").addClass('d-none');
 //Start uploading voice clip
     /*replaceAudio(URL.createObjectURL(recorder.getBlob()));
     setTimeout(function() {
@@ -85,6 +85,11 @@ var microphone;
 
 var btnStartRecording = document.getElementById('btn-start-recording');
 var btnStopRecording = document.getElementById('btn-stop-recording');
+var btnCancelRecording = document.getElementById('btn-cancel-recording');
+var voiceMessageRecordingBar = document.getElementById('voice-message-recording-bar');
+var typeMessageBar = document.getElementById('type-message-box');
+var maxAudioLength=1 * 1000 * 60;
+var recordingInterval=null;
 //var btnReleaseMicrophone = document.querySelector('#btn-release-microphone');
 //var btnDownloadRecording = document.getElementById('btn-download-recording');
 
@@ -127,7 +132,7 @@ btnStartRecording.onclick = function(e) {
         numberOfAudioChannels: isEdge ? 1 : 2,
         checkForInactiveTracks: true,
         bufferSize: 16384,
-        duration:1 * 1000 * 60
+
     };
 
     if(isSafari || isEdge) {
@@ -150,19 +155,28 @@ btnStartRecording.onclick = function(e) {
     }
 
     recorder = RecordRTC(microphone, options);
-
+    recorder.setRecordingDuration(maxAudioLength,stopRecordingCallback);
     recorder.startRecording();
-    $("#btn-start-recording").addClass('d-none');
-    $("#btn-stop-recording").removeClass('d-none');
-
-
+    typeMessageBar.style.display='none';
+    voiceMessageRecordingBar.style.display='flex';
     btnStopRecording.disabled = false;
+    recordingInterval=setInterval(function(){startTimer()}, 1000);
     //btnDownloadRecording.disabled = true;
+
+
 };
 
-btnStopRecording.onclick = function() {
+btnStopRecording.onclick = function(e) {
+    e.preventDefault();
     this.disabled = true;
     recorder.stopRecording(stopRecordingCallback);
+};
+btnCancelRecording.onclick = function(e) {
+    e.preventDefault();
+    recorder.clearRecordedData();
+    typeMessageBar.style.display='flex';
+    voiceMessageRecordingBar.style.display='none';
+
 };
 
 /*btnReleaseMicrophone.onclick = function() {

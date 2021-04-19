@@ -96,7 +96,24 @@
                 </div>
 
                 <div class="col-12" >
-                    <div class="type-message-box show-chat-area d-none">
+                    <div class="row audio-message-box" id="voice-message-recording-bar" style="display: none">
+                        <div class="col-1 col-lg-1 col-md-2 text-center">
+                            <a href="#" id="btn-cancel-recording">
+                                <i class="fal fa-times"></i>
+                            </a>
+                        </div>
+                        <div class="col-10  col-lg-10 col-md-8 p-0">
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <div class="col-1  col-lg-1 col-md-2 text-center">
+                            <a href="#" id="btn-stop-recording">
+                                <img src="files/images/send-icon.png" alt="">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="type-message-box show-chat-area d-none" id="type-message-box">
                         <form id="plus-icon-form">
                             <input type="file"  id="plus-icon-file" multiple  style="display: none;" />
                         </form>
@@ -111,7 +128,7 @@
                         </a>
                         <i class="fal fa-microphone" id="btn-start-recording" ></i>
                         <!--<i class="fal fa-microphone"></i>-->
-                        <i class="fa fa-paper-plane d-none" id="btn-stop-recording"></i>
+                        <!--<i class="fa fa-paper-plane d-none" id="btn-stop-recording"></i>-->
                         <div class="message-form-width">
                             <form action="" id="chat-form" enctype="multipart/form-data">
                                 <div class="position-relative">

@@ -83,7 +83,7 @@ uploader.on('complete', function(fileInfo) {
         if(mime_images.includes(fileInfo.mime)){
             var message='<img class="upload_image" src="files/uploads/'+fileInfo.name+'">';
         }else if(mime_videos.includes(fileInfo.mime)){
-            var message='<video ><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></video>';
+            var message='<video controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></video>';
         }
         else if(mime_audio.includes(fileInfo.mime)){
             var message='<audio controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></audio>';

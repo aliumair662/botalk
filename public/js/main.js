@@ -131,6 +131,7 @@ socket.on('showmemessage',message => {
         avatar:message.avatar,
         is_file:message.is_file,
         file_path:message.file_path,
+        id:message.id,
 
     });
     chatMessages.scrollTop=chatMessages.scrollHeight;
@@ -198,6 +199,7 @@ $(document).ready(function() {
 function outputMessage(message){
     const div=document.createElement('div');
         div.classList.add(message.class);
+        div.classList.add('message_'+message.id);
         var html=`<div class="avatar-image chat-details">
                        <img src="${message.avatar}" alt="">
                        <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
@@ -209,14 +211,14 @@ function outputMessage(message){
             html+=`<p>${message.text}</p>`;
         }
         html+=`<span>${message.time}</span></div>`;
+    if(message.username==sender){
         html+=`<div class="dropdown">`;
+        html+=`<a onclick="openAction('${message.id}');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
+        html+=`<div id="myDropdown_${message.id}" class="dropdown-content"><a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;
+    }
+        /*html+=`<div class="dropdown">`;
         html+=`<a onclick="myFunction()" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
-        html+=`<div id="myDropdown" class="dropdown-content">`;
-        html+=`<a href="#home">Home</a>`;
-        html+=`<a href="#about">About</a>`;
-        html+=`<a href="#attributes">Attributes</a>`;
-        html+=`</div>`;
-        html+=`</div>`;
+        html+=`<div id="myDropdown" class="dropdown-content"><a href="#home">Remove</a></div></div>`;*/
         div.innerHTML=html;
 
     document.querySelector('.chat-messages').appendChild(div);
@@ -279,6 +281,7 @@ function selectUser(username){
                     avatar:avatar,
                     is_file:messages[a].is_file,
                     file_path:messages[a].file_path,
+                    id:messages[a].id,
                 });
                 chatMessages.scrollTop=chatMessages.scrollHeight;
             }
@@ -357,7 +360,22 @@ function showUserList(){
     chatMessages.innerHTML='';
     return ;
 }
+function deleteMessage(id){
 
+    $.ajax({
+        url: document.location.origin+"/delete_message",
+        method:"POST",
+        data:{
+            id:id,
+        },
+        success: function(result){
+            $(".message_"+id).remove();
+            chatMessages.scrollTop=chatMessages.scrollHeight;
+        }});
+
+
+
+}
 function onlineUsers(username){
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').addClass('online');

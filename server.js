@@ -14,8 +14,8 @@ const options = {
     cert: fs.readFileSync('client-cert.pem')
 };
 
-const server =http.createServer(app);
-//const server =https.createServer(options,app);
+//const server =http.createServer(app);
+const server =https.createServer(options,app);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';
@@ -32,12 +32,12 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    'user':"root",
+    /*'user':"root",
     'password':"",
-    'database':"tbl_chat",
-    /*'user':"develope_botafoga",
+    'database':"tbl_chat",*/
+    'user':"develope_botafoga",
     'password':"develope_botafoga",
-    'database':"develope_tbl_chat",*/
+    'database':"develope_tbl_chat",
 
 });
 
@@ -124,7 +124,22 @@ app.post("/get_user_list",function (request,result){
     });
 
 });
+//Create api call to return all recent messages to specific user
+app.post("/delete_message",function (request,result){
+    //get  message from database
+    connection.query("SELECT  *   FROM   messages WHERE id ='" +request.body.id+ "' " ,function(error,message){
 
+        connection.query("delete   FROM   messages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
+            if(message[0].is_file){
+                var filePath = 'public/'+message[0].file_path;
+                fs.unlinkSync(filePath);
+            }
+            var list=[];
+            result.end(JSON.stringify(list));
+        });
+    });
+
+});
 //upload voice clip to sever //
 app.post("/upload-voice-clip",function (request,result){
     var base64Data = request.body.file.replace(/^data:audio\/webm;codecs=opus;base64,/, "");
@@ -172,31 +187,31 @@ io.on('connection',socket => {
     socket.on('sendMessage',function(data){
         if(users){
             var formatedMessage=formateMessage(data.sender,data.message);
-            if(users[data.receiver]){
-                var socketId=users[data.receiver].socketid;
-                if(socketId){
-                    formatedMessage.status='online';
-                    formatedMessage.avatar=users[data.sender].avatar;
-                    formatedMessage.username=users[data.sender].username;
-                    formatedMessage.is_file=data.is_file;
-                    formatedMessage.file_path=data.file_path;
-                }
-                io.to(socketId).emit('message',formatedMessage);
-            }
-            // show message on to sender  while sending
-            if(users[data.sender]){
-                    formatedMessage.status='online';
-                    formatedMessage.avatar=users[data.sender].avatar;
-                    formatedMessage.username=users[data.sender].username;
-                    formatedMessage.is_file=data.is_file;
-                    formatedMessage.file_path=data.file_path;
-                io.to(users[data.sender].socketid).emit('showmemessage',formatedMessage);
-            }
-
 
             connection.query("SELECT  * FROM   users WHERE username='" +data.receiver+ "'" ,function(error,user){
                 connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" +users[data.sender].username+ "', '" +user[0].username+ "', '" +data.message+ "','" +users[data.sender].id+ "', '"+user[0].id+ "', '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "')" ,function(error,result){
-
+                    if(users[data.receiver]){
+                        var socketId=users[data.receiver].socketid;
+                        if(socketId){
+                            formatedMessage.status='online';
+                            formatedMessage.avatar=users[data.sender].avatar;
+                            formatedMessage.username=users[data.sender].username;
+                            formatedMessage.is_file=data.is_file;
+                            formatedMessage.file_path=data.file_path;
+                            formatedMessage.id=result.insertId;
+                        }
+                        io.to(socketId).emit('message',formatedMessage);
+                    }
+                    // show message on to sender  while sending
+                    if(users[data.sender]){
+                        formatedMessage.status='online';
+                        formatedMessage.avatar=users[data.sender].avatar;
+                        formatedMessage.username=users[data.sender].username;
+                        formatedMessage.is_file=data.is_file;
+                        formatedMessage.file_path=data.file_path;
+                        formatedMessage.id=result.insertId;
+                        io.to(users[data.sender].socketid).emit('showmemessage',formatedMessage);
+                    }
                 });
             });
             //save in database

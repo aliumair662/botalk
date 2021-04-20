@@ -293,8 +293,8 @@
     });
 </script>
 <script>
-    function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+    function openAction(id) {
+    document.getElementById("myDropdown_"+id).classList.toggle("show");
   }
   window.onclick = function(event) {
     if (!event.target.matches('.dropbtn')) {

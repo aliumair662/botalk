@@ -14,8 +14,8 @@ const options = {
     cert: fs.readFileSync('client-cert.pem')
 };
 
-//const server =http.createServer(app);
-const server =https.createServer(options,app);
+const server =http.createServer(app);
+//const server =https.createServer(options,app);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';
@@ -35,9 +35,9 @@ var connection =mysql.createConnection({
     /*'user':"root",
     'password':"",
     'database':"tbl_chat",*/
-    'user':"develope_botafoga",
-    'password':"develope_botafoga",
-    'database':"develope_tbl_chat",
+    'user':"root",
+    'password':"",
+    'database':"tbl_chat",
 
 });
 

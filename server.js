@@ -178,6 +178,8 @@ io.on('connection',socket => {
                     formatedMessage.status='online';
                     formatedMessage.avatar=users[data.sender].avatar;
                     formatedMessage.username=users[data.sender].username;
+                    formatedMessage.is_file=data.is_file;
+                    formatedMessage.file_path=data.file_path;
                 }
                 io.to(socketId).emit('message',formatedMessage);
             }
@@ -186,12 +188,14 @@ io.on('connection',socket => {
                     formatedMessage.status='online';
                     formatedMessage.avatar=users[data.sender].avatar;
                     formatedMessage.username=users[data.sender].username;
+                    formatedMessage.is_file=data.is_file;
+                    formatedMessage.file_path=data.file_path;
                 io.to(users[data.sender].socketid).emit('showmemessage',formatedMessage);
             }
 
 
             connection.query("SELECT  * FROM   users WHERE username='" +data.receiver+ "'" ,function(error,user){
-                connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time ) values ('" +users[data.sender].username+ "', '" +user[0].username+ "', '" +data.message+ "','" +users[data.sender].id+ "', '"+user[0].id+ "', '" +formatedMessage.time+ "')" ,function(error,result){
+                connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" +users[data.sender].username+ "', '" +user[0].username+ "', '" +data.message+ "','" +users[data.sender].id+ "', '"+user[0].id+ "', '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "')" ,function(error,result){
 
                 });
             });

@@ -41,6 +41,9 @@ $( "#chat-form" ).submit(function( e ) {
             sender:sender,
             receiver:receiver,
             message:message,
+            is_file:0,
+            file_path:'',
+
         });
         //Clear input
         $(".emojionearea-editor").html('');
@@ -56,6 +59,8 @@ $("#thumbs-up").click(function (e){
         sender:sender,
         receiver:receiver,
         message:message,
+        is_file:0,
+        file_path:'',
     });
 });
 
@@ -94,6 +99,8 @@ uploader.on('complete', function(fileInfo) {
             sender:sender,
             receiver:receiver,
             message:message,
+            is_file:1,
+            file_path:'files/uploads/'+fileInfo.name,
         });
 
     }
@@ -122,6 +129,8 @@ socket.on('showmemessage',message => {
         username:message.username,
         status:message.status,
         avatar:message.avatar,
+        is_file:message.is_file,
+        file_path:message.file_path,
 
     });
     chatMessages.scrollTop=chatMessages.scrollHeight;
@@ -189,14 +198,19 @@ $(document).ready(function() {
 function outputMessage(message){
     const div=document.createElement('div');
         div.classList.add(message.class);
-        div.innerHTML=`<div class="avatar-image chat-details">
+        var html=`<div class="avatar-image chat-details">
                        <img src="${message.avatar}" alt="">
                        <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
                        </div>
-                       <div class="message-sent">
-                       <p>${message.text}</p>
-                       <span>${message.time}</span>
-                       </div>`;
+                       <div class="message-sent">`;
+        if(message.is_file==1){
+            html+=`${message.text}`;
+        }else{
+            html+=`<p>${message.text}</p>`;
+        }
+        html+=`<span>${message.time}</span></div>`;
+        div.innerHTML=html;
+
     document.querySelector('.chat-messages').appendChild(div);
 }
 //Add room name to Dom
@@ -255,6 +269,8 @@ function selectUser(username){
                     username:username,
                     status:status,
                     avatar:avatar,
+                    is_file:messages[a].is_file,
+                    file_path:messages[a].file_path,
                 });
                 chatMessages.scrollTop=chatMessages.scrollHeight;
             }

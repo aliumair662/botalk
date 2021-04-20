@@ -127,7 +127,7 @@
                         <a href="" class="upload-file-icon">
                             <i class="fas fa-image"></i>
                         </a>
-                        <i class="fal fa-microphone" id="btn-start-recording" ></i>
+                       <a href=""><i class="fal fa-microphone" id="btn-start-recording" ></i></a>
                         <!--<i class="fal fa-microphone"></i>-->
                         <!--<i class="fa fa-paper-plane d-none" id="btn-stop-recording"></i>-->
                         <div class="message-form-width">
@@ -291,6 +291,23 @@
 
 
     });
+</script>
+<script>
+    function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+  }
+  window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn')) {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+  }
 </script>
 
 </body>

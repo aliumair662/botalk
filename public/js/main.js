@@ -209,6 +209,14 @@ function outputMessage(message){
             html+=`<p>${message.text}</p>`;
         }
         html+=`<span>${message.time}</span></div>`;
+        html+=`<div class="dropdown">`;
+        html+=`<a onclick="myFunction()" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
+        html+=`<div id="myDropdown" class="dropdown-content">`;
+        html+=`<a href="#home">Home</a>`;
+        html+=`<a href="#about">About</a>`;
+        html+=`<a href="#attributes">Attributes</a>`;
+        html+=`</div>`;
+        html+=`</div>`;
         div.innerHTML=html;
 
     document.querySelector('.chat-messages').appendChild(div);
@@ -384,4 +392,3 @@ $("body").on('click', '.upload_image', function() {
 $("body").on('click', '.closeimage', function() {
     $("#ImagePopModal").addClass('d-none');
 });
-

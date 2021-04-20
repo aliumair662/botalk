@@ -326,6 +326,8 @@ function uploadVoiceClip(dataURI){
                     sender:sender,
                     receiver:receiver,
                     message:message,
+                    is_file:1,
+                    file_path:'files/uploads/'+result
                 });
 
             }

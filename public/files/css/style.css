@@ -69,6 +69,11 @@ button:hover {
     height: 100%;
     border-radius: 50px;
 }
+.avatar-image.chat-details img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50px;
+}
 .avatar-image span i {
     position: absolute;
     bottom: 2px;
@@ -187,7 +192,7 @@ button:hover {
     font-weight: 700;
 }
 .message-sent img.upload_file_icon {
-    width: 8%;
+    width: 30px;
     display: block;
 }
 .message-sent span {
@@ -409,6 +414,9 @@ ul#menulink1 li a {
     border-radius: 50px;
     border: 3px solid #368ccd;
 }
+.message-sent img.upload_image,.message-sent video {
+    max-width: 500px;
+}
 .story-image span i {
     position: absolute;
     bottom: 5px;
@@ -533,11 +541,41 @@ ul#menulink1 li a {
     background-color: rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0.9);
 }
-
+#imagemodal .modal-content{
+    margin: auto;
+    display: block;
+    width: -webkit-fill-available;
+}
+#imagemodal .modal-body, #imagemodal .modal-footer{
+    padding: 0px
+}
+#imagemodal .modal-footer {
+    justify-content: space-evenly;
+    border: 0;
+    background: transparent;
+    padding: 10px;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+}
+div#imagemodal {
+    background: black;
+}
+#imagemodal .modal-dialog{
+    max-width: 800px;
+}
+.modal-footer i {
+    color: #fff;
+    background: #007bff;
+    padding: 6px 25px;
+    border-radius: 5px;
+    font-size: 25px;
+    cursor: pointer;
+}
 
 /*Modal Content (image)*/
 
-.modal-content {
+#ImagePopModal .modal-content {
     margin: auto;
     display: block;
     width: auto;
@@ -547,7 +585,7 @@ ul#menulink1 li a {
 
 /*Add Animation*/
 
-.modal-content {
+#ImagePopModal .modal-content {
     -webkit-animation-name: zoom;
     -webkit-animation-duration: 0.6s;
     animation-name: zoom;

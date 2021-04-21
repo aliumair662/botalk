@@ -199,8 +199,8 @@ button:hover {
     display: block;
 }
 .user-sent-message i {
-    font-size: 16px;
-    color: #000;
+    font-size: 24px;
+    color: #b7b7b7;
     cursor: pointer;
 }
 .message-sent span {
@@ -578,8 +578,10 @@ div#imagemodal {
 #ImagePopModal .modal-content {
     margin: auto;
     display: block;
-    width: auto;
-    max-width: 600px;
+    width: -webkit-fill-available;
+    max-width: max-content;
+    /* width: auto;
+    max-width: 600px; */
 }
 
 
@@ -656,13 +658,20 @@ div#imagemodal {
     padding: 0px 7px;
     color: #6c757d;
 }
+.message-sent audio:focus {
+    outline: none;
+}
 /* dropdown list */
   
   .dropdown {
     position: relative;
     display: inline-block;
+    width: 100%;
+    text-align: right;
   }
-  
+  .dropdown a{
+      cursor: pointer;
+  }
   .dropdown-content {
     right: 3px;
     display: none;

@@ -49,9 +49,7 @@ function replaceAudio(src) {
 function stopRecordingCallback() {
     typeMessageBar.style.display='flex';
     voiceMessageRecordingBar.style.display='none';
-    recordingCountdown.innerHTML = '';
-    progressBarWidth=0;
-    recordingProgress.style.width=progressBarWidth+'%';
+    recordingInterval=false;
     var blob = recorder.getBlob();
     recorder.getDataURL(function(dataURI) {
         uploadVoiceClip(dataURI);
@@ -94,7 +92,7 @@ var typeMessageBar = document.getElementById('type-message-box');
 var recordingCountdown = document.getElementById('recording-countdown');
 var recordingProgress = document.getElementById('voice-recording-progress-bar');
 var maxAudioLength=2 * 1000 * 60;
-var recordingInterval=null;
+var recordingInterval=false;
 var recordingStarted;
 var progressBarWidth=0;
 //var btnReleaseMicrophone = document.querySelector('#btn-release-microphone');
@@ -170,12 +168,13 @@ btnStartRecording.onclick = function(e) {
     recordingCountdown.innerHTML='';
     recordingProgress.style.width='0%';
     recordingStarted=new Date().getTime();
+    recordingInterval=true;
     showCounter();
     //btnDownloadRecording.disabled = true;
 
 
 };
-recordingInterval
+
 btnStopRecording.onclick = function(e) {
     e.preventDefault();
     this.disabled = true;
@@ -186,9 +185,8 @@ btnCancelRecording.onclick = function(e) {
     recorder.clearRecordedData();
     typeMessageBar.style.display='flex';
     voiceMessageRecordingBar.style.display='none';
-    recordingCountdown.innerHTML = '';
-    progressBarWidth=0;
-    recordingProgress.style.width=progressBarWidth+'%';
+    recordingInterval=false;
+
 
 };
 
@@ -271,7 +269,10 @@ function calculateTimeDuration(secs) {
     return hr + ':' + min + ':' + sec;
 }
 function showCounter() {
-    if(!recorder) {
+    if(!recordingInterval) {
+        recordingCountdown.innerHTML = '';
+        progressBarWidth=0;
+        recordingProgress.style.width=progressBarWidth+'%';
         return;
     }
     recordingCountdown.innerHTML = calculateTimeDuration((new Date().getTime() - recordingStarted) / 1000);

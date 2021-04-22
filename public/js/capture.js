@@ -91,3 +91,6 @@ function sendCaptureSnapshot(){
         stopStreaming();
     }
 }
+$("#imagemodal").on("hidden.bs.modal", function () {
+    stopStreaming();
+});

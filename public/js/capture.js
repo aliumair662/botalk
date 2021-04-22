@@ -59,7 +59,6 @@ function stopStreaming() {
         stream.load();
 
         cameraStream = null;
-        $("#imagemodal").modal('hide');
     }
 }
 

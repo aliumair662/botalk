@@ -332,18 +332,30 @@ function uploadVoiceClip(dataURI){
                 });
 
             }
-            // console.log(result);
-            /*userList.innerHTML='';
-            var messages=JSON.parse(result);
-            for(var a=0;a<messages.length;a++){
-                outputUsers({
-                    text:messages[a].text,
-                    username:messages[a].username,
-                    time:messages[a].time,
-                    status:messages[a].status,
-                    avatar:messages[a].avatar
+        }});
+
+}
+function uploadCaptureSnapshot(dataBases64){
+    $.ajax({
+        url: document.location.origin+"/upload-capture-image",
+        method:"POST",
+        data:{
+            file:dataBases64,
+            name:getFileName('png')
+        },
+        success: function(result){
+            if(result){
+                var result=JSON.parse(result);
+                var message='<img class="upload_image" src="files/uploads/'+result+'">';
+                socket.emit('sendMessage',{
+                    sender:sender,
+                    receiver:receiver,
+                    message:message,
+                    is_file:1,
+                    file_path:'files/uploads/'+result
                 });
-            }*/
+
+            }
         }});
 
 }

@@ -59,6 +59,7 @@ function stopStreaming() {
         stream.load();
 
         cameraStream = null;
+        $("#imagemodal").modal('hide');
     }
 }
 
@@ -84,6 +85,7 @@ function captureSnapshot() {
 }
 function sendCaptureSnapshot(){
     if(imageSrc!= null){
-        console.info(imageSrc);
+        uploadCaptureSnapshot(imageSrc);
+        stopStreaming();
     }
 }

@@ -12,7 +12,7 @@ var snapshot = document.getElementById( "snapshot" );
 // The video stream
 var cameraStream = null;
 var imageSrc = null;
-
+var ctx=null;
 // Attach listeners
 btnStart.addEventListener( "click", startStreaming );
 btnStop.addEventListener( "click", stopStreaming );
@@ -66,7 +66,7 @@ function captureSnapshot() {
 
     if( null != cameraStream ) {
 
-        var ctx = capture.getContext( '2d' );
+        ctx = capture.getContext( '2d' );
         var img = new Image();
 
         ctx.drawImage( stream, 0, 0, capture.width, capture.height );
@@ -85,6 +85,9 @@ function captureSnapshot() {
 function sendCaptureSnapshot(){
     if(imageSrc!= null){
         uploadCaptureSnapshot(imageSrc);
+        btnCapture.style.display='block';
+        btnSendCapture.style.display='none';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         stopStreaming();
     }
 }

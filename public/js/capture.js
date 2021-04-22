@@ -75,7 +75,7 @@ function captureSnapshot() {
 
         img.src		= capture.toDataURL( "image/png" );
         imageSrc = capture.toDataURL( "image/png" );
-        img.width	= 240;
+        img.width	= 500;
 
         snapshot.innerHTML = '';
 

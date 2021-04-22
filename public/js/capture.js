@@ -88,7 +88,7 @@ function sendCaptureSnapshot(){
         btnCapture.style.display='block';
         btnSendCapture.style.display='none';
         ctx.clearRect(0, 0, capture.width, capture.height);
-        stopStreaming();
+        //stopStreaming();
     }
 }
 $("#imagemodal").on("hidden.bs.modal", function () {

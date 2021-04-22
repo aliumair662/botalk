@@ -2,6 +2,7 @@
 var btnStart = document.getElementById( "btn-start-video-streaming" );
 var btnStop = document.getElementById( "btn-stop-video-streaming" );
 var btnCapture = document.getElementById( "btn-capture-image" );
+var btnSendCapture = document.getElementById( "btn-send-capture-image" );
 
 // The stream & capture
 var stream = document.getElementById( "stream" );
@@ -10,11 +11,13 @@ var snapshot = document.getElementById( "snapshot" );
 
 // The video stream
 var cameraStream = null;
+var imageSrc = null;
 
 // Attach listeners
 btnStart.addEventListener( "click", startStreaming );
 btnStop.addEventListener( "click", stopStreaming );
 btnCapture.addEventListener( "click", captureSnapshot );
+btnSendCapture.addEventListener( "click", sendCaptureSnapshot );
 
 // Start Streaming
 function startStreaming() {
@@ -69,10 +72,18 @@ function captureSnapshot() {
         ctx.drawImage( stream, 0, 0, capture.width, capture.height );
 
         img.src		= capture.toDataURL( "image/png" );
+        imageSrc = capture.toDataURL( "image/png" );
         img.width	= 240;
 
         snapshot.innerHTML = '';
 
         //snapshot.appendChild( img );
+        btnCapture.style.display='none';
+        btnSendCapture.style.display='block';
+    }
+}
+function sendCaptureSnapshot(){
+    if(imageSrc!= null){
+        console.info(imageSrc);
     }
 }

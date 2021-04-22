@@ -32,12 +32,12 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    /*'user':"root",
+    'user':"root",
     'password':"",
-    'database':"tbl_chat",*/
-    'user':"develope_botafoga",
+    'database':"tbl_chat",
+    /*'user':"develope_botafoga",
     'password':"develope_botafoga",
-    'database':"develope_tbl_chat",
+    'database':"develope_tbl_chat",*/
 
 });
 

@@ -73,6 +73,6 @@ function captureSnapshot() {
 
         snapshot.innerHTML = '';
 
-        snapshot.appendChild( img );
+        //snapshot.appendChild( img );
     }
 }

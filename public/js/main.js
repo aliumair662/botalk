@@ -12,7 +12,7 @@ const { username } =Qs.parse(location.search,{
 var domain='https://vyzmo.com/';
 const socket = io();
 if(username){
-//Join chatroom
+//Join chat
     socket.emit('userConnected',username);
 }
 //listen from server
@@ -25,6 +25,7 @@ socket.on('online',function (username){
 socket.on('offline',function (username){
     offlineUsers(username);
 });
+var groupid=null;
 var uploader = new SocketIOFileClient(socket);
 
 var sender=username;
@@ -43,6 +44,7 @@ $( "#chat-form" ).submit(function( e ) {
             message:message,
             is_file:0,
             file_path:'',
+            groupid:groupid
 
         });
         //Clear input
@@ -58,6 +60,7 @@ $("#thumbs-up").click(function (e){
     socket.emit('sendMessage',{
         sender:sender,
         receiver:receiver,
+        groupid:groupid,
         message:message,
         is_file:0,
         file_path:'',
@@ -98,6 +101,7 @@ uploader.on('complete', function(fileInfo) {
         socket.emit('sendMessage',{
             sender:sender,
             receiver:receiver,
+            groupid:groupid,
             message:message,
             is_file:1,
             file_path:'files/uploads/'+fileInfo.name,
@@ -163,12 +167,12 @@ $(document).ready(function() {
         events: {
             keypress: function (editor, event) {
                 if(event.which !== 13){
-                    socket.emit('typing', {sender:sender,receiver:receiver, typing:true});
+                    socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:true});
                     setTimeout(function(){
-                        socket.emit('typing', {sender:sender,receiver:receiver, typing:false});
+                        socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:false});
                     }, 3000);
                 }else{
-                    socket.emit('typing', {sender:sender,receiver:receiver, typing:false});
+                    socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:false});
                     event.preventDefault();
                     $('#chat-form').submit();
                 }
@@ -229,8 +233,19 @@ function outputRoomName(room){
 }
 //Add Users to Dom
 function  outputUsers(message){
-
-        userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}');"><div class="avatar-image" >
+    console.info("outputUsers");
+    console.info(message.groupid);
+        if(message.groupid){
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="SelectGroup('${message.username}','${message.groupname}');"><div class="avatar-image" >
+<img src="${message.avatar}" alt="">
+<span></span>
+</div>
+<div class="user-chat">
+<h5>${message.groupname} <span class="typing_${message.groupname}"></span></h5>
+<span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
+`;
+        }else{
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
@@ -238,6 +253,8 @@ function  outputUsers(message){
 <h5>${message.username} <span class="typing_${message.username}"></span></h5>
 <span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
+        }
+
     //userList.appendChild(div);
 }
 
@@ -246,8 +263,12 @@ function selectUser(username){
     receiver=username;
     $(".show-chat-area").removeClass('d-none');
     $(".no-message-found").addClass('d-none');
+    $("#status_circle").removeClass('d-none');
+    $("#room_status").removeClass('d-none');
+    $("#last_seen").removeClass('d-none');
     document.querySelector('.chat-messages').innerHTML='';
     //call an ajax
+    groupid=null;
     $.ajax({
         //url: "http://localhost:3000/get_messages",
         url: document.location.origin+"/get_messages",
@@ -318,7 +339,9 @@ function getrecentMessages(username){
                     username:messages[a].username,
                     time:messages[a].time,
                     status:messages[a].status,
-                    avatar:messages[a].avatar
+                    avatar:messages[a].avatar,
+                    groupid:messages[a].groupid,
+                    groupname:messages[a].groupname
                 });
             }
         }});
@@ -369,8 +392,15 @@ function deleteMessage(id){
             id:id,
         },
         success: function(result){
-            $(".message_"+id).remove();
-            chatMessages.scrollTop=chatMessages.scrollHeight;
+
+            var data={
+                id:id,
+                groupid:groupid,
+                receiver:receiver
+            }
+            socket.emit('messageDeleted',data);
+           // io.to(socket.id).emit('userConnected',users[username]);
+
         }});
 
 

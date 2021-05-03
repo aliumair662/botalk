@@ -1,32 +1,37 @@
-/*
-const users = [];
-*/
+
+const groupUsers = [];
+const groupUsersbysocket = [];
 
 //Join user to chat
 
-/*function userJoin (id,username){
-    users[username]=id;
+function userGroupJoin (id,username,room){
+  /*  groupUsers[username]=id;*/
+    const user ={ id,username ,room };
+    groupUsers.push(user);
+    return user;
 
-}*/
+}
 // get current user
-/*function getCurrentUser(id){
-    return users.find(user => user.id === id);
+function getCurrentGroupUser(id){
+    return groupUsers.find(user => user.id === id);
 
-}*/
+}
 //user leaves chat
-/*function  userLeave(id){
-    const index =users.findIndex(user => user.id === id);
+function  userGroupLeave(id){
+    const index =groupUsers.findIndex(user => user.id === id);
     if(index !== -1){
-        return users.splice(index,1)[0];
+        return groupUsers.splice(index,1)[0];
     }
-}*/
+}
 //Get room users
-/*
-function getUsers(){
-    return users;
+
+
+function getGroupRoomUsers(room){
+    return groupUsers.filter(user =>user.room === room);
 }
 module.exports = {
-    userJoin,
-    getUsers
-
-}*/
+    userGroupJoin,
+    getCurrentGroupUser,
+    userGroupLeave,
+    getGroupRoomUsers
+}

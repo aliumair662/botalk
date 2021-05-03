@@ -6,6 +6,7 @@ const socketio=require('socket.io');
 const SocketIOFile = require('socket.io-file');
 const formateMessage =require ('./utils/messages');
 //const { userJoin , getCurrentUser ,userLeave,getRoomUsers } = require ('./utils/users');
+const { userGroupJoin , getCurrentGroupUser ,userGroupLeave,getGroupRoomUsers } = require ('./utils/users');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
 var fs = require("fs");
@@ -14,8 +15,8 @@ const options = {
     cert: fs.readFileSync('client-cert.pem')
 };
 
-//const server =http.createServer(app);
-const server =https.createServer(options,app);
+const server =http.createServer(app);
+//const server =https.createServer(options,app);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';
@@ -32,12 +33,12 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 var mysql = require("mysql");
 var connection =mysql.createConnection({
     'host':"localhost",
-    /*'user':"root",
+    'user':"root",
     'password':"",
-    'database':"tbl_chat",*/
-    'user':"develope_botafoga",
+    'database':"tbl_chat",
+    /*'user':"develope_botafoga",
     'password':"develope_botafoga",
-    'database':"develope_tbl_chat",
+    'database':"develope_tbl_chat",*/
 });
 
 //connect
@@ -82,23 +83,67 @@ app.post("/get_messages",function (request,result){
 
 
 });
+//Create api call to return all Group messages
+app.post("/get_group_messages",function (request,result){
+    //get all messages from database
 
+    connection.query("SELECT  * FROM   message_group WHERE name='" +request.body.groupid+ "'" ,function(error,group){
+        connection.query("SELECT  * FROM   messages WHERE to_group_id='" +group[0].id+ "'  ORDER BY id ASC" ,function(error,messages){
+            //json response
+
+            var list=[];
+            if(messages){
+                for(var a=0;a<messages.length;a++){
+                    var message=messages[a];
+                    message.status=(users[message.sender] ? 'online' : 'offline');
+                    message.receiver_avatar='';
+                    message.receiver_username='';
+                    message.sender_avatar=users[request.body.sender].avatar;
+                    message.sender_username=users[request.body.sender].username;
+                    message.last_seen='';
+                    list[a]=message;
+                }
+            }
+            result.end(JSON.stringify(list));
+
+        });
+    });
+
+
+});
 //Create api call to return all recent messages to specific user
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
     connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentmessages){
         //json response
-        console.log(recentmessages[0]);
         var list=[];
         if(recentmessages){
             for(var a=0;a<recentmessages.length;a++){
                 var message=recentmessages[a];
                 message.avatar=domain+message.avatar;
+                message.groupid=null;
+                message.groupname=null;
                 message.status=(users[message.username] ? 'online' : 'offline');
                 list[a]=message;
             }
         }
-        result.end(JSON.stringify(list));
+        //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
+
+        connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  GROUP by messages.to_group_id order by messages.id DESC " ,function(error,recentGroupmessages){
+            if(recentGroupmessages){
+                for(var k=0;k<recentGroupmessages.length;k++){
+                    var message=recentGroupmessages[k];
+                    message.avatar=domain+message.avatar;
+                    message.status=(users[message.username] ? 'online' : 'offline');
+                    message.groupid=message.groupid;
+                    message.groupname=message.groupname;
+                    list[a]=message;
+                    a++;
+                }
+            }
+            result.end(JSON.stringify(list));
+        });
+
     });
 
 });
@@ -190,40 +235,72 @@ io.on('connection',socket => {
        // io.emit('userConnected',username);
         io.emit('online',username);
     });
+
+    //Listen Delete Message
+    socket.on('messageDeleted',function(data){
+        if(data.groupid){
+            io.to(data.groupid).emit('messageDeleted',data.id);
+        }else{
+            io.to(socket.id).emit('messageDeleted',data.id);
+        }
+
+
+    });
+
     //Listen for chatMessage
     socket.on('sendMessage',function(data){
         if(users){
-            var formatedMessage=formateMessage(data.sender,data.message);
 
-            connection.query("SELECT  * FROM   users WHERE username='" +data.receiver+ "'" ,function(error,user){
-                connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" +users[data.sender].username+ "', '" +user[0].username+ "', '" +data.message+ "','" +users[data.sender].id+ "', '"+user[0].id+ "', '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "')" ,function(error,result){
-                    if(users[data.receiver]){
-                        var socketId=users[data.receiver].socketid;
-                        if(socketId){
+            var formatedMessage=formateMessage(data.sender,data.message);
+            if(data.groupid){
+                if(users[data.sender]){
+                    connection.query("SELECT  * FROM   message_group WHERE name='" +data.groupid+ "'" ,function(error,group){
+                        connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +data.message+ "','" +users[data.sender].id+ "', '"+group[0].id+ "', '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +data.groupid+ "')" ,function(error,result){
                             formatedMessage.status='online';
                             formatedMessage.avatar=users[data.sender].avatar;
                             formatedMessage.username=users[data.sender].username;
                             formatedMessage.is_file=data.is_file;
                             formatedMessage.file_path=data.file_path;
                             formatedMessage.id=result.insertId;
+                            formatedMessage.groupid=data.groupid;
+                            io.to(data.groupid).emit('Groupmessage',formatedMessage);
+                            return;
+                        });
+                    });
+
+                }
+
+            }
+            if(data.receiver) {
+                connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", function (error, user) {
+                    connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + data.message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "')", function (error, result) {
+                        if (users[data.receiver]) {
+                            var socketId = users[data.receiver].socketid;
+                            if (socketId) {
+                                formatedMessage.status = 'online';
+                                formatedMessage.avatar = users[data.sender].avatar;
+                                formatedMessage.username = users[data.sender].username;
+                                formatedMessage.is_file = data.is_file;
+                                formatedMessage.file_path = data.file_path;
+                                formatedMessage.id = result.insertId;
+                            }
+                            io.to(socketId).emit('message', formatedMessage);
                         }
-                        io.to(socketId).emit('message',formatedMessage);
-                    }
-                    // show message on to sender  while sending
-                    if(users[data.sender]){
-                        formatedMessage.status='online';
-                        formatedMessage.avatar=users[data.sender].avatar;
-                        formatedMessage.username=users[data.sender].username;
-                        formatedMessage.is_file=data.is_file;
-                        formatedMessage.file_path=data.file_path;
-                        formatedMessage.id=result.insertId;
-                        io.to(users[data.sender].socketid).emit('showmemessage',formatedMessage);
-                    }
+                        // show message on to sender  while sending
+                        if (users[data.sender]) {
+                            formatedMessage.status = 'online';
+                            formatedMessage.avatar = users[data.sender].avatar;
+                            formatedMessage.username = users[data.sender].username;
+                            formatedMessage.is_file = data.is_file;
+                            formatedMessage.file_path = data.file_path;
+                            formatedMessage.id = result.insertId;
+                            io.to(users[data.sender].socketid).emit('showmemessage', formatedMessage);
+                        }
+                    });
                 });
-            });
-            //save in database
+                //save in database
 
-
+            }
 
 
         }
@@ -272,14 +349,42 @@ io.on('connection',socket => {
      so that on the client side we can capture this event and display
      '<data.user> is typing...' */
     socket.on('typing', (data)=>{
-        if(users[data.receiver]){
-            var socketId=users[data.receiver].socketid;
-            if(socketId){
-                io.to(socketId).emit('display', data);
+        if(data.groupid){
+            io.to(data.groupid).emit('displaygroup', data);
+        }else{
+            if(users[data.receiver]){
+                var socketId=users[data.receiver].socketid;
+                if(socketId){
+                    io.to(socketId).emit('display', data);
+                }
             }
         }
 
-    })
+
+    });
+
+    //Start Group Chat Working//
+    socket.on('joinRoom',({username ,room}) => {
+        const user = userGroupJoin(socket.id,username ,room);
+        socket.join(user.room);
+        //console.log('New Ws Connection..');
+        //Welcome current user
+       // socket.emit('groupmessage',formateMessage(botName,'Welcome to Botalk'));
+        //Broadcast when a user connects
+        var formatedMessage=formateMessage(botName,`${ user.username } has joined the chat`);
+
+        formatedMessage.status='online';
+        formatedMessage.avatar=users[username].avatar;
+        formatedMessage.username=users[username].username;
+        formatedMessage.groupid=room;
+        socket.broadcast.to(user.room).emit('groupmessage',formatedMessage);
+        //Send users and room info
+        io.to(user.room).emit('roomUsers',{
+            room : user.room,
+            users : getGroupRoomUsers(user.room)
+        });
+    });
+
 });
 //user leaves chat
 function  userLeave(id){

@@ -326,6 +326,7 @@ function uploadVoiceClip(dataURI){
                 socket.emit('sendMessage',{
                     sender:sender,
                     receiver:receiver,
+                    groupid:groupid,
                     message:message,
                     is_file:1,
                     file_path:'files/uploads/'+result

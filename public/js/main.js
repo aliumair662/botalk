@@ -236,13 +236,13 @@ function  outputUsers(message){
     console.info("outputUsers");
     console.info(message.groupid);
         if(message.groupid){
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="SelectGroup('${message.username}','${message.groupname}');"><div class="avatar-image" >
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="SelectGroup('${sender}','${message.groupname}');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span></span>
 </div>
 <div class="user-chat">
 <h5>${message.groupname} <span class="typing_${message.groupname}"></span></h5>
-<span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
+<span >${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
         }else{
             userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}');"><div class="avatar-image" >
@@ -374,6 +374,8 @@ function showUserList(){
                     username:userlist[a].username,
                     time:'',
                     status:userlist[a].status,
+                    groupid:userlist[a].groupid,
+                    groupname:userlist[a].groupname,
                     avatar:userlist[a].avatar
                 });
             }

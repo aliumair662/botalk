@@ -88,7 +88,7 @@ app.post("/get_group_messages",function (request,result){
     //get all messages from database
 
     connection.query("SELECT  * FROM   message_group WHERE name='" +request.body.groupid+ "'" ,function(error,group){
-        connection.query("SELECT  * FROM   messages WHERE to_group_id='" +group[0].id+ "'  ORDER BY id ASC" ,function(error,messages){
+        connection.query("SELECT  messages.*,users.avatar,users.username FROM   messages,users WHERE messages.to_group_id='" +group[0].id+ "' and messages.from_id=users.id   ORDER BY id ASC" ,function(error,messages){
             //json response
 
             var list=[];
@@ -98,8 +98,8 @@ app.post("/get_group_messages",function (request,result){
                     message.status=(users[message.sender] ? 'online' : 'offline');
                     message.receiver_avatar='';
                     message.receiver_username='';
-                    message.sender_avatar=users[request.body.sender].avatar;
-                    message.sender_username=users[request.body.sender].username;
+                    message.sender_avatar=domain+messages[a].avatar;
+                    message.sender_username=messages[a].username;
                     message.last_seen='';
                     list[a]=message;
                 }
@@ -129,7 +129,7 @@ app.post("/get_recent_messages",function (request,result){
         }
         //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
 
-        connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  GROUP by messages.to_group_id order by messages.id DESC " ,function(error,recentGroupmessages){
+        connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
             if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
                     var message=recentGroupmessages[k];
@@ -158,13 +158,27 @@ app.post("/get_user_list",function (request,result){
             for(var a=0;a<userlist.length;a++){
                 var user=userlist[a];
                 user.avatar=domain+user.avatar;
+                user.groupid='';
+                user.groupname='';
                 //console.log(user);
                 user.status=(users[user.username] ? 'online' : 'offline');
                 list[a]=user;
             }
         }
-
+        connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,Grouplist){
+            if(Grouplist){
+                for(var k=0;k<Grouplist.length;k++){
+                    var user=Grouplist[k];
+                    user.avatar=domain+user.avatar;
+                    user.username=user.groupname;
+                    //console.log(user);
+                    user.status='offline';
+                    list[a]=user;
+                    a++;
+                }
+            }
         result.end(JSON.stringify(list));
+        });
     });
 
 });
@@ -249,13 +263,20 @@ io.on('connection',socket => {
 
     //Listen for chatMessage
     socket.on('sendMessage',function(data){
+        //var message = connection.escape(data.message);
+        var message = data.message;
+        var message = message.replace(/'/g, "\\'");
         if(users){
 
-            var formatedMessage=formateMessage(data.sender,data.message);
+            var formatedMessage=formateMessage(data.sender,message);
             if(data.groupid){
                 if(users[data.sender]){
                     connection.query("SELECT  * FROM   message_group WHERE name='" +data.groupid+ "'" ,function(error,group){
-                        connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +data.message+ "','" +users[data.sender].id+ "', '"+group[0].id+ "', '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +data.groupid+ "')" ,function(error,result){
+                        connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "')" ,function(error,result){
+                            if (error) {
+                                console.error('error connecting: ' + error.stack);
+                                return;
+                            }
                             formatedMessage.status='online';
                             formatedMessage.avatar=users[data.sender].avatar;
                             formatedMessage.username=users[data.sender].username;
@@ -264,6 +285,10 @@ io.on('connection',socket => {
                             formatedMessage.id=result.insertId;
                             formatedMessage.groupid=data.groupid;
                             io.to(data.groupid).emit('Groupmessage',formatedMessage);
+                            //send data for group notigication
+                            formatedMessage.groupname=group[0].name;
+                            formatedMessage.avatar=domain+group[0].avatar;
+                            socket.broadcast.emit('groupnotification',formatedMessage);
                             return;
                         });
                     });
@@ -273,7 +298,11 @@ io.on('connection',socket => {
             }
             if(data.receiver) {
                 connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", function (error, user) {
-                    connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + data.message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "')", function (error, result) {
+                    connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "')", function (error, result) {
+                        if (error) {
+                            console.error('error connecting: ' + error.stack);
+                            return;
+                        }
                         if (users[data.receiver]) {
                             var socketId = users[data.receiver].socketid;
                             if (socketId) {
@@ -310,6 +339,7 @@ io.on('connection',socket => {
     socket.on('disconnect',()=>{
         const user =userLeave(socket.id);
         if(user){
+            userGroupLeave(user.id);
             delete users[user.username];
             delete usersbysocket[user.socketid];
             io.emit('offline',user.username);

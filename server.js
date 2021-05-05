@@ -39,7 +39,6 @@ var db_config={
     'user':"develope_botafoga",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",
-    connectionLimit : 10,
 };
 var connection =mysql.createConnection(db_config);
 
@@ -54,7 +53,7 @@ connection.connect(function (error){
 });
 function handleDisconnect() {
     connection = mysql.createConnection(db_config);
-    
+
 }
 //enable headers required for POST request
 app.use(function(request,result,next){

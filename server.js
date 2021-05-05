@@ -31,7 +31,7 @@ var SocketIOFileUpload = require('socketio-file-upload');
 app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 //Create instance of mysql
 var mysql = require("mysql");
-var connection =mysql.createConnection({
+var db_config={
     'host':"localhost",
     /*'user':"root",
     'password':"",
@@ -39,13 +39,20 @@ var connection =mysql.createConnection({
     'user':"develope_botafoga",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",
-});
+};
+var connection =mysql.createConnection(db_config);
 
 //connect
 connection.connect(function (error){
     //show if any error
+    if(error) {                                     // or restarting (takes a while sometimes).
+        console.log('error when connecting to db:', error);
+        setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+    }
 });
-
+function handleDisconnect() {
+    connection = mysql.createConnection(db_config);
+}
 //enable headers required for POST request
 app.use(function(request,result,next){
     result.setHeader("Access-Control-Allow-Origin","*");

@@ -39,19 +39,22 @@ var db_config={
     'user':"develope_botafoga",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",
+    connectionLimit : 10,
 };
-var connection =mysql.createConnection(db_config);
+//var connection =mysql.createConnection(db_config);
+var connection =mysql.createPool(db_config);
 
 //connect
-connection.connect(function (error){
+/*connection.connect(function (error){
     //show if any error
     if(error) {                                     // or restarting (takes a while sometimes).
         console.log('error when connecting to db:', error);
         setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
     }
-});
+});*/
 function handleDisconnect() {
-    connection = mysql.createConnection(db_config);
+    // = mysql.createConnection(db_config);
+    connection = mysql.createPool(db_config);
 }
 //enable headers required for POST request
 app.use(function(request,result,next){

@@ -3,12 +3,14 @@ const https =require('https');
 const http =require('http');
 const express = require('express');
 const socketio=require('socket.io');
+const dotenv=require('dotenv');
 const SocketIOFile = require('socket.io-file');
 const formateMessage =require ('./utils/messages');
 //const { userJoin , getCurrentUser ,userLeave,getRoomUsers } = require ('./utils/users');
 const { userGroupJoin , getCurrentGroupUser ,userGroupLeave,getGroupRoomUsers } = require ('./utils/users');
 //const { userJoin,getUsers } = require ('./utils/users');
 const app = express();
+dotenv.config({ path: "config/config.env" });
 var fs = require("fs");
 const options = {
     key: fs.readFileSync('client-key.pem'),
@@ -32,13 +34,13 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 //Create instance of mysql
 var mysql = require("mysql");
 var db_config={
-    'host':"localhost",
-    /*'user':"root",
-    'password':"",
-    'database':"tbl_chat",*/
-    'user':"develope_botafoga",
+    'host':process.env.HOST,
+    'user':process.env.USER,
+    'password':process.env.PASSWORD,
+    'database':process.env.DATABASE,
+    /*'user':"develope_botafoga",
     'password':"develope_botafoga",
-    'database':"develope_tbl_chat",
+    'database':"develope_tbl_chat",*/
 };
 var connection =mysql.createConnection(db_config);
 
@@ -63,7 +65,7 @@ app.use(function(request,result,next){
 
 //Create api call to return all messages
 app.post("/get_messages",function (request,result){
-       //get all messages from database
+    //get all messages from database
 
     connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,user){
         connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +user[0].id+ "') OR (from_id= '" +user[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
@@ -87,7 +89,7 @@ app.post("/get_messages",function (request,result){
             }
             result.end(JSON.stringify(list));
 
-            });
+        });
     });
 
 
@@ -186,7 +188,7 @@ app.post("/get_user_list",function (request,result){
                     a++;
                 }
             }
-        result.end(JSON.stringify(list));
+            result.end(JSON.stringify(list));
         });
     });
 
@@ -233,29 +235,29 @@ io.on('connection',socket => {
     socket.on('userConnected',(username) => {
         //console.log(`userConnected`+username);
         connection.query("SELECT  * FROM   users WHERE username='" +username+ "'" ,function(error,user){
-           if(user){
-               users[username]={
-                   socketid:socket.id,
-                   id:user[0].id,
-                   username:user[0].username,
-                   email:user[0].email,
-                   avatar:domain+user[0].avatar,
-               };
-               usersbysocket[socket.id]={
-                   socketid:socket.id,
-                   id:user[0].id,
-                   username:user[0].username,
-                   email:user[0].email,
-                   avatar:domain+user[0].avatar,
-               };
-               //io.emit('userConnected',users[username]);
-               io.to(socket.id).emit('userConnected',users[username]);
+            if(user){
+                users[username]={
+                    socketid:socket.id,
+                    id:user[0].id,
+                    username:user[0].username,
+                    email:user[0].email,
+                    avatar:domain+user[0].avatar,
+                };
+                usersbysocket[socket.id]={
+                    socketid:socket.id,
+                    id:user[0].id,
+                    username:user[0].username,
+                    email:user[0].email,
+                    avatar:domain+user[0].avatar,
+                };
+                //io.emit('userConnected',users[username]);
+                io.to(socket.id).emit('userConnected',users[username]);
 
-           }
+            }
         });
         //users[username]=socket.id;
 
-       // io.emit('userConnected',username);
+        // io.emit('userConnected',username);
         io.emit('online',username);
     });
 
@@ -359,15 +361,15 @@ io.on('connection',socket => {
 
     //start uploading file to server
     var uploader = new SocketIOFile(socket, {
-        uploadDir: 'public/files/uploads',							// simple directory
-        //accepts: ['image/png', 'image/jpg','image/jpeg','image/gif','audio/mpeg', 'audio/mp3','video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'],		// chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
-        maxFileSize: 25194304, 						// 25 MB. default is undefined(no limit)
-        chunkSize: 10240,							// default is 10240(1KB)
-        transmissionDelay: 0,						// delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
-        overwrite: true 							// overwrite file if exists, default is true.
+        uploadDir: 'public/files/uploads',                          // simple directory
+        //accepts: ['image/png', 'image/jpg','image/jpeg','image/gif','audio/mpeg', 'audio/mp3','video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'],      // chrome and some of browsers checking mp3 as 'audio/mp3', not 'audio/mpeg'
+        maxFileSize: 25194304,                      // 25 MB. default is undefined(no limit)
+        chunkSize: 10240,                           // default is 10240(1KB)
+        transmissionDelay: 0,                       // delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
+        overwrite: true                             // overwrite file if exists, default is true.
     });
     uploader.on('start', (fileInfo) => {
-       // console.log('Start uploading');
+        // console.log('Start uploading');
         //console.log(fileInfo);
     });
     uploader.on('stream', (fileInfo) => {
@@ -408,7 +410,7 @@ io.on('connection',socket => {
         socket.join(user.room);
         //console.log('New Ws Connection..');
         //Welcome current user
-       // socket.emit('groupmessage',formateMessage(botName,'Welcome to Botalk'));
+        // socket.emit('groupmessage',formateMessage(botName,'Welcome to Botalk'));
         //Broadcast when a user connects
         var formatedMessage=formateMessage(botName,`${ user.username } has joined the chat`);
 
@@ -427,13 +429,13 @@ io.on('connection',socket => {
 });
 //user leaves chat
 function  userLeave(id){
-const user=usersbysocket[id];
+    const user=usersbysocket[id];
     if(user){
         connection.query("update users set last_seen='" +new Date()+ "' where id='" +user.id+ "' " ,function(error,result){
         });
     }
 
-   return user;
+    return user;
 
 }
 ///Convert Last seen

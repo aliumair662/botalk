@@ -39,8 +39,8 @@ var db_config={
      'user':process.env.USER,
      'password':process.env.PASSWORD,
      'database':process.env.DATABASE,
-   /* 'host':'vyzmo.com',
-    'user':"develope_botafoga",
+    /*'host':'vyzmo.com',
+    'user':"mybotalkuser",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",*/
 };
@@ -478,6 +478,6 @@ function timeDifference(previous) {
 }
 
 
-const PORT = 3000 || process.env.PORT;
+const PORT =  process.env.PORT || 3000 ;
 server.listen(PORT ,()=> console.log(`server running on port ${PORT}`));
 

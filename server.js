@@ -17,8 +17,8 @@ const options = {
     cert: fs.readFileSync('client-cert.pem')
 };
 
-//const server =http.createServer(app);
-const server =https.createServer(options,app);
+const server =http.createServer(app);
+// const server =https.createServer(options,app);
 const io = socketio(server);
 
 var domain='https://vyzmo.com/';

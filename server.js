@@ -31,14 +31,16 @@ var bodyParser = require("body-parser");
 var SocketIOFileUpload = require('socketio-file-upload');
 //enable url encoded
 app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
+app.use(express.static(__dirname + 'public'));
 //Create instance of mysql
 var mysql = require("mysql");
 var db_config={
-    'host':process.env.HOST,
-    'user':process.env.USER,
-    'password':process.env.PASSWORD,
-    'database':process.env.DATABASE,
-    /*'user':"develope_botafoga",
+     'host':process.env.HOST,
+     'user':process.env.USER,
+     'password':process.env.PASSWORD,
+     'database':process.env.DATABASE,
+   /* 'host':'vyzmo.com',
+    'user':"develope_botafoga",
     'password':"develope_botafoga",
     'database':"develope_tbl_chat",*/
 };

@@ -184,12 +184,17 @@ button:hover {
     font-size: 10px;
 }
 .message-sent p {
-    background: #f3f3f3;
+    /*background: #f3f3f3;*/
     padding: 10px 20px 10px;
     border-radius: 20px;
     max-width: 500px;
     margin-bottom: 0px;
     font-weight: 700;
+    background-color: #368ccd;
+    color: #fff;
+}
+.user-sent-message .avatar-image {
+    margin-left:10px;
 }
 .message-sent img.upload_file_icon {
     width: 30px;
@@ -209,14 +214,16 @@ button:hover {
 .user-sent-message {
     display: flex;
     padding: 15px 0px;
+    flex-direction: row-reverse;
 }
 .user-receive-message {
     display: flex;
-    justify-content: flex-end;
+    /*justify-content: flex-end;*/
+    justify-content: end;
 }
 .user-receive-message .message-sent p {
-    background-color: #368ccd;
-    color: #fff;
+    background: #f3f3f3;
+    color: #000;
 }
 .user-receive-message .avatar-image.chat-details {
     width: 40px;
@@ -663,12 +670,18 @@ div#imagemodal {
 }
 /* dropdown list */
   
-  .dropdown {
+  /*.dropdown {
+        position: relative;
+        width: 100%;
+        display: revert;
+  }*/
+.dropdown {
     position: relative;
-    display: inline-block;
-    width: 100%;
-    text-align: right;
-  }
+    width: fit-content;
+    display: revert;
+    margin-right: 10px;
+    margin-top: 5px;
+}
   .dropdown a{
       cursor: pointer;
   }

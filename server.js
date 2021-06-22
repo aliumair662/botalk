@@ -228,17 +228,25 @@ app.post("/upload-capture-image",function (request,result){
 
 });
 //Set static folder
+
+
+//Start Mobile Api here
+
+//Get all user list
+
+
 app.use(express.static(path.join(__dirname,'public')));
 const botName='Botalk Bot';
 
 
 //Run when client connect
 io.on('connection',socket => {
-    socket.on('userConnected',(username) => {
-        //console.log(`userConnected`+username);
-        connection.query("SELECT  * FROM   users WHERE username='" +username+ "'" ,function(error,user){
+    socket.on('userConnected',(sessionid) => {
+        console.log(`sessionid`+sessionid);
+        connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
+            console.log(user);
             if(user){
-                users[username]={
+                users[user[0].username]={
                     socketid:socket.id,
                     id:user[0].id,
                     username:user[0].username,
@@ -253,14 +261,15 @@ io.on('connection',socket => {
                     avatar:domain+user[0].avatar,
                 };
                 //io.emit('userConnected',users[username]);
-                io.to(socket.id).emit('userConnected',users[username]);
+                io.to(socket.id).emit('userConnected',user);
+                io.emit('online',user[0].username);
 
             }
         });
         //users[username]=socket.id;
 
         // io.emit('userConnected',username);
-        io.emit('online',username);
+
     });
 
     //Listen Delete Message
@@ -280,7 +289,6 @@ io.on('connection',socket => {
         var message = data.message;
         var message = message.replace(/'/g, "\\'");
         if(users){
-
             var formatedMessage=formateMessage(data.sender,message);
             if(data.groupid){
                 if(users[data.sender]){

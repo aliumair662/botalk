@@ -285,6 +285,9 @@ io.on('connection',socket => {
 
     //Listen for chatMessage
     socket.on('sendMessage',function(data){
+        console.log("send message");
+        console.log(data);
+
         //var message = connection.escape(data.message);
         var message = data.message;
         var message = message.replace(/'/g, "\\'");

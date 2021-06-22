@@ -369,7 +369,7 @@ function showUserList(){
         url: document.location.origin+"/get_user_list",
         method:"POST",
         data:{
-            username:username
+            username:sender
         },
         success: function(result){
             //console.log(result);

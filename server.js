@@ -261,7 +261,7 @@ io.on('connection',socket => {
                     avatar:domain+user[0].avatar,
                 };
                 //io.emit('userConnected',users[username]);
-                io.to(socket.id).emit('userConnected',user);
+                io.to(socket.id).emit('userConnected',users[user[0].username]);
                 io.emit('online',user[0].username);
 
             }

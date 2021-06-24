@@ -19,10 +19,10 @@ if(u){
 }
 //listen from server
 socket.on('userConnected',function (user){
-    getrecentMessages(user[0].username);
+    getrecentMessages(user.username);
     //username=username;
-    sender=user[0].username;
-    console.log("username=>"+user[0].username);
+    sender=user.username;
+    console.log("username=>"+user.username);
 
 });
 socket.on('online',function (username){

@@ -321,6 +321,8 @@ io.on('connection',socket => {
 
             }
             if(data.receiver) {
+                console.log("data recived");
+                console.log(users);
                 connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", function (error, user) {
                     connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "')", function (error, result) {
                         if (error) {

@@ -39,10 +39,10 @@ var db_config={
      'user':process.env.USER,
      'password':process.env.PASSWORD,
      'database':process.env.DATABASE,
-    /*'host':'vyzmo.com',
-    'user':"mybotalkuser",
-    'password':"develope_botafoga",
-    'database':"develope_tbl_chat",*/
+    // 'host':'vyzmo.com',
+    // 'user':"mybotalkuser",
+    // 'password':"develope_botafoga",
+    // 'database':"develope_tbl_chat",
 };
 var connection =mysql.createConnection(db_config);
 

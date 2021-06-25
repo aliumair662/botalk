@@ -8,7 +8,7 @@ img {
 p {
     font-family: Roboto Light;
 }
-.container-fluid.custom-container {
+.contain-check-fluid.custom-contain-check {
     max-width: 1920px;
     margin: 0 auto;
 }
@@ -467,6 +467,12 @@ ul#menulink1 li a {
     width: 98%;
     position: relative;
 }
+.modal-content .carousel-wrap {
+    margin: 0px;
+    padding: 0% 0% 0% 0%;
+    width: 100%;
+    position: relative;
+}
 
 .mobile-view .owl-prev {
     display: none;
@@ -706,3 +712,193 @@ div#imagemodal {
   }
   
   .show {display: block;}
+  /* Group Modal */
+div#groupmodal .modal-body,.carousel-wrap .modal-body {
+    padding: 0px;
+    /* height: 60vh; */
+}
+.add-image-modal{
+    background-color: #368ccd;
+    text-align: center;
+}
+.add-image-modal a i {
+    color: #545b62;
+    font-size: 50px;
+    background: #e0eaf5;
+    padding: 20px;
+    border-radius: 50px;
+    margin: 3% 0 -3% 0;
+}
+.input-image-modal form input {
+    border: none;
+    border-bottom: 2px solid #e0eaf5;
+    border-radius: 0px;
+    text-align: center;
+    max-width: 80%;
+    margin: 20px auto;
+    font-size: 24px;
+    font-weight: 700;
+}
+.input-image-modal form input:focus{
+    outline: none;
+    box-shadow: none;
+    border-color: #e0eaf5;
+}
+div#groupmodal .modal-footer,div#groupmodal .carousel-wrap .modal-footer {
+    padding: 0rem;
+    border-top: 0;
+}
+div#groupmodal .modal-footer i,div#groupmodal .carousel-wrap .modal-footer i {
+    border-radius: 50%;
+    padding: 20px;
+}
+div#groupmodal .carousel-wrap .owl-next i {
+    color: #fff;
+    background: #007bff;
+    border-radius: 5px;
+    font-size: 25px;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 10px 15px;
+}
+div#groupmodal .carousel-wrap .owl-prev i{
+    display: none;
+}
+div#groupmodal .carousel-wrap .owl-nav{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+div#groupmodal .carousel-wrap .messenger-search form .form-control {
+    border-radius: 1.25rem;
+    border: 0px solid #368ccd;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 0;
+    background: #80808061;
+}
+div#groupmodal .carousel-wrap .messenger-search form .form-control:focus {
+   box-shadow: none;
+   outline: none;
+}
+.suggestion-list .form-check{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+.suggestion-list {
+    padding: 10px;
+}
+div#groupmodal .carousel-wrap h6 {
+    padding: 10px;
+    margin-bottom: 0px;
+}
+div#groupmodal .close:not(:disabled):not(.disabled):focus{
+    outline: none;
+}
+.suggestion-list {
+    padding: 10px;
+    max-height: 260px;
+    overflow: scroll;
+}
+.suggestion-list::-webkit-scrollbar {
+    display: none;
+  }
+  .selected-people::-webkit-scrollbar {
+    width: 10px;
+    height: 5px;
+  }
+  
+  /* Track */
+  .selected-people::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+  .selected-people::-webkit-scrollbar-thumb {
+    background: #2196F3; 
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  .selected-people::-webkit-scrollbar-thumb:hover {
+    background: #2196F3; 
+    box-shadow: inset 0 0 5px grey; 
+  }
+  /* Hide the browser's default checkbox */
+.contain-check input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  /* Create a custom checkbox */
+  .suggestion-list .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: transparent;
+    border-radius: 15px;
+    border: 1px solid #cfcfcf;
+}
+  
+  /* On mouse-over, add a grey background color */
+  .suggestion-list .contain-check:hover input ~ .checkmark {
+    background-color: #ccc;
+  }
+  
+  /* When the checkbox is checked, add a blue background */
+  .suggestion-list .contain-check input:checked ~ .checkmark {
+    background-color: #2196F3;
+  }
+  
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .suggestion-list .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  /* Show the checkmark when checked */
+  .suggestion-list .contain-check input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  /* Style the checkmark/indicator */
+  .suggestion-list .contain-check .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0px;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.selected-people {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    display: flex;
+    padding: 0px 0px 10px 10px;
+}
+.selected-people .avatar-image img {
+    width: 56px;
+}
+.selected-people .avatar-image:hover{
+    cursor: pointer;
+}
+.selected-people .avatar-image span i {
+    color: #2196F3;
+    top: 0px;
+    background: white;
+    bottom: 36px;
+    font-size: 20px;
+    right: 0px;
+}

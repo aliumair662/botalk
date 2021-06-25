@@ -6,18 +6,24 @@ const uploadform = document.getElementById('plus-icon-form');
 //Get username and room from u
 //const getUserMedia = require('get-user-media-promise');
 //const MicrophoneStream = require('microphone-stream');
-const { username } =Qs.parse(location.search,{
+//var username=null;
+var sender=null;
+const { u } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
 var domain='https://vyzmo.com/';
 const socket = io();
-if(username){
+if(u){
 //Join chat
-    socket.emit('userConnected',username);
+    socket.emit('userConnected',u);
 }
 //listen from server
 socket.on('userConnected',function (user){
     getrecentMessages(user.username);
+    //username=username;
+    sender=user.username;
+    console.log("username=>"+user.username);
+
 });
 socket.on('online',function (username){
     onlineUsers(username);
@@ -26,9 +32,10 @@ socket.on('offline',function (username){
     offlineUsers(username);
 });
 var groupid=null;
+
 var uploader = new SocketIOFileClient(socket);
 
-var sender=username;
+
 var receiver='';
 var typing=false;
 var timeout=undefined;
@@ -323,6 +330,7 @@ function selectUser(username){
 }
 function getrecentMessages(username){
     //call an ajax
+
     $.ajax({
         url: document.location.origin+"/get_recent_messages",
         method:"POST",
@@ -330,7 +338,7 @@ function getrecentMessages(username){
             username:username,
         },
         success: function(result){
-           // console.log(result);
+            console.log(result);
             userList.innerHTML='';
             var messages=JSON.parse(result);
             for(var a=0;a<messages.length;a++){
@@ -361,7 +369,7 @@ function showUserList(){
         url: document.location.origin+"/get_user_list",
         method:"POST",
         data:{
-            username:username
+            username:sender
         },
         success: function(result){
             //console.log(result);
@@ -419,6 +427,7 @@ function onlineUsers(username){
         }
     }
 }
+
 function offlineUsers(username){
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').removeClass('online');

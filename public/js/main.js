@@ -33,6 +33,7 @@ socket.on('offline',function (username){
 });
 var groupid=null;
 
+
 var uploader = new SocketIOFileClient(socket);
 
 
@@ -43,6 +44,7 @@ var timeout=undefined;
 $( "#chat-form" ).submit(function( e ) {
     e.preventDefault();
     const message = $(".emojionearea-editor").html();
+
     //Emit message to server
     if(message!=''){
         socket.emit('sendMessage',{
@@ -50,6 +52,7 @@ $( "#chat-form" ).submit(function( e ) {
             receiver:receiver,
             message:message,
             is_file:0,
+            file_type:'text',
             file_path:'',
             groupid:groupid
 
@@ -69,8 +72,9 @@ $("#thumbs-up").click(function (e){
         receiver:receiver,
         groupid:groupid,
         message:message,
-        is_file:0,
-        file_path:'',
+        is_file:1,
+        file_type:'image',
+        file_path:'files/images/thumbs-up.png',
     });
 });
 
@@ -171,8 +175,10 @@ $(document).ready(function() {
         pickerPosition: "top",
         filtersPosition: "bottom",
         tonesStyle: "checkbox",
+        saveEmojisAs: 'unicode',
         events: {
             keypress: function (editor, event) {
+                console.info(el.getText());
                 if(event.which !== 13){
                     socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:true});
                     setTimeout(function(){
@@ -191,7 +197,9 @@ $(document).ready(function() {
         console.info(data.typing);
         if(data.typing==true){
             //$('#typing_status').text(`${data.sender} is typing...`);
-            $('#room_status').text(`typing...`);
+            if($("#room-name").text()==data.sender){
+                $('#room_status').text(`typing...`);
+            }
             $(".typing_"+data.sender).text(`typing...`);
         }else{
             $('#room_status').text("online");

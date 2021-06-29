@@ -178,7 +178,7 @@ $(document).ready(function() {
         saveEmojisAs: 'unicode',
         events: {
             keypress: function (editor, event) {
-                console.info(el.getText());
+
                 if(event.which !== 13){
                     socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:true});
                     setTimeout(function(){

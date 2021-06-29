@@ -80,7 +80,7 @@ app.post("/get_messages",function (request,result){
             if(messages){
                 for(var a=0;a<messages.length;a++){
                     var message=messages[a];
-                    message.status=(users[message.sender] ? 'online' : 'offline');
+                    message.status=(users[message.receiver] ? 'online' : 'offline');
                     message.receiver_avatar=domain+user[0].avatar;
                     message.receiver_username=user[0].username;
                     message.sender_avatar=users[request.body.sender].avatar;

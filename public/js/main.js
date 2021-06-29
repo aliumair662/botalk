@@ -52,7 +52,6 @@ $( "#chat-form" ).submit(function( e ) {
             receiver:receiver,
             message:message,
             is_file:0,
-            file_type:'text',
             file_path:'',
             groupid:groupid
 
@@ -73,7 +72,6 @@ $("#thumbs-up").click(function (e){
         groupid:groupid,
         message:message,
         is_file:1,
-        file_type:'image',
         file_path:'files/images/thumbs-up.png',
     });
 });
@@ -175,7 +173,7 @@ $(document).ready(function() {
         pickerPosition: "top",
         filtersPosition: "bottom",
         tonesStyle: "checkbox",
-        saveEmojisAs: 'unicode',
+
         events: {
             keypress: function (editor, event) {
 

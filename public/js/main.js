@@ -302,6 +302,7 @@ function selectUser(username){
                 var status=messages[a].status;
                 var avatar=messages[a].receiver_avatar;
                 var username=messages[a].receiver_username;
+                console.info(messages[a].sender+'=='+sender+'=='+status);
                 if(messages[a].sender==sender){
                     messageclass='user-sent-message';
                     status='online';

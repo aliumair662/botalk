@@ -212,6 +212,7 @@ app.post("/delete_message",function (request,result){
 });
 //upload voice clip to sever //
 app.post("/upload-voice-clip",function (request,result){
+    console.log(request.body.file);
     var base64Data = request.body.file.replace(/^data:audio\/webm;codecs=opus;base64,/, "");
     fs.writeFile("public/files/uploads/"+request.body.name, base64Data, 'base64', function(err) {
         var response={

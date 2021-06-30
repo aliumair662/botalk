@@ -322,14 +322,14 @@ function uploadVoiceClip(dataURI){
         success: function(result){
             if(result){
                 var result=JSON.parse(result);
-                var message='<audio controls><source src="files/uploads/'+result+'" type="audio/mpeg"></audio>';
+                var message='<audio controls><source src="'+result.file_path+'" type="audio/mpeg"></audio>';
                 socket.emit('sendMessage',{
                     sender:sender,
                     receiver:receiver,
                     groupid:groupid,
                     message:message,
                     is_file:1,
-                    file_path:'files/uploads/'+result
+                    file_path:result.file_path
                 });
 
             }
@@ -347,13 +347,13 @@ function uploadCaptureSnapshot(dataBases64){
         success: function(result){
             if(result){
                 var result=JSON.parse(result);
-                var message='<img class="upload_image" src="'+result+'">';
+                var message='<img class="upload_image" src="'+result.file_path+'">';
                 socket.emit('sendMessage',{
                     sender:sender,
                     receiver:receiver,
                     message:message,
                     is_file:1,
-                    file_path:result
+                    file_path:result.file_path
                 });
 
             }

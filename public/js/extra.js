@@ -347,13 +347,13 @@ function uploadCaptureSnapshot(dataBases64){
         success: function(result){
             if(result){
                 var result=JSON.parse(result);
-                var message='<img class="upload_image" src="files/uploads/'+result+'">';
+                var message='<img class="upload_image" src="'+result+'">';
                 socket.emit('sendMessage',{
                     sender:sender,
                     receiver:receiver,
                     message:message,
                     is_file:1,
-                    file_path:'files/uploads/'+result
+                    file_path:result
                 });
 
             }

@@ -223,7 +223,7 @@ app.post("/upload-voice-clip",function (request,result){
 app.post("/upload-capture-image",function (request,result){
     var base64Data = request.body.file.replace(/^data:image\/png;base64,/, "");
     fs.writeFile("public/files/uploads/"+request.body.name, base64Data, 'base64', function(err) {
-        result.end(JSON.stringify(request.body.name));
+        result.end(JSON.stringify(document.location.origin+'/files/uploads/'+request.body.name));
     });
 
 });

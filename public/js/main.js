@@ -2,6 +2,8 @@ const chatForm =document.getElementById('chat-form');
 const chatMessages =document.querySelector('.chat-messages');
 const roomName =document.getElementById('room-name');
 const userList =document.getElementById('users');
+const userListCreateGroup =document.getElementById('suggestion-list');
+const GroupSelected =document.getElementById('selected-people');
 const uploadform = document.getElementById('plus-icon-form');
 //Get username and room from u
 //const getUserMedia = require('get-user-media-promise');
@@ -21,6 +23,7 @@ if(u){
 socket.on('userConnected',function (user){
     getrecentMessages(user.username);
     //username=username;
+    $("#loginusername").text(user.username);
     sender=user.username;
     console.log("username=>"+user.username);
 
@@ -53,6 +56,7 @@ $( "#chat-form" ).submit(function( e ) {
             message:message,
             is_file:0,
             file_path:'',
+            file_type:'',
             groupid:groupid
 
         });
@@ -72,6 +76,7 @@ $("#thumbs-up").click(function (e){
         groupid:groupid,
         message:message,
         is_file:1,
+        file_type:'image',
         file_path:'files/images/thumbs-up.png',
     });
 });
@@ -94,18 +99,23 @@ uploader.on('stream', function(fileInfo) {
 uploader.on('complete', function(fileInfo) {
     console.log('Upload Complete', fileInfo);
     if(fileInfo){
+        var file_type='';
         var mime_images=['image/png', 'image/jpg','image/jpeg','image/gif'];
         var mime_audio=['audio/mpeg', 'audio/mp3'];
         var mime_videos=['video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'];
         if(mime_images.includes(fileInfo.mime)){
             var message='<img class="upload_image" src="files/uploads/'+fileInfo.name+'">';
+            file_type='image';
         }else if(mime_videos.includes(fileInfo.mime)){
             var message='<video controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></video>';
+            file_type='video';
         }
         else if(mime_audio.includes(fileInfo.mime)){
             var message='<audio controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></audio>';
+            file_type='audio';
         }else{
             var message='<img src="files/images/file.svg" class="upload_file_icon"> <a href="files/uploads/'+fileInfo.name+'" class="upload_file"   target="_blank" download>'+fileInfo.name+'</a>';
+            file_type='file';
         }
         socket.emit('sendMessage',{
             sender:sender,
@@ -113,6 +123,7 @@ uploader.on('complete', function(fileInfo) {
             groupid:groupid,
             message:message,
             is_file:1,
+            file_type:file_type,
             file_path:'files/uploads/'+fileInfo.name,
         });
 
@@ -361,6 +372,9 @@ function getrecentMessages(username){
             }
         }});
 }
+function addToGroupUser($this,username,avatar,status){
+
+}
 function formatAMPM(date) {
     var hours = date.getHours();
     var minutes = date.getMinutes();
@@ -398,6 +412,42 @@ function showUserList(){
     $(".show-chat-area").addClass('d-none');
     $(".no-message-found").removeClass('d-none');
     chatMessages.innerHTML='';
+    return ;
+}
+function showUserListForGroup(){
+    $.ajax({
+        url: document.location.origin+"/get_user_list",
+        method:"POST",
+        data:{
+            username:sender
+        },
+        success: function(result){
+            userListCreateGroup.innerHTML='';
+            var userlist=JSON.parse(result);
+            for(var a=0;a<userlist.length;a++){
+                userListCreateGroup.innerHTML += ` 
+                     <div class="row message-grid">
+                            <div class="avatar-image">
+                                <img src="${userlist[a].avatar}" alt="" />
+                                <span><i class="fas fa-circle ${userlist[a].status}"></i></span>
+                            </div>
+                            <div class="user-chat">
+                                <h5>${userlist[a].username}</h5>
+                                <div class="form-check">
+                                    <label class="contain-check">
+                                        <input type="checkbox" checked="checked" onclick="addToGroupUser(this,'${userlist[a].username}','${userlist[a].avatar}','${userlist[a].status}');">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                `;
+
+            }
+
+
+        }});
+
     return ;
 }
 function deleteMessage(id){

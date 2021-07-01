@@ -302,7 +302,7 @@ io.on('connection',socket => {
             if(data.groupid){
                 if(users[data.sender]){
                     connection.query("SELECT  * FROM   message_group WHERE name='" +data.groupid+ "'" ,function(error,group){
-                        connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "')" ,function(error,result){
+                        connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')" ,function(error,result){
                             if (error) {
                                 console.error('error connecting: ' + error.stack);
                                 return;
@@ -325,38 +325,60 @@ io.on('connection',socket => {
 
                 }
 
+
             }
             if(data.receiver) {
                 console.log("data recived");
                 console.log(users);
                 connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", function (error, user) {
-                    connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "')", function (error, result) {
+                    connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,file_type ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "', '" + data.file_type + "')", function (error, result) {
                         if (error) {
                             console.error('error connecting: ' + error.stack);
                             return;
                         }
-                        if (users[data.receiver]) {
-                            var socketId = users[data.receiver].socketid;
-                            if (socketId) {
-                                formatedMessage.status = 'online';
-                                formatedMessage.avatar = users[data.sender].avatar;
-                                formatedMessage.username = users[data.sender].username;
-                                formatedMessage.is_file = data.is_file;
-                                formatedMessage.file_path = data.file_path;
-                                formatedMessage.id = result.insertId;
-                            }
-                            io.to(socketId).emit('message', formatedMessage);
-                        }
-                        // show message on to sender  while sending
-                        if (users[data.sender]) {
-                            formatedMessage.status = 'online';
-                            formatedMessage.avatar = users[data.sender].avatar;
-                            formatedMessage.username = users[data.sender].username;
-                            formatedMessage.is_file = data.is_file;
-                            formatedMessage.file_path = data.file_path;
-                            formatedMessage.id = result.insertId;
-                            io.to(users[data.sender].socketid).emit('showmemessage', formatedMessage);
-                        }
+                        if (result) {
+                            connection.query("SELECT  * FROM   messages WHERE  id ='" +result.insertId+ "'" ,function(error,thismessages){
+                                if(thismessages){
+                                    var user_live=false;
+
+                                    var message=thismessages[0];
+                                    if(users[message.receiver]){
+                                        user_live=true;
+                                    }
+                                    message.status=(users[message.receiver] ? 'online' : 'offline');
+                                    message.receiver_avatar=domain+user[0].avatar;
+                                    message.receiver_username=user[0].username;
+                                    message.sender_avatar=users[message.sender].avatar;
+                                    message.sender_username=users[message.sender].username;
+                                    message.time=message.message_time;
+                                    message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
+                                    if (users[data.receiver]) {
+                                        var socketId = users[data.receiver].socketid;
+                                        if (socketId) {
+                                            message.status = 'online';
+                                            message.avatar = users[data.sender].avatar;
+                                            message.username = users[data.sender].username;
+                                            /*message.is_file = data.is_file;
+                                            message.file_path = data.file_path;
+                                            message.id = result.insertId;*/
+                                        }
+                                        io.to(socketId).emit('message', message);
+                                    }
+                                    // show message on to sender  while sending
+                                    if (users[data.sender]) {
+                                        message.status = 'online';
+                                        message.avatar = users[data.sender].avatar;
+                                        message.username = users[data.sender].username;
+                                       /* message.is_file = data.is_file;
+                                        message.file_path = data.file_path;
+                                        message.id = result.insertId;*/
+                                        io.to(users[data.sender].socketid).emit('showmemessage', message);
+                                    }
+                                }
+
+                            });
+
+                    }
                     });
                 });
                 //save in database

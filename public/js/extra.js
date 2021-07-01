@@ -329,6 +329,7 @@ function uploadVoiceClip(dataURI){
                     groupid:groupid,
                     message:message,
                     is_file:1,
+                    file_type:'audio',
                     file_path:result.file_path
                 });
 
@@ -353,6 +354,7 @@ function uploadCaptureSnapshot(dataBases64){
                     receiver:receiver,
                     message:message,
                     is_file:1,
+                    file_type:'image',
                     file_path:result.file_path
                 });
 

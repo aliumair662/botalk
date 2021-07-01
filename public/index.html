@@ -34,7 +34,7 @@
                     </div>
                     <div class="col-6">
                         <div class="messenger-share text-right" width="100%">
-                            <a href="#" data-toggle="modal" data-target="#groupmodal">
+                            <a href="#" data-toggle="modal" data-target="#groupmodal" onclick="showUserListForGroup();">
                                 <i class="fal fa-users"></i>
                             </a>
                         </div>
@@ -217,7 +217,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="add-image-modal">
-                           <a href=""><i class="fas fa-camera"></i></a> 
+                           <a href=""><i class="fas fa-camera"></i></a>
                         </div>
                         <div class="input-image-modal">
                             <form>
@@ -244,151 +244,26 @@
                             </div>
                         </form>
                     </div>
-                    <div class="selected-people">
+                    <div class="selected-people" id="selected-people">
                         <div class="avatar-image">
                             <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
                             <span><i class="fal fa-times-circle"></i></span>
                         </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
+
                     </div>
                     <h6>Suggestions</h6>
-                    <div class="suggestion-list">
-                        <div class="row message-grid" onclick="selectUser('ziko');">
-                            <div class="avatar-image">
-                                <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="" />
-                                <span><i class="fas fa-circle offline"></i></span>
-                            </div>
-                            <div class="user-chat">
-                                <h5>ziko <span class="typing_ziko"></span></h5>
-                                <div class="form-check">
-                                    <label class="contain-check">
-                                        <input type="checkbox" checked="checked">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row message-grid" onclick="SelectGroup('undefined','99tech');">
-                            <div class="avatar-image">
-                                <img src="https://vyzmo.com/upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png" alt="" />
-                                <span></span>
-                            </div>
-                            <div class="user-chat">
-                                <h5>ziko <span class="typing_ziko"></span></h5>
-                                <div class="form-check">
-                                    <label class="contain-check">
-                                        <input type="checkbox" checked="checked">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row message-grid" onclick="selectUser('ziko');">
-                            <div class="avatar-image">
-                                <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="" />
-                                <span><i class="fas fa-circle offline"></i></span>
-                            </div>
-                            <div class="user-chat">
-                                <h5>ziko <span class="typing_ziko"></span></h5>
-                                <div class="form-check">
-                                    <label class="contain-check">
-                                        <input type="checkbox" checked="checked">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row message-grid" onclick="SelectGroup('undefined','99tech');">
-                            <div class="avatar-image">
-                                <img src="https://vyzmo.com/upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png" alt="" />
-                                <span></span>
-                            </div>
-                            <div class="user-chat">
-                                <h5>ziko <span class="typing_ziko"></span></h5>
-                                <div class="form-check">
-                                    <label class="contain-check">
-                                        <input type="checkbox" checked="checked">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row message-grid" onclick="selectUser('ziko');">
-                            <div class="avatar-image">
-                                <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="" />
-                                <span><i class="fas fa-circle offline"></i></span>
-                            </div>
-                            <div class="user-chat">
-                                <h5>ziko <span class="typing_ziko"></span></h5>
-                                <div class="form-check">
-                                    <label class="contain-check">
-                                        <input type="checkbox" checked="checked">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row message-grid" onclick="SelectGroup('undefined','99tech');">
-                            <div class="avatar-image">
-                                <img src="https://vyzmo.com/upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png" alt="" />
-                                <span></span>
-                            </div>
-                            <div class="user-chat">
-                                <h5>ziko <span class="typing_ziko"></span></h5>
-                                <div class="form-check">
-                                    <label class="contain-check">
-                                        <input type="checkbox" checked="checked">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="suggestion-list" id="suggestion-list">
+
+
+
                     </div>
-                    
+
               </div>
             </div>
           </div>
       </div>
     </div>
+  </div>
   </div>
   <!-- Modal -->
   <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="imagemodalTitle" aria-hidden="true">
@@ -407,7 +282,7 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div>
 <script>
     function showOrHide(zap) {
         if (document.getElementById) {

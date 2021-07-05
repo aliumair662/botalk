@@ -255,7 +255,7 @@ app.post("/upload-media",function (request,result){
         var oldpath = files.uploadfile.path;
         var newpath = upload_path + fields.name;
         // copy the file to a new location
-        fs.rename(oldpath, newpath, function (err) {
+        fs.copyFile(oldpath, newpath, function (err) {
             if (err) throw err;
             // you may respond with another html page
             var response={

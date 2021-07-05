@@ -12,6 +12,7 @@ const { userGroupJoin , getCurrentGroupUser ,userGroupLeave,getGroupRoomUsers } 
 const app = express();
 dotenv.config({ path: "config/config.env" });
 var fs = require("fs");
+var formidable = require('formidable');
 const options = {
     key: fs.readFileSync('client-key.pem'),
     cert: fs.readFileSync('client-cert.pem')
@@ -213,7 +214,7 @@ app.post("/delete_message",function (request,result){
 //upload voice clip to sever //
 app.post("/upload-voice-clip",function (request,result){
     console.log(request.body.file);
-    var data='';
+
     var base64Data = request.body.file.replace("data:", "")
         .replace(/^.+,/, "");
     console.log(base64Data);
@@ -241,7 +242,30 @@ app.post("/upload-capture-image",function (request,result){
 //Set static folder
 
 
+
 //Start Mobile Api here
+
+//uplaod video api for mobile
+
+app.post("/upload-media",function (request,result){
+    var upload_path = "public/files/uploads/";
+    var form = new formidable.IncomingForm();
+    form.parse(request,function (err, fields, files) {
+        // oldpath : temporary folder to which file is saved to
+        var oldpath = files.uploadfile.path;
+        var newpath = upload_path + fields.name;
+        // copy the file to a new location
+        fs.rename(oldpath, newpath, function (err) {
+            if (err) throw err;
+            // you may respond with another html page
+            var response={
+                'file_path': temp_url+'/files/uploads/'+fields.name,
+            };
+            result.end(JSON.stringify(response));
+        });
+    });
+
+});
 
 //Get all user list
 

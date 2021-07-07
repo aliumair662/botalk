@@ -425,7 +425,14 @@ io.on('connection',socket => {
             userGroupLeave(user.id);
             delete users[user.username];
             delete usersbysocket[user.socketid];
-            io.emit('offline',user.username);
+            connection.query("SELECT  last_seen FROM   users WHERE  id ='" +user.id+ "'" ,function(error,lastseen){
+                var offlinedata={
+                  'username':user.username,
+                  'last_seen':timeDifference(lastseen[0].last_seen),
+                };
+                io.emit('offline',offlinedata);
+            });
+
         }
 
     });

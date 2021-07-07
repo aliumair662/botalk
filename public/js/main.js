@@ -31,8 +31,8 @@ socket.on('userConnected',function (user){
 socket.on('online',function (username){
     onlineUsers(username);
 });
-socket.on('offline',function (username){
-    offlineUsers(username);
+socket.on('offline',function (data){
+    offlineUsers(data.username);
 });
 var groupid=null;
 

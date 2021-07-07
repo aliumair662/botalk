@@ -68,31 +68,46 @@ app.use(function(request,result,next){
 //Create api call to return all messages
 app.post("/get_messages",function (request,result){
     //get all messages from database
-
-    connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,user){
-        connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +user[0].id+ "') OR (from_id= '" +user[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
-            //json response
-            var user_live=false;
-            if(users[request.body.receiver]){
-                user_live=true;
-            }
-            var list=[];
-            if(messages){
-                for(var a=0;a<messages.length;a++){
-                    var message=messages[a];
-                    message.status=(users[request.body.receiver] ? 'online' : 'offline');
-                    message.receiver_avatar=domain+user[0].avatar;
-                    message.receiver_username=user[0].username;
-                    message.sender_avatar=users[request.body.sender].avatar;
-                    message.sender_username=users[request.body.sender].username;
-                    message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
-                    list[a]=message;
+console.log(users);
+    if(users[request.body.sender]){
+        connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
+            connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
+                //json response
+                var user_live=false;
+                if(users[request.body.receiver]){
+                    user_live=true;
                 }
-            }
-            result.end(JSON.stringify(list));
+                var list=[];
+                if(messages){
+                    for(var a=0;a<messages.length;a++){
+                        var message=messages[a];
+                        message.status=(users[request.body.receiver] ? 'online' : 'offline');
+                        message.receiver_avatar=domain+receiver[0].avatar;
+                        message.receiver_username=receiver[0].username;
+                        message.sender_avatar=users[request.body.sender].avatar;
+                        message.sender_username=users[request.body.sender].username;
+                        message.last_seen=(receiver[0].last_seen && !user_live ? timeDifference(receiver[0].last_seen) : '');
+                        list[a]=message;
+                    }
+                }
+                var data={
+                    'status':200,
+                    'data':list,
 
+                };
+                result.end(JSON.stringify(data));
+
+            });
         });
-    });
+    }else{
+        var data={
+          'status':400,
+          'message':'socket id not exits',
+
+        };
+        result.end(JSON.stringify(data));
+    }
+
 
 
 });
@@ -127,72 +142,108 @@ app.post("/get_group_messages",function (request,result){
 //Create api call to return all recent messages to specific user
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
-    connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentmessages){
-        //json response
-        var list=[];
-        if(recentmessages){
-            for(var a=0;a<recentmessages.length;a++){
-                var message=recentmessages[a];
-                message.avatar=domain+message.avatar;
-                message.groupid=null;
-                message.groupname=null;
-                message.status=(users[message.username] ? 'online' : 'offline');
-                list[a]=message;
-            }
-        }
-        //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
-
-        connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
-            if(recentGroupmessages){
-                for(var k=0;k<recentGroupmessages.length;k++){
-                    var message=recentGroupmessages[k];
+    if(users[request.body.username]){
+        connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentmessages){
+            //json response
+            var list=[];
+            if(recentmessages){
+                for(var a=0;a<recentmessages.length;a++){
+                    var message=recentmessages[a];
                     message.avatar=domain+message.avatar;
+                    message.groupid=null;
+                    message.groupname=null;
                     message.status=(users[message.username] ? 'online' : 'offline');
-                    message.groupid=message.groupid;
-                    message.groupname=message.groupname;
                     list[a]=message;
-                    a++;
                 }
             }
-            result.end(JSON.stringify(list));
+            //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
+
+            connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
+                if(recentGroupmessages){
+                    for(var k=0;k<recentGroupmessages.length;k++){
+                        var message=recentGroupmessages[k];
+                        message.avatar=domain+message.avatar;
+                        message.status=(users[message.username] ? 'online' : 'offline');
+                        message.groupid=message.groupid;
+                        message.groupname=message.groupname;
+                        list[a]=message;
+                        a++;
+                    }
+                }
+                /*result.end(JSON.stringify(list));*/
+                var data={
+                    'status':200,
+                    'data':list,
+
+                };
+                result.end(JSON.stringify(data));
+            });
+
         });
 
-    });
+    }else{
+        var data={
+            'status':400,
+            'message':'socket id not exits',
+
+        };
+        result.end(JSON.stringify(data));
+    }
+
 
 });
 
 //Get all user list
 app.post("/get_user_list",function (request,result){
     //get all messages from database
-    connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' "  ,function(error,userlist){
-        //json response
-        var list=[];
-        if(userlist){
-            for(var a=0;a<userlist.length;a++){
-                var user=userlist[a];
-                user.avatar=domain+user.avatar;
-                user.groupid='';
-                user.groupname='';
-                //console.log(user);
-                user.status=(users[user.username] ? 'online' : 'offline');
-                list[a]=user;
-            }
-        }
-        connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,Grouplist){
-            if(Grouplist){
-                for(var k=0;k<Grouplist.length;k++){
-                    var user=Grouplist[k];
+
+        connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' "  ,function(error,userlist){
+            //json response
+            var list=[];
+            if(userlist){
+                for(var a=0;a<userlist.length;a++){
+                    var user=userlist[a];
                     user.avatar=domain+user.avatar;
-                    user.username=user.groupname;
+                    user.groupid='';
+                    user.groupname='';
                     //console.log(user);
-                    user.status='offline';
+                    user.status=(users[user.username] ? 'online' : 'offline');
                     list[a]=user;
-                    a++;
                 }
             }
-            result.end(JSON.stringify(list));
+            connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,Grouplist){
+                if(Grouplist){
+                    for(var k=0;k<Grouplist.length;k++){
+                        var user=Grouplist[k];
+                        user.avatar=domain+user.avatar;
+                        user.username=user.groupname;
+                        //console.log(user);
+                        user.status='offline';
+                        list[a]=user;
+                        a++;
+                    }
+                }
+                /*result.end(JSON.stringify(list));*/
+                if (list.length === 0) {
+                    var data={
+                        'status':400,
+                        'message':'no data found',
+                    };
+                    result.end(JSON.stringify(data));
+                }else{
+                    var data={
+                        'status':200,
+                        'data':list,
+                    };
+                    result.end(JSON.stringify(data));
+                }
+
+            });
         });
-    });
+
+
+
+
 
 });
 //Create api call to return all recent messages to specific user

@@ -302,7 +302,8 @@ function selectUser(username){
           receiver:receiver,
         },
         success: function(result){
-            var messages=JSON.parse(result);
+            var messages=JSON.parse(result)
+            messages=messages.data;
             var last_seen=messages[0].last_seen;
             //console.info(last_seen);
                 $("#last_seen").text(last_seen);
@@ -359,6 +360,7 @@ function getrecentMessages(username){
             console.log(result);
             userList.innerHTML='';
             var messages=JSON.parse(result);
+            messages=messages.data;
             for(var a=0;a<messages.length;a++){
                 outputUsers({
                     text:messages[a].text,
@@ -397,6 +399,7 @@ function showUserList(){
             userList.innerHTML='';
             console.info(result);
             var userlist=JSON.parse(result);
+            userlist=userlist.data;
             for(var a=0;a<userlist.length;a++){
                 outputUsers({
                     text:'',

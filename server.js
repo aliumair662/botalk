@@ -65,6 +65,7 @@ app.use(function(request,result,next){
     next();
 });
 
+
 //Create api call to return all messages
 app.post("/get_messages",function (request,result){
     //get all messages from database
@@ -148,36 +149,37 @@ app.post("/get_group_messages",function (request,result){
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
    /* if(users[request.body.username]){*/
-        connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +request.body.userid+ "'     " ,function(error,recentmessages){
+        connection.query("SELECT * from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     " ,function(error,recentmessages){
+        /*connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +request.body.userid+ "'     " ,function(error,recentmessages){*/
             //json response
             var list=[];
             if(recentmessages){
                 var allusersdata=[];
                 for(var a=0;a<recentmessages.length;a++){
                     var message=recentmessages[a];
-                    message.avatar=null;
                     message.status='offline';
-
-                      connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'" ,function(error,userdata){
-                       console.log("userdata");
-                       console.log(userdata);
-
-                        //if(userdata){
-                            message.userid=userdata[0].id;
-                            message.avatar=domain+userdata[0].avatar;
-                            message.status=(users[userdata[0].username] ? 'online' : 'offline');
-                            message.username=userdata[0].username;
-                       // }
-                    });
-
+                    message.userid=message.id;
+                    message.avatar=domain+message.avatar;
+                    message.status=(users[message.username] ? 'online' : 'offline');
                     message.last_message={};
                     message.groupid=null;
                     message.groupname=null;
-                    connection.query("SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1 " ,function(error,lastmessages){
+                    message.last_message={};
+                    /*var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1";
+                    const rows = await querydata(query);
+
+
+                    console.log("rows");
+                    console.log(rows);
+                    var data=
+                      connection.query("SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1 " ,function(error,lastmessages){
+                        console.log("lastmessages");
+                        console.log(lastmessages);
+
                         if(lastmessages){
                             message.last_message=lastmessages[0];
                         }
-                    });
+                    });*/
                     list[a]=message;
 
                 }
@@ -597,6 +599,7 @@ function  userLeave(id){
     return user;
 
 }
+
 ///Convert Last seen
 function timeDifference(previous) {
     var current=new Date();

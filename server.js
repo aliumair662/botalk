@@ -149,7 +149,7 @@ app.post("/get_group_messages",function (request,result){
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
    /* if(users[request.body.username]){*/
-        connection.query("SELECT * from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     " ,function(error,recentmessages){
+        connection.query("SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     " ,function(error,recentmessages){
         /*connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +request.body.userid+ "'     " ,function(error,recentmessages){*/
             //json response
             var list=[];

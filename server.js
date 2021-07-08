@@ -68,7 +68,9 @@ app.use(function(request,result,next){
 //Create api call to return all messages
 app.post("/get_messages",function (request,result){
     //get all messages from database
+console.log("bug");
 console.log(users);
+console.log(request.body.sender);
     if(users[request.body.sender]){
         connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
             connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
@@ -141,6 +143,7 @@ app.post("/get_group_messages",function (request,result){
 
 
 });
+
 //Create api call to return all recent messages to specific user
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
@@ -149,18 +152,24 @@ app.post("/get_recent_messages",function (request,result){
             //json response
             var list=[];
             if(recentmessages){
+                var allusersdata=[];
                 for(var a=0;a<recentmessages.length;a++){
                     var message=recentmessages[a];
                     message.avatar=null;
                     message.status='offline';
-                    connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'" ,function(error,userdata){
-                        if(userdata){
+
+                      connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'" ,function(error,userdata){
+                       console.log("userdata");
+                       console.log(userdata);
+
+                        //if(userdata){
                             message.userid=userdata[0].id;
                             message.avatar=domain+userdata[0].avatar;
                             message.status=(users[userdata[0].username] ? 'online' : 'offline');
                             message.username=userdata[0].username;
-                        }
+                       // }
                     });
+
                     message.last_message={};
                     message.groupid=null;
                     message.groupname=null;
@@ -170,7 +179,11 @@ app.post("/get_recent_messages",function (request,result){
                         }
                     });
                     list[a]=message;
+
                 }
+                console.log("list");
+                console.log(list);
+
             }
             //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
 

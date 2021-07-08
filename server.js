@@ -155,6 +155,7 @@ app.post("/get_recent_messages",function (request,result){
                     message.status='offline';
                     connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'" ,function(error,userdata){
                         if(userdata){
+                            message.userid=userdata[0].id;
                             message.avatar=domain+userdata[0].avatar;
                             message.status=(users[userdata[0].username] ? 'online' : 'offline');
                             message.username=userdata[0].username;

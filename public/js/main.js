@@ -269,7 +269,7 @@ function  outputUsers(message){
 <span >${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
         }else{
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}');"><div class="avatar-image" >
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}','${message.userid}');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
@@ -282,7 +282,7 @@ function  outputUsers(message){
     //userList.appendChild(div);
 }
 
-function selectUser(username){
+function selectUser(username,userid){
     document.getElementById('room-name').innerText=username;
     receiver=username;
     $(".show-chat-area").removeClass('d-none');
@@ -299,7 +299,7 @@ function selectUser(username){
         method:"POST",
         data:{
           sender:sender,
-          receiver:receiver,
+            receiver:receiver,
         },
         success: function(result){
             var messages=JSON.parse(result)
@@ -365,6 +365,7 @@ function getrecentMessages(userid){
                 outputUsers({
                     text:(messages[a].last_message ? messages[a].last_message.text : ''),
                     username:messages[a].username,
+                    userid:messages[a].userid,
                     time:(messages[a].last_message ? messages[a].last_message.message_time : ''),
                     status:messages[a].status,
                     avatar:messages[a].avatar,

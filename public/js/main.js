@@ -363,9 +363,9 @@ function getrecentMessages(username){
             messages=messages.data;
             for(var a=0;a<messages.length;a++){
                 outputUsers({
-                    text:messages[a].text,
+                    text:(messages[a].last_message ? messages[a].last_message.text : ''),
                     username:messages[a].username,
-                    time:messages[a].time,
+                    time:(messages[a].last_message ? messages[a].last_message.message_time : ''),
                     status:messages[a].status,
                     avatar:messages[a].avatar,
                     groupid:messages[a].groupid,

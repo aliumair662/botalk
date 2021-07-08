@@ -143,16 +143,29 @@ app.post("/get_group_messages",function (request,result){
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
     if(users[request.body.username]){
-        connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentmessages){
+        connection.query("SELECT  distinct from_id FROM   messages WHERE to_id ='" +users[request.body.username].id+ "' union SELECT  distinct to_id FROM   messages WHERE from_id ='" +users[request.body.username].id+ "'     " ,function(error,recentmessages){
             //json response
             var list=[];
             if(recentmessages){
                 for(var a=0;a<recentmessages.length;a++){
                     var message=recentmessages[a];
-                    message.avatar=domain+message.avatar;
+                    message.avatar=null;
+                    message.status='offline';
+                    connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'    " ,function(error,userdata){
+                        if(userdata){
+                            message.avatar=domain+userdata[0].avatar;
+                            message.status=(users[userdata[0].username] ? 'online' : 'offline');
+                            message.username=userdata[0].username;
+                        }
+                    });
+                    message.last_message={};
                     message.groupid=null;
                     message.groupname=null;
-                    message.status=(users[message.username] ? 'online' : 'offline');
+                    connection.query("SELECT  * FROM   messages WHERE  (messages.to_id ='" +users[request.body.username].id+ "' or  messages.from_id ='" +users[request.body.username].id+ "')  order BY messages.id desc limit 0,1 " ,function(error,lastmessages){
+                        if(lastmessages){
+                            message.last_message=lastmessages[0];
+                        }
+                    });
                     list[a]=message;
                 }
             }

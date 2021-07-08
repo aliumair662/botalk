@@ -163,24 +163,7 @@ app.post("/get_recent_messages",function (request,result){
                     message.status=(users[message.username] ? 'online' : 'offline');
                     message.groupid=null;
                     message.groupname=null;
-                    message.last_message= {
-                        "id": 189,
-                        "from_id": 76,
-                        "to_id": 268,
-                        "to_group_id": null,
-                        "text": "hi",
-                        "seen": 0,
-                        "time": 0,
-                        "from_deleted": 0,
-                        "to_deleted": 0,
-                        "not_public_message": 0,
-                        "sender": "testuser78692",
-                        "receiver": "terrymiller",
-                        "message_time": "5:50:pm",
-                        "is_file": 0,
-                        "file_path": "",
-                        "file_type": "text"
-                    };
+                    message.last_message= 'hi';
                     /*var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1";
                     const rows = await querydata(query);
 

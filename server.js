@@ -71,7 +71,7 @@ app.post("/get_messages",function (request,result){
 console.log(users);
     if(users[request.body.sender]){
         connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
-            connection.query("SELECT  * FROM   messages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
+            connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
                 //json response
                 var user_live=false;
                 if(users[request.body.receiver]){
@@ -82,11 +82,13 @@ console.log(users);
                     for(var a=0;a<messages.length;a++){
                         var message=messages[a];
                         message.status=(users[request.body.receiver] ? 'online' : 'offline');
+                        message.avatar=domain+receiver[0].avatar;
+                        message.username=receiver[0].username;
+                        message.last_seen=(receiver[0].last_seen && !user_live ? timeDifference(receiver[0].last_seen) : '');
                         message.receiver_avatar=domain+receiver[0].avatar;
                         message.receiver_username=receiver[0].username;
                         message.sender_avatar=users[request.body.sender].avatar;
                         message.sender_username=users[request.body.sender].username;
-                        message.last_seen=(receiver[0].last_seen && !user_live ? timeDifference(receiver[0].last_seen) : '');
                         list[a]=message;
                     }
                 }
@@ -116,7 +118,7 @@ app.post("/get_group_messages",function (request,result){
     //get all messages from database
 
     connection.query("SELECT  * FROM   message_group WHERE name='" +request.body.groupid+ "'" ,function(error,group){
-        connection.query("SELECT  messages.*,users.avatar,users.username FROM   messages,users WHERE messages.to_group_id='" +group[0].id+ "' and messages.from_id=users.id   ORDER BY id ASC" ,function(error,messages){
+        connection.query("SELECT  chatmessages.*,users.avatar,users.username FROM   chatmessages,users WHERE chatmessages.to_group_id='" +group[0].id+ "' and chatmessages.from_id=users.id   ORDER BY id ASC" ,function(error,messages){
             //json response
 
             var list=[];
@@ -143,7 +145,7 @@ app.post("/get_group_messages",function (request,result){
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
     if(users[request.body.username]){
-        connection.query("SELECT  distinct from_id FROM   messages WHERE to_id ='" +users[request.body.username].id+ "' union SELECT  distinct to_id FROM   messages WHERE from_id ='" +users[request.body.username].id+ "'     " ,function(error,recentmessages){
+        connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +users[request.body.username].id+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +users[request.body.username].id+ "'     " ,function(error,recentmessages){
             //json response
             var list=[];
             if(recentmessages){
@@ -151,7 +153,7 @@ app.post("/get_recent_messages",function (request,result){
                     var message=recentmessages[a];
                     message.avatar=null;
                     message.status='offline';
-                    connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'    " ,function(error,userdata){
+                    connection.query("SELECT  * FROM   users WHERE  id ='" +message.from_id+ "'" ,function(error,userdata){
                         if(userdata){
                             message.avatar=domain+userdata[0].avatar;
                             message.status=(users[userdata[0].username] ? 'online' : 'offline');
@@ -161,7 +163,7 @@ app.post("/get_recent_messages",function (request,result){
                     message.last_message={};
                     message.groupid=null;
                     message.groupname=null;
-                    connection.query("SELECT  * FROM   messages WHERE  (messages.to_id ='" +users[request.body.username].id+ "' or  messages.from_id ='" +users[request.body.username].id+ "')  order BY messages.id desc limit 0,1 " ,function(error,lastmessages){
+                    connection.query("SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +users[request.body.username].id+ "' or  chatmessages.from_id ='" +users[request.body.username].id+ "')  order BY chatmessages.id desc limit 0,1 " ,function(error,lastmessages){
                         if(lastmessages){
                             message.last_message=lastmessages[0];
                         }
@@ -171,7 +173,7 @@ app.post("/get_recent_messages",function (request,result){
             }
             //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
 
-            connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
+            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
                 if(recentGroupmessages){
                     for(var k=0;k<recentGroupmessages.length;k++){
                         var message=recentGroupmessages[k];
@@ -224,7 +226,7 @@ app.post("/get_user_list",function (request,result){
                     list[a]=user;
                 }
             }
-            connection.query("SELECT   messages.text,messages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,messages.to_group_id,messages.id,users.username FROM   messages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  messages.id IN ( SELECT MAX(id) FROM messages GROUP BY to_group_id ) " ,function(error,Grouplist){
+            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,Grouplist){
                 if(Grouplist){
                     for(var k=0;k<Grouplist.length;k++){
                         var user=Grouplist[k];
@@ -262,9 +264,9 @@ app.post("/get_user_list",function (request,result){
 //Create api call to return all recent messages to specific user
 app.post("/delete_message",function (request,result){
     //get  message from database
-    connection.query("SELECT  *   FROM   messages WHERE id ='" +request.body.id+ "' " ,function(error,message){
+    connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,message){
 
-        connection.query("delete   FROM   messages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
+        connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
             if(message[0].is_file){
                 var filePath = 'public/'+message[0].file_path;
                 fs.unlinkSync(filePath);
@@ -395,7 +397,7 @@ io.on('connection',socket => {
             if(data.groupid){
                 if(users[data.sender]){
                     connection.query("SELECT  * FROM   message_group WHERE name='" +data.groupid+ "'" ,function(error,group){
-                        connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')" ,function(error,result){
+                        connection.query("INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')" ,function(error,result){
                             if (error) {
                                 console.error('error connecting: ' + error.stack);
                                 return;
@@ -424,13 +426,13 @@ io.on('connection',socket => {
                 console.log("data recived");
                 console.log(users);
                 connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", function (error, user) {
-                    connection.query("INSERT INTO  messages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,file_type ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "', '" + data.file_type + "')", function (error, result) {
+                    connection.query("INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,file_type ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "', '" + data.file_type + "')", function (error, result) {
                         if (error) {
                             console.error('error connecting: ' + error.stack);
                             return;
                         }
                         if (result) {
-                            connection.query("SELECT  * FROM   messages WHERE  id ='" +result.insertId+ "'" ,function(error,thismessages){
+                            connection.query("SELECT  * FROM   chatmessages WHERE  id ='" +result.insertId+ "'" ,function(error,thismessages){
                                 if(thismessages){
                                     var user_live=false;
 

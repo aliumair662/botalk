@@ -21,7 +21,7 @@ if(u){
 }
 //listen from server
 socket.on('userConnected',function (user){
-    getrecentMessages(user.username);
+    getrecentMessages(user.id);
     //username=username;
     $("#loginusername").text(user.username);
     sender=user.username;
@@ -347,14 +347,14 @@ function selectUser(username){
         $("#room_avatar").attr("src",avatar);
 
 }
-function getrecentMessages(username){
+function getrecentMessages(userid){
     //call an ajax
 
     $.ajax({
         url: document.location.origin+"/get_recent_messages",
         method:"POST",
         data:{
-            username:username,
+            userid:userid,
         },
         success: function(result){
             console.log(result);

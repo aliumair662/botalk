@@ -144,8 +144,8 @@ app.post("/get_group_messages",function (request,result){
 //Create api call to return all recent messages to specific user
 app.post("/get_recent_messages",function (request,result){
     //get all messages from database
-    if(users[request.body.username]){
-        connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +users[request.body.username].id+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +users[request.body.username].id+ "'     " ,function(error,recentmessages){
+   /* if(users[request.body.username]){*/
+        connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +request.body.userid+ "'     " ,function(error,recentmessages){
             //json response
             var list=[];
             if(recentmessages){
@@ -163,7 +163,7 @@ app.post("/get_recent_messages",function (request,result){
                     message.last_message={};
                     message.groupid=null;
                     message.groupname=null;
-                    connection.query("SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +users[request.body.username].id+ "' or  chatmessages.from_id ='" +users[request.body.username].id+ "')  order BY chatmessages.id desc limit 0,1 " ,function(error,lastmessages){
+                    connection.query("SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1 " ,function(error,lastmessages){
                         if(lastmessages){
                             message.last_message=lastmessages[0];
                         }
@@ -173,7 +173,7 @@ app.post("/get_recent_messages",function (request,result){
             }
             //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
 
-            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
+            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +request.body.userid+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
                 if(recentGroupmessages){
                     for(var k=0;k<recentGroupmessages.length;k++){
                         var message=recentGroupmessages[k];
@@ -196,14 +196,14 @@ app.post("/get_recent_messages",function (request,result){
 
         });
 
-    }else{
+   /* }else{
         var data={
             'status':400,
             'message':'socket id not exits',
 
         };
         result.end(JSON.stringify(data));
-    }
+    }*/
 
 
 });

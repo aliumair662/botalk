@@ -10,6 +10,8 @@ const uploadform = document.getElementById('plus-icon-form');
 //const MicrophoneStream = require('microphone-stream');
 //var username=null;
 var sender=null;
+var sender_avatar=null;
+var sender_id=null;
 const { u } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
@@ -25,6 +27,8 @@ socket.on('userConnected',function (user){
     //username=username;
     $("#loginusername").text(user.username);
     sender=user.username;
+    sender_avatar=user.avatar;
+    sender_id=user.id;
     console.log("username=>"+user.username);
 
 });
@@ -92,12 +96,48 @@ $("#plus-icon-file").change(function (){
 });
 uploader.on('start', function(fileInfo) {
     console.log('Start uploading', fileInfo);
+    if(fileInfo){
+
+        var mime_images=['image/png', 'image/jpg','image/jpeg','image/gif'];
+        var mime_audio=['audio/mpeg', 'audio/mp3'];
+        var mime_videos=['video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'];
+        if(mime_images.includes(fileInfo.mime)){
+            var message='<img class="upload_image" src="files/uploads/'+fileInfo.name+'">';
+
+        }else if(mime_videos.includes(fileInfo.mime)){
+            var message='<video controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></video>';
+
+        }
+        else if(mime_audio.includes(fileInfo.mime)){
+            var message='<audio controls><source src="files/uploads/'+fileInfo.name+'" type="'+fileInfo.mime+'"></audio>';
+
+        }else{
+            var message='<img src="files/images/file.svg" class="upload_file_icon"> <a href="files/uploads/'+fileInfo.name+'" class="upload_file"   target="_blank" download>'+fileInfo.name+'</a>';
+
+        }
+
+        outputFile({
+            uploadId:fileInfo.uploadId,
+            time:formatAMPM(new Date()),
+            text:message,
+            username:sender,
+            avatar:sender_avatar,
+            class:'user-sent-message',
+
+        });
+        chatMessages.scrollTop=chatMessages.scrollHeight;
+    }
+
 });
 uploader.on('stream', function(fileInfo) {
+
+    var uploadProgress=calculateUploadProgress(fileInfo.size,fileInfo.sent);
     console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
+    $(".uploadprogress_"+fileInfo.uploadId).text('Sending ...(' + uploadProgress + ' %)');
 });
 uploader.on('complete', function(fileInfo) {
     console.log('Upload Complete', fileInfo);
+    $(".message_"+fileInfo.uploadId).remove();
     if(fileInfo){
         var file_type='text';
         var mime_images=['image/png', 'image/jpg','image/jpeg','image/gif'];
@@ -161,9 +201,9 @@ socket.on('showmemessage',message => {
     chatMessages.scrollTop=chatMessages.scrollHeight;
 });
 
-//Message from server
+
 socket.on('message',message => {
-   // console.info("sending message"+message);
+
     message.class='user-receive-message';
     if(message.username==receiver){
         outputMessage(message);
@@ -176,10 +216,12 @@ socket.on('message',message => {
     //Scroll down
     chatMessages.scrollTop=chatMessages.scrollHeight;
 });
-
-
 //start typing function
 $(document).ready(function() {
+//Message from server
+
+
+
     var el =$("#msg").emojioneArea({
         pickerPosition: "top",
         filtersPosition: "bottom",
@@ -221,6 +263,18 @@ $(document).ready(function() {
 
 
 
+function calculateUploadProgress(filesize,filesizesent){
+    var pPos = filesize;
+    var pEarned = filesizesent;
+    var perc="";
+    if(isNaN(pPos) || isNaN(pEarned)){
+        perc=" ";
+    }else{
+        perc = ((pEarned/pPos) * 100).toFixed(3);
+    }
+
+   return perc;
+}
 
 //Start Function //
 //Out put message to Dom
@@ -248,6 +302,24 @@ function outputMessage(message){
         html+=`<a onclick="myFunction()" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
         html+=`<div id="myDropdown" class="dropdown-content"><a href="#home">Remove</a></div></div>`;*/
         div.innerHTML=html;
+
+    document.querySelector('.chat-messages').appendChild(div);
+}
+function outputFile(message){
+    console.info("outputFile");
+    const div=document.createElement('div');
+    div.classList.add(message.class);
+    div.classList.add('message_'+message.uploadId);
+    var html=`<div class="avatar-image chat-details">
+                       <img src="${message.avatar}" alt="">
+                       <span><i class="fas fa-circle online status_circle_${message.username}"></i></span>
+                       </div>
+                       <div class="message-sent">`;
+    html+=`${message.text}`;
+    html+=`<span>${message.time}</span></div>`;
+    html+=`<span class="uploadprogressbar uploadprogress_${message.uploadId}"></span></div>`;
+
+    div.innerHTML=html;
 
     document.querySelector('.chat-messages').appendChild(div);
 }
@@ -293,6 +365,7 @@ function selectUser(username,userid){
     document.querySelector('.chat-messages').innerHTML='';
     //call an ajax
     groupid=null;
+    $(".chat-messages-loader").removeClass("d-none");
     $.ajax({
         //url: "http://localhost:3000/get_messages",
         url: document.location.origin+"/get_messages",
@@ -332,6 +405,7 @@ function selectUser(username,userid){
                 });
                 chatMessages.scrollTop=chatMessages.scrollHeight;
             }
+            $(".chat-messages-loader").addClass("d-none");
         }});
 
         if( $(".user_"+username).find('.fa-circle').hasClass('online')){
@@ -349,7 +423,7 @@ function selectUser(username,userid){
 }
 function getrecentMessages(userid){
     //call an ajax
-
+$(".user-list-loader").removeClass("d-none");
     $.ajax({
         url: document.location.origin+"/get_recent_messages",
         method:"POST",
@@ -373,6 +447,7 @@ function getrecentMessages(userid){
                     groupname:messages[a].groupname
                 });
             }
+            $(".user-list-loader").addClass("d-none");
         }});
 }
 function addToGroupUser($this,username,avatar,status){
@@ -389,6 +464,8 @@ function formatAMPM(date) {
     return strTime;
 }
 function showUserList(){
+
+    $(".user-list-loader").removeClass('d-none');
     $.ajax({
         url: document.location.origin+"/get_user_list",
         method:"POST",
@@ -412,6 +489,7 @@ function showUserList(){
                     avatar:userlist[a].avatar
                 });
             }
+            $(".user-list-loader").addClass('d-none');
         }});
     $(".show-chat-area").addClass('d-none');
     $(".no-message-found").removeClass('d-none');

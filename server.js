@@ -156,7 +156,6 @@ SelectAllElements = (query) =>{
 };
 //Create api call to return all recent messages to specific user
 app.post("/get_recent_messages",async function (request,result){
-    //get all messages from database
    /* if(users[request.body.username]){*/
     var list=[];
     try {
@@ -172,24 +171,6 @@ app.post("/get_recent_messages",async function (request,result){
                 message.status=(users[message.username] ? 'online' : 'offline');
                 message.groupid=null;
                 message.groupname=null;
-               /* message.last_message= {
-                    "id": 189,
-                    "from_id": 76,
-                    "to_id": 268,
-                    "to_group_id": null,
-                    "text": "hi",
-                    "seen": 0,
-                    "time": 0,
-                    "from_deleted": 0,
-                    "to_deleted": 0,
-                    "not_public_message": 0,
-                    "sender": "testuser78692",
-                    "receiver": "terrymiller",
-                    "message_time": "5:50:pm",
-                    "is_file": 0,
-                    "file_path": "",
-                    "file_type": "text"
-                };*/
                 try{
                     var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
                     const lastmessages = await SelectAllElements(query);
@@ -399,6 +380,7 @@ io.on('connection',socket => {
         console.log(`sessionid`+sessionid);
         connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
             console.log(user);
+
             if(user){
                 users[user[0].username]={
                     socketid:socket.id,
@@ -510,6 +492,7 @@ io.on('connection',socket => {
                                             message.file_path = data.file_path;
                                             message.id = result.insertId;*/
                                         }
+                                        io.to(socketId).emit('message_'+users[data.receiver].id, message);
                                         io.to(socketId).emit('message', message);
                                     }
                                     // show message on to sender  while sending

@@ -375,37 +375,41 @@ function selectUser(username,userid){
             receiver:receiver,
         },
         success: function(result){
-            var messages=JSON.parse(result)
-            messages=messages.data;
-            var last_seen=messages[0].last_seen;
-            //console.info(last_seen);
+
+            var messages=JSON.parse(result);
+            if(messages.data){
+                messages=messages.data;
+                var last_seen=messages[0].last_seen;
+                //console.info(last_seen);
                 $("#last_seen").text(last_seen);
-            for(var a=0;a<messages.length;a++){
-                var messageclass='user-receive-message';
-                var status=messages[a].status;
-                var avatar=messages[a].receiver_avatar;
-                var username=messages[a].receiver_username;
-                console.info(messages[a].sender+'=='+sender+'=='+status);
-                if(messages[a].sender==sender){
-                    messageclass='user-sent-message';
-                    status='online';
-                    avatar=messages[a].sender_avatar;
-                    username=messages[a].sender_username;
+                for(var a=0;a<messages.length;a++){
+                    var messageclass='user-receive-message';
+                    var status=messages[a].status;
+                    var avatar=messages[a].receiver_avatar;
+                    var username=messages[a].receiver_username;
+                    console.info(messages[a].sender+'=='+sender+'=='+status);
+                    if(messages[a].sender==sender){
+                        messageclass='user-sent-message';
+                        status='online';
+                        avatar=messages[a].sender_avatar;
+                        username=messages[a].sender_username;
+                    }
+                    outputMessage({
+                        class:messageclass,
+                        text:messages[a].text,
+                        time:messages[a].message_time,
+                        username:username,
+                        status:status,
+                        avatar:avatar,
+                        is_file:messages[a].is_file,
+                        file_path:messages[a].file_path,
+                        id:messages[a].id,
+                    });
+                    chatMessages.scrollTop=chatMessages.scrollHeight;
                 }
-                outputMessage({
-                    class:messageclass,
-                    text:messages[a].text,
-                    time:messages[a].message_time,
-                    username:username,
-                    status:status,
-                    avatar:avatar,
-                    is_file:messages[a].is_file,
-                    file_path:messages[a].file_path,
-                    id:messages[a].id,
-                });
-                chatMessages.scrollTop=chatMessages.scrollHeight;
+                $(".chat-messages-loader").addClass("d-none");
             }
-            $(".chat-messages-loader").addClass("d-none");
+
         }});
 
         if( $(".user_"+username).find('.fa-circle').hasClass('online')){

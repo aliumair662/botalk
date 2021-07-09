@@ -194,7 +194,11 @@ app.post("/get_recent_messages",async function (request,result){
                     var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
                     const lastmessages = await SelectAllElements(query);
                     if(lastmessages){
-                        message.last_message=lastmessages[0];
+                        var messages = lastmessages[0];
+                        if(messages.is_file==1){
+                            messages.text=messages.file_type;
+                        }
+                        message.last_message=messages;
                     }
                 }catch (e) {
                     console.log("something wrong",e);

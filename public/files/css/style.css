@@ -215,6 +215,7 @@ button:hover {
     display: flex;
     padding: 15px 0px;
     flex-direction: row-reverse;
+    position: relative;
 }
 .user-receive-message {
     display: flex;
@@ -353,6 +354,22 @@ ul#menulink1 li a {
     align-items: center;
     display: flex;
 }
+span.uploadprogressbar {
+    position: absolute;
+    bottom: 0;
+    right: 0%;
+    font-size: 12px;
+    color: #abaaaa;
+}
+.spinner-wrapper {
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+.spinner-wrapper.chat-messages-spinner {
+    top: 2%;
+}
 @media screen and (max-width: 1100px) {
     .message-sent p {
         max-width: 300px;
@@ -422,7 +439,7 @@ ul#menulink1 li a {
     border: 3px solid #368ccd;
 }
 .message-sent img.upload_image,.message-sent video {
-    max-width: 500px;
+    max-width: 300px;
 }
 .story-image span i {
     position: absolute;

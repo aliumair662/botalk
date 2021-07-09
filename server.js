@@ -144,72 +144,96 @@ app.post("/get_group_messages",function (request,result){
 
 
 });
-
+SelectAllElements = (query) =>{
+    return new Promise((resolve, reject)=>{
+        connection.query(query,  (error, elements)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(elements);
+        });
+    });
+};
 //Create api call to return all recent messages to specific user
-app.post("/get_recent_messages",function (request,result){
+app.post("/get_recent_messages",async function (request,result){
     //get all messages from database
    /* if(users[request.body.username]){*/
-        connection.query("SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     " ,function(error,recentmessages){
-        /*connection.query("SELECT  distinct from_id FROM   chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT  distinct to_id FROM   chatmessages WHERE from_id ='" +request.body.userid+ "'     " ,function(error,recentmessages){*/
-            //json response
-            var list=[];
-            if(recentmessages){
-                var allusersdata=[];
-                for(var a=0;a<recentmessages.length;a++){
-                    var message=recentmessages[a];
-                    message.status='offline';
-                    message.userid=message.id;
+    var list=[];
+    try {
+        var query="SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     ";
+        const recentmessages = await SelectAllElements(query);
+        if(recentmessages){
+            var allusersdata=[];
+            for(var a=0;a<recentmessages.length;a++){
+                var message=recentmessages[a];
+                message.status='offline';
+                message.userid=message.id;
+                message.avatar=domain+message.avatar;
+                message.status=(users[message.username] ? 'online' : 'offline');
+                message.groupid=null;
+                message.groupname=null;
+               /* message.last_message= {
+                    "id": 189,
+                    "from_id": 76,
+                    "to_id": 268,
+                    "to_group_id": null,
+                    "text": "hi",
+                    "seen": 0,
+                    "time": 0,
+                    "from_deleted": 0,
+                    "to_deleted": 0,
+                    "not_public_message": 0,
+                    "sender": "testuser78692",
+                    "receiver": "terrymiller",
+                    "message_time": "5:50:pm",
+                    "is_file": 0,
+                    "file_path": "",
+                    "file_type": "text"
+                };*/
+                try{
+                    var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
+                    const lastmessages = await SelectAllElements(query);
+                    if(lastmessages){
+                        message.last_message=lastmessages[0];
+                    }
+                }catch (e) {
+                    console.log("something wrong",e);
+                }
+                list[a]=message;
+            }
+        }
+        //Group messages
+        try{
+            var query="SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +request.body.userid+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) ";
+            const recentGroupmessages = await SelectAllElements(query);
+            if(recentGroupmessages){
+                for(var k=0;k<recentGroupmessages.length;k++){
+                    var message=recentGroupmessages[k];
                     message.avatar=domain+message.avatar;
                     message.status=(users[message.username] ? 'online' : 'offline');
-                    message.groupid=null;
-                    message.groupname=null;
-                    message.last_message= 'hi';
-                    /*var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1";
-                    const rows = await querydata(query);
-
-
-                    console.log("rows");
-                    console.log(rows);
-                    var data=
-                      connection.query("SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "')  order BY chatmessages.id desc limit 0,1 " ,function(error,lastmessages){
-                        console.log("lastmessages");
-                        console.log(lastmessages);
-
-                        if(lastmessages){
-                            message.last_message=lastmessages[0];
-                        }
-                    });*/
+                    message.groupid=message.groupid;
+                    message.groupname=message.groupname;
                     list[a]=message;
-
+                    a++;
                 }
-                console.log("list");
-                console.log(list);
-
             }
-            //connection.query("SELECT  messages.text,messages.from_id,messages.message_time as time,users.username,users.avatar as avatar FROM   messages,users,message_group  WHERE users.id=messages.from_id and messages.to_id ='" +users[request.body.username].id+ "' GROUP by messages.from_id  order BY messages.id desc " ,function(error,recentGroupmessages){
+        }catch (e) {
+            console.log("something wrong",e);
+        }
+        console.log("list");
+        console.log(list);
+        var data={
+            'status':200,
+            'data':list,
 
-            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +request.body.userid+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,recentGroupmessages){
-                if(recentGroupmessages){
-                    for(var k=0;k<recentGroupmessages.length;k++){
-                        var message=recentGroupmessages[k];
-                        message.avatar=domain+message.avatar;
-                        message.status=(users[message.username] ? 'online' : 'offline');
-                        message.groupid=message.groupid;
-                        message.groupname=message.groupname;
-                        list[a]=message;
-                        a++;
-                    }
-                }
-                /*result.end(JSON.stringify(list));*/
-                var data={
-                    'status':200,
-                    'data':list,
+        };
+        result.end(JSON.stringify(data));
+        //res.status(200).json({elements: resultElements}); // send a json response
+    } catch(e) {
+        console.log(e); // console log the error so we can see it in the console
+        //res.sendStatus(500);
+    }
 
-                };
-                result.end(JSON.stringify(data));
-            });
-
-        });
 
    /* }else{
         var data={
@@ -223,6 +247,16 @@ app.post("/get_recent_messages",function (request,result){
 
 });
 
+queryPromise1 = (query) =>{
+    return new Promise((resolve, reject)=>{
+        pool.query(query,  (error, results)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(results);
+        });
+    });
+};
 //Get all user list
 app.post("/get_user_list",function (request,result){
     //get all messages from database
@@ -241,7 +275,7 @@ app.post("/get_user_list",function (request,result){
                     list[a]=user;
                 }
             }
-            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and messages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,Grouplist){
+            connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,Grouplist){
                 if(Grouplist){
                     for(var k=0;k<Grouplist.length;k++){
                         var user=Grouplist[k];

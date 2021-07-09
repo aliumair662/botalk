@@ -56,7 +56,7 @@ $( "#chat-form" ).submit(function( e ) {
             message:message,
             is_file:0,
             file_path:'',
-            file_type:'',
+            file_type:'text',
             groupid:groupid
 
         });
@@ -99,7 +99,7 @@ uploader.on('stream', function(fileInfo) {
 uploader.on('complete', function(fileInfo) {
     console.log('Upload Complete', fileInfo);
     if(fileInfo){
-        var file_type='';
+        var file_type='text';
         var mime_images=['image/png', 'image/jpg','image/jpeg','image/gif'];
         var mime_audio=['audio/mpeg', 'audio/mp3'];
         var mime_videos=['video/mp4','video/mov','video/webm','video/mpeg','video/3gp','video/avi','video/flv','video/ogg','video/mk3d','video/mks','video/wmv','video/m4v','video/x-m4v'];

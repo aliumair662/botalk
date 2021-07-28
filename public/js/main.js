@@ -8,10 +8,12 @@ const uploadform = document.getElementById('plus-icon-form');
 //Get username and room from u
 //const getUserMedia = require('get-user-media-promise');
 //const MicrophoneStream = require('microphone-stream');
-//var username=null;
+//var username=null
+
 var sender=null;
 var sender_avatar=null;
 var sender_id=null;
+var chatScrollingTop=false;
 const { u } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
@@ -84,7 +86,26 @@ $("#thumbs-up").click(function (e){
         file_path:'files/images/thumbs-up.png',
     });
 });
+//Send Giphy
+$('body').on('click', '.gif-gallery-item', function() {
+    //code
+//$(".gif-gallery-item").click(function (){
+    console.info("gif-gallery-item");
+    console.info($(this).attr("data-url"));
+    var message='<img alt="????"  src="'+$(this).attr("data-url")+'">';
+    socket.emit('sendMessage',{
+        sender:sender,
+        receiver:receiver,
+        groupid:groupid,
+        message:message,
+        is_file:1,
+        file_type:'gif',
+        file_path:$(this).attr("data-url"),
+    });
 
+    $("#gifmodal").addClass('d-none');
+    $(".modal-backdrop").addClass('d-none');
+});
 //upload file as message
 
 $(".upload-file-icon").click(function (e){
@@ -186,6 +207,7 @@ uploadform.onsubmit = function(ev) {
 };
 //show message to server
 socket.on('showmemessage',message => {
+    chatScrollingTop=false;
     outputMessage({
         text:message.text,
         time:message.time,
@@ -259,6 +281,61 @@ $(document).ready(function() {
 
     })
 
+
+
+
+    const apiKey = 'pyqgeU33gNSqBeuCS2wZrhnaOnjSKTUP'
+    fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${apiKey}&limit=20&offset=0`)
+        .then(response => response.json())
+        .then(json => {
+            json.data
+                .map(gif => gif.images.fixed_height.url)
+                .forEach(url => {
+                    var html='<div class="col-lg-3 gif-gallery-item" data-url="'+url+'">';
+                    html+='<img src="'+url+'">';
+                    html+='</div>';
+                    console.info(html);
+                    /*let img = document.createElement('img')
+                    img.src = url*/
+                    /*document.getElementById("gif-gallery-wrapper").appendChild(html);*/
+                    document.getElementById("gif-gallery-wrapper").innerHTML+=html;
+                })
+        })
+        .catch(error => document.getElementById("gif-gallery-wrapper").html = error)
+
+    $(".gif-icon").click(function (e){
+        e.preventDefault();
+        $("#gifmodal").removeClass("d-none");
+
+    });
+
+
+    $( "#start_giphy_search" ).click(function() {
+        var keyword=$(".gif-search-input").val();
+        document.getElementById("gif-gallery-wrapper").innerHTML='';
+        var url=`https://api.giphy.com/v1/gifs/trending?api_key=${apiKey}&limit=20&offset=0`;
+        if($(this).val()!=''){
+            var url=`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&limit=20&offset=0&q=${keyword}`;
+        }
+        fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                json.data
+                    .map(gif => gif.images.fixed_height.url)
+                    .forEach(url => {
+                        var html='<div class="col-lg-3 gif-gallery-item" data-url="'+url+'">';
+                        html+='<img src="'+url+'">';
+                        html+='</div>';
+                        console.info(html);
+                        /*let img = document.createElement('img')
+                        img.src = url*/
+                        /*document.getElementById("gif-gallery-wrapper").appendChild(html);*/
+                        document.getElementById("gif-gallery-wrapper").innerHTML+=html;
+                    })
+            })
+            .catch(error => document.getElementById("gif-gallery-wrapper").html = error)
+    });
+
 });
 
 
@@ -282,6 +359,8 @@ function outputMessage(message){
     const div=document.createElement('div');
         div.classList.add(message.class);
         div.classList.add('message_'+message.id);
+        div.classList.add('message_box_');
+        div.setAttribute('data-id',message.id);
         var html=`<div class="avatar-image chat-details">
                        <img src="${message.avatar}" alt="">
                        <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
@@ -302,8 +381,21 @@ function outputMessage(message){
         html+=`<a onclick="myFunction()" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
         html+=`<div id="myDropdown" class="dropdown-content"><a href="#home">Remove</a></div></div>`;*/
         div.innerHTML=html;
+        console.info("scroll");
+        /*console.info(scroll);
+        if(scroll==false){
+            document.querySelector('.chat-messages').appendChild(div);
 
-    document.querySelector('.chat-messages').appendChild(div);
+        }else{
+            document.querySelector('.chat-messages').prepend(div);
+        }*/
+    if(chatScrollingTop){
+        document.querySelector('.chat-messages').prepend(div);
+    }else{
+        document.querySelector('.chat-messages').appendChild(div);
+    }
+
+
 }
 function outputFile(message){
     console.info("outputFile");
@@ -341,7 +433,7 @@ function  outputUsers(message){
 <span >${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
         }else{
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}','${message.userid}');"><div class="avatar-image" >
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}','${message.userid}',false);"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
@@ -353,8 +445,25 @@ function  outputUsers(message){
 
     //userList.appendChild(div);
 }
-
+var LIMIT_MESSAGE=10;
+var PAGE_NO=1;
+var HAS_MORE_PAGE=false;
+var InprogressRequest=false;
 function selectUser(username,userid){
+    if(InprogressRequest==true){
+        return false;
+    }
+    if(userid>0){
+        chatScrollingTop=false;
+    }
+    console.info("dsds");
+    console.info($(".message_box_" ).first().attr("data-id"));
+    var first_id=($('.message_box_').length > 0 && chatScrollingTop==true ? $(".message_box_" ).first().attr("data-id") : 0);
+
+    /*if(scroll==false){
+        PAGE_NO=1;
+        HAS_MORE_PAGE=false;
+    }*/
     document.getElementById('room-name').innerText=username;
     receiver=username;
     $(".show-chat-area").removeClass('d-none');
@@ -362,22 +471,28 @@ function selectUser(username,userid){
     $("#status_circle").removeClass('d-none');
     $("#room_status").removeClass('d-none');
     $("#last_seen").removeClass('d-none');
-    document.querySelector('.chat-messages').innerHTML='';
+    if(chatScrollingTop==false){ //if scrolling call
+    document.querySelector('.chat-messages').innerHTML = '';
+    }
     //call an ajax
     groupid=null;
     $(".chat-messages-loader").removeClass("d-none");
+    InprogressRequest=true;
     $.ajax({
         //url: "http://localhost:3000/get_messages",
         url: document.location.origin+"/get_messages",
         method:"POST",
+        async: false,
         data:{
           sender:sender,
             receiver:receiver,
+            limit:LIMIT_MESSAGE,
+            first_id:first_id,
+
         },
         success: function(result){
-
             var messages=JSON.parse(result);
-            if(messages.data){
+            if(messages.data.length > 0){
                 messages=messages.data;
                 var last_seen=messages[0].last_seen;
                 //console.info(last_seen);
@@ -394,6 +509,7 @@ function selectUser(username,userid){
                         avatar=messages[a].sender_avatar;
                         username=messages[a].sender_username;
                     }
+
                     outputMessage({
                         class:messageclass,
                         text:messages[a].text,
@@ -405,11 +521,22 @@ function selectUser(username,userid){
                         file_path:messages[a].file_path,
                         id:messages[a].id,
                     });
-                    chatMessages.scrollTop=chatMessages.scrollHeight;
-                }
-                $(".chat-messages-loader").addClass("d-none");
-            }
+                    /*chatMessages.scrollTop=chatMessages.scrollHeight;*/
+                    /*if(scroll==false){
+                        chatMessages.scrollTop=chatMessages.scrollHeight;
+                    }else{
 
+                    }*/
+                    if(chatScrollingTop==false){
+                        chatMessages.scrollTop=chatMessages.scrollHeight;
+                    }
+
+                }
+
+
+
+            }
+            InprogressRequest=false;
         }});
 
         if( $(".user_"+username).find('.fa-circle').hasClass('online')){
@@ -423,6 +550,7 @@ function selectUser(username,userid){
         }
         var avatar=$(".user_"+username).find('.avatar-image').find('img').attr('src');
         $("#room_avatar").attr("src",avatar);
+    $(".chat-messages-loader").addClass("d-none");
 
 }
 function getrecentMessages(userid){
@@ -433,6 +561,7 @@ $(".user-list-loader").removeClass("d-none");
         method:"POST",
         data:{
             userid:userid,
+
         },
         success: function(result){
             console.log(result);
@@ -474,7 +603,10 @@ function showUserList(){
         url: document.location.origin+"/get_user_list",
         method:"POST",
         data:{
-            username:sender
+            username:sender,
+            limit:10,
+            last_id:0
+
         },
         success: function(result){
             //console.log(result);
@@ -590,6 +722,22 @@ $("body").on('click', '.upload_image', function() {
     $("#popup_image").attr("src", src);
     $("#ImagePopModal").removeClass('d-none');
     $("#ImagePopModalLink").attr("href", src);
+});
+var lastScrollTop = 0;
+$(chatMessages).scroll(function(event){
+    var st = $(this).scrollTop();
+    if (st > lastScrollTop){
+        // downscroll code
+    } else {
+        // upscroll code
+        if(receiver!=null){
+            chatScrollingTop=true;
+            selectUser(receiver,0);
+        }
+    }
+
+
+    lastScrollTop = st;
 });
 $("body").on('click', '.closeimage', function() {
     $("#ImagePopModal").addClass('d-none');

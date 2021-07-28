@@ -919,3 +919,36 @@ div#groupmodal .close:not(:disabled):not(.disabled):focus{
     font-size: 20px;
     right: 0px;
 }
+#gipfy-content .row .gif-gallery-item{
+    padding: 3px;
+    cursor: pointer;
+}
+#gipfy-content .row .gif-gallery-item img {
+    border-radius: 7px;
+}
+.gif-search-input-wrapper{
+    position: relative;
+    width: 95%;
+    margin: 5px auto;
+}
+.gif-search-input-wrapper span i{
+    left: 0px;
+    top: 2px;
+    font-size: 12px;
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #495057;
+}
+.gif-search-input-wrapper input{
+    border-radius: 1.25rem;
+    border: 1px solid #368ccd;
+}
+.gif-search-input-wrapper .form-control {
+    padding-left: 2.375rem;
+}

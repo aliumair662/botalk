@@ -17,7 +17,16 @@ const options = {
     key: fs.readFileSync('client-key.pem'),
     cert: fs.readFileSync('client-cert.pem')
 };
-
+/*const firebaseConfig = {
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.AUTH_DOMAIN,
+    projectId: process.env.PROJECT_ID,
+    storageBucket: process.env.STORAGE_BUCKET,
+    messagingSenderId:process.env.MESSAGING_SENDER_ID,
+    appId: process.env.APP_ID
+};
+var firebase = require('firebase');
+var firebaseapp=firebase.initializeApp(firebaseConfig);*/
 const server =http.createServer(app);
 // const server =https.createServer(options,app);
 const io = socketio(server);
@@ -73,14 +82,47 @@ console.log("bug");
 console.log(users);
 console.log(request.body.sender);
     if(users[request.body.sender]){
+        var page_number=request.body.page_number;
+        if(request.body.page_number >0){
+
+        }else{
+            request.body.page_number=1;
+        }
+        var offset = (request.body.page_number-1) * request.body.limit;
         connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
-            connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "') ORDER BY id ASC" ,function(error,messages){
+            connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')     " ,function(error,totalmessages){
+                var total_records=totalmessages.length;
+                var subtractar='';
+                var order='ASC';
+                if(request.body.first_id >0){
+                    subtractar+="and id < "+request.body.first_id+"";
+                    order='DESC';
+                }
+                //if(request.body.last_id >0){
+                   // subtractar+="and id > "+request.body.last_id+"";
+                //}
+                var offset = total_records - (request.body.limit * request.body.page_number);
+            //console.log("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"   ORDER BY `id` desc  LIMIT   "+request.body.limit+" ");
+            console.log("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" ");
+            /*connection.query("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+" ORDER BY `id` desc  LIMIT   "+request.body.limit+" " ,function(error,messages){*/
+            connection.query("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" " ,function(error,messages){
                 //json response
                 var user_live=false;
                 if(users[request.body.receiver]){
                     user_live=true;
                 }
                 var list=[];
+                var total_pages=0;
+                var currentPageRecords=0;
+                var has_more_pages=false;
+                if(total_records >0){
+                    total_pages=Math.ceil(total_records /  request.body.limit);
+                    var currentPageRecords=Math.round(request.body.limit *  request.body.page_number);
+                    if(total_records > currentPageRecords){
+                        has_more_pages=true;
+                    }
+
+                }
                 if(messages){
                     for(var a=0;a<messages.length;a++){
                         var message=messages[a];
@@ -98,10 +140,16 @@ console.log(request.body.sender);
                 var data={
                     'status':200,
                     'data':list,
+                    'per_page':request.body.limit,
+                    'total_pages':total_pages,
+                    'current_page':request.body.page_number,
+                    'has_more_pages':has_more_pages,
+
 
                 };
                 result.end(JSON.stringify(data));
 
+            });
             });
         });
     }else{
@@ -246,7 +294,7 @@ queryPromise1 = (query) =>{
 app.post("/get_user_list",function (request,result){
     //get all messages from database
 
-        connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' "  ,function(error,userlist){
+        connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' order by  "  ,function(error,userlist){
             //json response
             var list=[];
             if(userlist){

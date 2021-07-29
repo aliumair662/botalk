@@ -281,59 +281,69 @@ $(document).ready(function() {
 
     })
 
-
-
-
+    let offset = 0;
+    // initial value for offset
+    let offsetVal = 0;
+    // set your limit
+    let giphyLimit = 10;
+    let giphyCallInprogess=false;
     const apiKey = 'pyqgeU33gNSqBeuCS2wZrhnaOnjSKTUP'
-    fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${apiKey}&limit=20&offset=0`)
-        .then(response => response.json())
-        .then(json => {
-            json.data
-                .map(gif => gif.images.fixed_height.url)
-                .forEach(url => {
+    function getGiphy (i){
+        console.info("clcik here");
+        if(giphyCallInprogess==true){
+            return false;
+        }
+        // if offset is greater than one then fetch further items prior to previous ones
+        if (i > 0){
+            // increase the offset with item limit like 25, 50 to get the next items
+            offsetVal = giphyLimit*i;
+        }
+        var url='https://api.giphy.com/v1/gifs/trending?';
+        var data={api_key:apiKey, limit: giphyLimit, offset: offsetVal};
+        if($(".gif-search-input").val()!=''){
+            url='https://api.giphy.com/v1/gifs/search?';
+            data={q:$(".gif-search-input").val(),api_key:apiKey, limit: giphyLimit, offset: offsetVal};
+        }
+        giphyCallInprogess=true;
+        $.ajax({
+           /* url: 'https://api.giphy.com/v1/gifs/search?',*/
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            /*data: {q:'keyword',api_key:apiKey, limit: giphyLimit, offset: offsetVal},*/
+            data: data,
+            success: (data) => {
+                $.each(data['data'], ( index, value) => {
+                    let url = value['images']['original']['url'];
                     var html='<div class="col-lg-3 gif-gallery-item" data-url="'+url+'">';
                     html+='<img src="'+url+'">';
                     html+='</div>';
-                    console.info(html);
-                    /*let img = document.createElement('img')
-                    img.src = url*/
-                    /*document.getElementById("gif-gallery-wrapper").appendChild(html);*/
                     document.getElementById("gif-gallery-wrapper").innerHTML+=html;
-                })
-        })
-        .catch(error => document.getElementById("gif-gallery-wrapper").html = error)
+                });
+                // increase offset to get further items.
+                console.info("offset"+offset);
+                offset = offset+1;
+                giphyCallInprogess=false;
+            }
+        });
+    }
+    getGiphy(0);
+    var lastGifScrollTop = 0;
+    $("#gif-gallery-wrapper").scroll(function(event){
+        var st = $(this).scrollTop();
+        if (st > lastGifScrollTop){
+            // downscroll code
+        } else {
+            // upscroll code
+            getGiphy(offset);
+        }
 
-    $(".gif-icon").click(function (e){
-        e.preventDefault();
-        $("#gifmodal").removeClass("d-none");
 
+        lastGifScrollTop = st;
     });
 
-
-    $( "#start_giphy_search" ).click(function() {
-        var keyword=$(".gif-search-input").val();
-        document.getElementById("gif-gallery-wrapper").innerHTML='';
-        var url=`https://api.giphy.com/v1/gifs/trending?api_key=${apiKey}&limit=20&offset=0`;
-        if($(this).val()!=''){
-            var url=`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&limit=20&offset=0&q=${keyword}`;
-        }
-        fetch(url)
-            .then(response => response.json())
-            .then(json => {
-                json.data
-                    .map(gif => gif.images.fixed_height.url)
-                    .forEach(url => {
-                        var html='<div class="col-lg-3 gif-gallery-item" data-url="'+url+'">';
-                        html+='<img src="'+url+'">';
-                        html+='</div>';
-                        console.info(html);
-                        /*let img = document.createElement('img')
-                        img.src = url*/
-                        /*document.getElementById("gif-gallery-wrapper").appendChild(html);*/
-                        document.getElementById("gif-gallery-wrapper").innerHTML+=html;
-                    })
-            })
-            .catch(error => document.getElementById("gif-gallery-wrapper").html = error)
+    $("#start_giphy_search").click(function(event){
+        getGiphy(0);
     });
 
 });

@@ -919,6 +919,20 @@ div#groupmodal .close:not(:disabled):not(.disabled):focus{
     font-size: 20px;
     right: 0px;
 }
+#gif-gallery-wrapper{
+    height: 400px;
+    overflow: auto;
+}
+.git-image-search-wrapper{
+    width: 95%;
+    display: flex;
+    margin: 5px auto;
+    align-items: center;
+}
+.gif-search-button{
+    width: 15%;
+    padding-left: 5px;
+}
 #gipfy-content .row .gif-gallery-item{
     padding: 3px;
     cursor: pointer;
@@ -928,8 +942,7 @@ div#groupmodal .close:not(:disabled):not(.disabled):focus{
 }
 .gif-search-input-wrapper{
     position: relative;
-    width: 95%;
-    margin: 5px auto;
+    width: 85%;
 }
 .gif-search-input-wrapper span i{
     left: 0px;
@@ -952,3 +965,13 @@ div#groupmodal .close:not(:disabled):not(.disabled):focus{
 .gif-search-input-wrapper .form-control {
     padding-left: 2.375rem;
 }
+#start_giphy_search{
+    border-radius: 15px;
+    border: 0px;
+    font-size: 14px;
+    padding: 5px 15px;
+}
+
+
+
+

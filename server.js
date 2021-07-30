@@ -17,6 +17,13 @@ const options = {
     key: fs.readFileSync('client-key.pem'),
     cert: fs.readFileSync('client-cert.pem')
 };
+/*const admin = require('firebase-admin')*/
+const registrationToken = 'cbIN6iu_BQsED3M1waurMr:APA91bEQC5biYHGfxwdLCEz_D0IH8gjRl3A2k-GYQUeEjt8kh6VERJrxykeJEefuG-LStGgJCxo82IftcDE-5aLJeWpIuPwYHDwvGEV-Piduk2__LMnpWto2CRCW2fSAhIRXhGixAjQM';
+var admin = require("firebase-admin");
+var serviceAccount = require("./serviceAccountKey.json");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 /*const firebaseConfig = {
     apiKey: process.env.API_KEY,
     authDomain: process.env.AUTH_DOMAIN,
@@ -291,10 +298,9 @@ queryPromise1 = (query) =>{
     });
 };
 //Get all user list
-app.post("/get_user_list",function (request,result){
+app.post("/get_user_list",async function (request,result){
     //get all messages from database
-
-        connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' order by  "  ,function(error,userlist){
+        connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' order by id asc  "  ,function(error,userlist){
             //json response
             var list=[];
             if(userlist){
@@ -557,7 +563,31 @@ io.on('connection',socket => {
 
                             });
 
+                            /*const message = {
+                                data: {
+                                    title: 'New Message',
+                                    message: message
+                                },
+                                token: registrationToken
+                            };*/
+                            const message = {
+                                notification: {
+                                    title: 'New Message',
+                                    body: data.message
+                                },
+                                token: registrationToken
+                            };
+                            admin.messaging().send(message)
+                                .then((response) => {
+                                    // Response is a message ID string.
+                                    console.log('Successfully sent message:', response);
+                                })
+                                .catch((error) => {
+                                    console.log('Error sending message:', error);
+                                });
+
                     }
+
                     });
                 });
                 //save in database

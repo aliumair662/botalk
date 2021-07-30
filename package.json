@@ -10,9 +10,12 @@
   "author": "Umair Ali",
   "license": "MIT",
   "dependencies": {
+    "@giphy/js-fetch-api": "^4.0.3",
     "body-parser": "^1.19.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "firebase": "^8.7.1",
+    "firebase-admin": "^9.10.0",
     "formidable": "^1.2.2",
     "microphone-stream": "^6.0.0",
     "moment": "^2.29.1",

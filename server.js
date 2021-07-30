@@ -370,6 +370,19 @@ app.post("/updatefirebasetoken",async function (request,result){
 
     const  query="update users set " +request.body.registrationTokenType+ "= '" +request.body.token+ "' where username ='" +request.body.username+ "'  ";
     const updatetoken = await SelectAllElements(query);
+    if(updatetoken){
+        var data={
+            'status':200,
+            'message':'Token updated',
+        };
+        result.end(JSON.stringify(data));
+    }else{
+        var data={
+            'status':400,
+            'message':'Token Not updated',
+        };
+        result.end(JSON.stringify(data));
+    }
 
 
 });
@@ -594,7 +607,7 @@ io.on('connection',socket => {
                             for (i = 0; i < alldevice.length; ++i) {
                                 const message = {
                                     notification: {
-                                        title: 'New Message',
+                                        title: data.sender,
                                         body: data.message
                                     },
                                     token: alldevice[i]

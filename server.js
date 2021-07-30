@@ -18,7 +18,7 @@ const options = {
     cert: fs.readFileSync('client-cert.pem')
 };
 /*const admin = require('firebase-admin')*/
-const registrationToken = 'cbIN6iu_BQsED3M1waurMr:APA91bEQC5biYHGfxwdLCEz_D0IH8gjRl3A2k-GYQUeEjt8kh6VERJrxykeJEefuG-LStGgJCxo82IftcDE-5aLJeWpIuPwYHDwvGEV-Piduk2__LMnpWto2CRCW2fSAhIRXhGixAjQM';
+
 var admin = require("firebase-admin");
 var serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
@@ -365,6 +365,16 @@ app.post("/delete_message",function (request,result){
     });
 
 });
+//Update Firebase token api call to return all recent messages to specific user
+app.post("/updatefirebasetoken",async function (request,result){
+
+    const  query="update users set " +request.body.registrationTokenType+ "= '" +request.body.token+ "' where username ='" +request.body.username+ "'  ";
+    const updatetoken = await SelectAllElements(query);
+
+
+});
+
+
 //upload voice clip to sever //
 app.post("/upload-voice-clip",function (request,result){
     console.log(request.body.file);
@@ -570,21 +580,35 @@ io.on('connection',socket => {
                                 },
                                 token: registrationToken
                             };*/
-                            const message = {
-                                notification: {
-                                    title: 'New Message',
-                                    body: data.message
-                                },
-                                token: registrationToken
-                            };
-                            admin.messaging().send(message)
-                                .then((response) => {
-                                    // Response is a message ID string.
-                                    console.log('Successfully sent message:', response);
-                                })
-                                .catch((error) => {
-                                    console.log('Error sending message:', error);
-                                });
+                            var alldevice=[];
+                            if(user[0].registrationTokenWeb){
+                                alldevice.push(user[0].registrationTokenWeb)
+                            }
+                            if(user[0].registrationTokenAndroid){
+                                alldevice.push(user[0].registrationTokenAndroid)
+                            }
+                            if(user[0].registrationTokenIos){
+                                alldevice.push(user[0].registrationTokenIos)
+                            }
+                            var i;
+                            for (i = 0; i < alldevice.length; ++i) {
+                                const message = {
+                                    notification: {
+                                        title: 'New Message',
+                                        body: data.message
+                                    },
+                                    token: alldevice[i]
+                                };
+                                admin.messaging().send(message)
+                                    .then((response) => {
+                                        // Response is a message ID string.
+                                        console.log('Successfully sent message:', response);
+                                    })
+                                    .catch((error) => {
+                                        console.log('Error sending message:', error);
+                                    });
+                            }
+
 
                     }
 

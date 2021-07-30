@@ -14,6 +14,7 @@ var sender=null;
 var sender_avatar=null;
 var sender_id=null;
 var chatScrollingTop=false;
+var registrationToken=null;
 const { u } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
@@ -32,7 +33,7 @@ socket.on('userConnected',function (user){
     sender_avatar=user.avatar;
     sender_id=user.id;
     console.log("username=>"+user.username);
-
+    updateRegistrationTokenWeb(sender);
 });
 socket.on('online',function (username){
     onlineUsers(username);
@@ -238,6 +239,43 @@ socket.on('message',message => {
     //Scroll down
     chatMessages.scrollTop=chatMessages.scrollHeight;
 });
+
+
+//Start Firebase Workign
+
+const firebaseConfig = {
+    apiKey: "AIzaSyACeSf208P1--gIggBSZnUJSWBlk_RsNUU",
+    authDomain: "vyzmo-d9cc0.firebaseapp.com",
+    projectId: "vyzmo-d9cc0",
+    storageBucket: "vyzmo-d9cc0.appspot.com",
+    messagingSenderId: "48070594104",
+    appId: "1:48070594104:web:92ed76ce56d3be514460cd"
+};
+var firebaseapp= firebase.initializeApp(firebaseConfig);
+var messaging = firebase.messaging();
+
+messaging.onMessage(function(payload){
+    console.info(payload);
+    const notificationOption={
+        body:payload.notification.body,
+        icon:payload.notification.icon,
+    };
+    if(Notification.permission==="granted"){
+        var notification=new Notification(payload.notification.title,notificationOption);
+        notification.onclick=function (ev) {
+            ev.preventDefault();
+            window.open(payload.notification.click_action,'_blank');
+            notification.close();
+
+        }
+    }
+
+});
+messaging.onTokenRefresh(function(payload){
+   updateRegistrationTokenWeb(sender)
+});
+
+
 //start typing function
 $(document).ready(function() {
 //Message from server
@@ -345,6 +383,11 @@ $(document).ready(function() {
     $("#start_giphy_search").click(function(event){
         getGiphy(0);
     });
+
+
+
+
+
 
 });
 
@@ -701,6 +744,41 @@ function deleteMessage(id){
 
 
 }
+function updateRegistrationTokenWeb(sender){
+// Get registration token. Initially this makes a network call, once retrieved
+// subsequent calls to getToken will return from cache.
+    messaging.getToken({ vapidKey: 'BCcO2B3eznrtEsXnPzjdH0mxgWb1xlSAe_ZrfY7SWYjFbIhSaUFYaqh4qY8Z5E_8qwVo7fghMnti7AMkF67s9ZY' }).then((currentToken) => {
+        if (currentToken) {
+            console.info("currentToken");
+            console.info(currentToken);
+            $.ajax({
+                url: document.location.origin+"/updatefirebasetoken",
+                method:"POST",
+                data:{
+                    username:sender,
+                    registrationTokenType:'registrationTokenWeb',
+                    token:currentToken,
+                },
+                success: function(result){
+                    console.info("token updated");
+                }});
+            // Send the token to your server and update the UI if necessary
+            // ...
+        } else {
+            // Show permission request UI
+            console.log('No registration token available. Request permission to generate one.');
+            // ...
+        }
+    }).catch((err) => {
+        console.log('An error occurred while retrieving token. ', err);
+        // ...
+    });
+
+
+
+
+}
+
 function onlineUsers(username){
     if($(".user-grid").hasClass("user_"+username)){
         $(".user_"+username).find('.fa-circle').addClass('online');

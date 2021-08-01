@@ -352,6 +352,7 @@ app.post("/get_user_list",async function (request,result){
 //Create api call to return all recent messages to specific user
 app.post("/delete_message",function (request,result){
     //get  message from database
+
     connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,message){
 
         connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
@@ -386,6 +387,42 @@ app.post("/updatefirebasetoken",async function (request,result){
 
 
 });
+//Update Firebase token api call to return all recent messages to specific user
+app.post("/create_new_group",async function (request,result){
+    await connection.query("INSERT INTO  message_group (name,user_id,avatar ) values ('" +request.body.groupname+ "','" +request.body.user_id+ "', 'upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png')", function(err, resultq, fields) {
+        if (err) throw err;
+        if(resultq.insertId){
+            var Group_Users=request.body.Group_Users;
+            for(var a=0;a<Group_Users.length;a++){
+                const  query="INSERT INTO  message_group_join (groupid,user_id) values ('" +resultq.insertId+ "','" +Group_Users[a]+ "')";
+                 SelectAllElements(query);
+            }
+            var data={
+                'status':200,
+                'message':'Group Created Successfully',
+                'data':{
+                    'id':resultq.insertId,
+                    'groupname':request.body.groupname,
+                    'avatar':domain+'upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png'
+                }
+            };
+            result.end(JSON.stringify(data));
+          }else{
+            var data={
+                'status':404,
+                'message':'Something went wrong please try again',
+                'data':{
+
+                }
+            };
+            result.end(JSON.stringify(data));
+        }
+
+    });
+
+});
+
+
 
 
 //upload voice clip to sever //

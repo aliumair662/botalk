@@ -227,7 +227,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="add-image-modal">
-                           <a href=""><i class="fas fa-camera"></i></a>
+                           <a href=""><i class="fas fa-camera" id="group_picture_icon"></i></a>
+                            <input type="file"  name="group_picture_file" id="group_picture_file" onchange="imageUploaded();">
+                            <input type="hidden" name="g_avatar" id="g_avatar">
                         </div>
                         <div class="input-image-modal">
                             <form>
@@ -255,10 +257,6 @@
                         </form>
                     </div>
                     <div class="selected-people" id="selected-people">
-                        <div class="avatar-image">
-                            <img src="https://vyzmo.com/upload/photos/2021/03/LlIBf5l69mkyYq7uDd8n_13_d292b4011ca937b04a9867d577991580_image.png" alt="">
-                            <span><i class="fal fa-times-circle"></i></span>
-                        </div>
 
                     </div>
                     <h6>Suggestions</h6>
@@ -271,6 +269,7 @@
               </div>
             </div>
           </div>
+            <div><button type="button" class="btn btn-info d-none" name="createGroupButton" id="createGroupButton" onclick="CreateNewGroup()">Create Group</button></div>
       </div>
     </div>
   </div>
@@ -378,7 +377,10 @@
 
 </script>
 <script>
-    $(".owl-carousel").owlCarousel({
+
+    var owl;
+    $(document).ready(function(){
+        owl= $(".owl-carousel").owlCarousel({
         loop: true,
         margin: 10,
         nav: true,
@@ -401,6 +403,18 @@
                 items: 1,
             },
         },
+    });
+        owl.on('changed.owl.carousel', function(e) {
+            if(e.item.index==1){
+                console.log("test"+ e.item.index);
+                $("#createGroupButton").removeClass('d-none');
+                $(".owl-next").addClass('d-none');
+            }else{
+                $("#createGroupButton").addClass('d-none');
+                $(".owl-next").removeClass('d-none');
+            }
+
+        });
     });
 </script>
 <script>
@@ -437,6 +451,34 @@
       }
     }
   }
+
+/*$("#group_picture_icon").click(function (e){
+    $("#group_picture_file").trigger("click");
+    e.preventDefault();
+});*/
+
+    let base64String = "";
+
+    function imageUploaded() {
+        var file = document.querySelector('#group_picture_file')['files'][0];
+
+        var reader = new FileReader();
+        console.log("next");
+
+        reader.onload = function () {
+           /* base64String = reader.result.replace("data:", "")
+                .replace(/^.+,/, "");*/
+            base64String = reader.result;
+
+            imageBase64Stringsep = base64String;
+
+            // alert(imageBase64Stringsep);
+            console.log(base64String);
+        }
+        reader.readAsDataURL(file);
+        $("#g_avatar").val(base64String);
+
+    }
 
 
 </script>

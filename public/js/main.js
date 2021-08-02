@@ -636,8 +636,81 @@ $(".user-list-loader").removeClass("d-none");
             $(".user-list-loader").addClass("d-none");
         }});
 }
-function addToGroupUser($this,username,avatar,status){
 
+function CreateNewGroup(){
+    //call an ajax
+    var groupname=$("#groupname").val();
+    if(groupname=='' || Group_Users.length===0){
+        alert("please fill group name");
+    }
+   if($("#group_picture_file").val()=='' ){
+       alert("please upload an image");
+   }
+
+    Group_Users.push(sender_id);
+    $.ajax({
+        url: document.location.origin+"/create_new_group",
+        method:"POST",
+        data:{
+            groupname:groupname,
+            Group_Users:Group_Users,
+            user_id:sender_id,
+            file:$("#g_avatar").val()
+
+        },
+        success: function(result){
+            console.log(result);
+            userList.innerHTML='';
+            var messages=JSON.parse(result);
+            messages=messages.data;
+            outputUsers({
+                text:'',
+                username:sender,
+                userid:sender_id,
+                time:'',
+                status:'',
+                avatar:messages.avatar,
+                groupid:messages.id,
+                groupname:messages.groupname
+            });
+            SelectGroup(sender,messages.groupname);
+            socket.emit('sendMessage',{
+                sender:sender,
+                receiver:null,
+                message:sender+'has made the chat history visible to everyone',
+                is_file:0,
+                file_path:'',
+                file_type:'text',
+                groupid:messages.groupname
+
+            });
+            //$(".user-list-loader").addClass("d-none");
+        }});
+}
+
+var Group_Users=[];
+function addToGroupUser($this,username,avatar,status,userid){
+
+    console.info("checkd"+$($this).prop("checked"));
+    if($($this).prop("checked")==true){
+
+        $($this).prop("checked",true);
+        GroupSelected.innerHTML +=`<div class="avatar-image groupselecteduser_${userid}" >
+                            <img src="${avatar}" alt="">
+                            <span><i class="fal fa-times-circle" onclick="removefromGroupUser('${userid}');"></i></span>
+                           </div>`;
+        Group_Users.push(userid);
+    }else{
+        removefromGroupUser(userid);
+
+    }
+
+}
+function removefromGroupUser(userid){
+        $(".groupselecteduser_"+userid).remove();
+        $(".groupcheckbox_"+userid).prop("checked",false);
+        var Index = Group_Users.indexOf(userid);
+         Group_Users.splice(Index, 1);
 }
 function formatAMPM(date) {
     var hours = date.getHours();
@@ -658,7 +731,8 @@ function showUserList(){
         data:{
             username:sender,
             limit:10,
-            last_id:0
+            last_id:0,
+            grouplist:false
 
         },
         success: function(result){
@@ -685,17 +759,20 @@ function showUserList(){
     chatMessages.innerHTML='';
     return ;
 }
-function showUserListForGroup(){
+ function showUserListForGroup(){
     $.ajax({
         url: document.location.origin+"/get_user_list",
         method:"POST",
         data:{
-            username:sender
+            username:sender,
+            grouplist:true
         },
         success: function(result){
             userListCreateGroup.innerHTML='';
             var userlist=JSON.parse(result);
+            userlist=userlist.data;
             for(var a=0;a<userlist.length;a++){
+                console.info(userlist[a]);
                 userListCreateGroup.innerHTML += ` 
                      <div class="row message-grid">
                             <div class="avatar-image">
@@ -706,7 +783,7 @@ function showUserListForGroup(){
                                 <h5>${userlist[a].username}</h5>
                                 <div class="form-check">
                                     <label class="contain-check">
-                                        <input type="checkbox" checked="checked" onclick="addToGroupUser(this,'${userlist[a].username}','${userlist[a].avatar}','${userlist[a].status}');">
+                                        <input type="checkbox"  class="groupcheckbox_${userlist[a].id}" onclick="addToGroupUser(this,'${userlist[a].username}','${userlist[a].avatar}','${userlist[a].status}','${userlist[a].id}');">
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
@@ -719,7 +796,7 @@ function showUserListForGroup(){
 
         }});
 
-    return ;
+
 }
 function deleteMessage(id){
 

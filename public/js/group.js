@@ -48,7 +48,7 @@ function SelectGroup(username,room){
 }
 
 //Message from server
-s/*ocket.on('groupmessage',message => {
+/*socket.on('groupmessage',message => {
 console.log(message);
     outputMessage(message);
     //Scroll down

@@ -83,7 +83,7 @@ app.use(function(request,result,next){
 
 
 //Create api call to return all messages
-app.post("/get_messages",function (request,result){
+app.post("/get_messages", function (request,result){
     //get all messages from database
 console.log("bug");
 console.log(users);
@@ -244,16 +244,31 @@ app.post("/get_recent_messages",async function (request,result){
         }
         //Group messages
         try{
-            var query="SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +request.body.userid+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) ";
+            //var query="SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +request.body.userid+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) ";
+            //var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN chatmessages ON message_group.id = chatmessages.to_group_id and (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "') GROUP by id ";
+            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN message_group_join ON message_group.id = message_group_join.groupid and message_group_join.user_id='" +request.body.userid+ "' GROUP by id";
             const recentGroupmessages = await SelectAllElements(query);
             if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
-                    var message=recentGroupmessages[k];
-                    message.avatar=domain+message.avatar;
-                    message.status=(users[message.username] ? 'online' : 'offline');
-                    message.groupid=message.groupid;
-                    message.groupname=message.groupname;
+                    var message={};
+                    message.groupid=recentGroupmessages[k].id;
+                    message.groupname=recentGroupmessages[k].name;
+                    message.status='offline';
+                    message.userid=0;
+                    message.avatar=domain+recentGroupmessages[k].avatar;
+                    var query="SELECT * FROM `chatmessages` WHERE `to_group_id`='"+recentGroupmessages[k].id+"' order by id DESC limit 1";
+                    const lastmessage = await SelectAllElements(query);
+                    if(lastmessage[0]){
+                        if(lastmessage[0].is_file==1){
+                            lastmessage[0].text=lastmessage[0].file_type;
+                        }
+                        message.last_message=lastmessage[0];
+                    }
+                    console.log("list")
+                    console.log(message)
                     list[a]=message;
+
+
                     a++;
                 }
             }
@@ -315,7 +330,7 @@ app.post("/get_user_list",async function (request,result){
                 }
             }
             connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,Grouplist){
-                if(Grouplist){
+                if(Grouplist && request.body.grouplist){
                     for(var k=0;k<Grouplist.length;k++){
                         var user=Grouplist[k];
                         user.avatar=domain+user.avatar;
@@ -389,7 +404,16 @@ app.post("/updatefirebasetoken",async function (request,result){
 });
 //Update Firebase token api call to return all recent messages to specific user
 app.post("/create_new_group",async function (request,result){
-    await connection.query("INSERT INTO  message_group (name,user_id,avatar ) values ('" +request.body.groupname+ "','" +request.body.user_id+ "', 'upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png')", function(err, resultq, fields) {
+    var groupavatar=null;
+    var base64Data = request.body.file.replace(/^data:image\/png;base64,/, "");
+    var filename=Date.now()+".jpg";
+    fs.writeFile("public/files/uploads/"+filename, base64Data, 'base64', function(err) {
+        var response={
+            'file_path': temp_url+'/files/uploads/'+filename,
+        };
+        groupavatar = response.file_path;
+    });
+    await connection.query("INSERT INTO  message_group (name,user_id,avatar ) values ('" +request.body.groupname+ "','" +request.body.user_id+ "', '"+groupavatar+"')", function(err, resultq, fields) {
         if (err) throw err;
         if(resultq.insertId){
             var Group_Users=request.body.Group_Users;
@@ -403,7 +427,7 @@ app.post("/create_new_group",async function (request,result){
                 'data':{
                     'id':resultq.insertId,
                     'groupname':request.body.groupname,
-                    'avatar':domain+'upload/photos/2021/03/NnMBHnM5pJWGRnquDkTY_22_2b0fc1a335fb219100aa416b62a1b539_image.png'
+                    'avatar':groupavatar
                 }
             };
             result.end(JSON.stringify(data));
@@ -546,6 +570,8 @@ io.on('connection',socket => {
             if(data.groupid){
                 if(users[data.sender]){
                     connection.query("SELECT  * FROM   message_group WHERE name='" +data.groupid+ "'" ,function(error,group){
+                        console.log("group");
+                        console.log("INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')");
                         connection.query("INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')" ,function(error,result){
                             if (error) {
                                 console.error('error connecting: ' + error.stack);

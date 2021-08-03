@@ -315,6 +315,8 @@ queryPromise1 = (query) =>{
 //Get all user list
 app.post("/get_user_list",async function (request,result){
     //get all messages from database
+    console.log("grouplist");
+    console.log(request.body.grouplist);
         connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' order by id asc  "  ,function(error,userlist){
             //json response
             var list=[];
@@ -330,7 +332,7 @@ app.post("/get_user_list",async function (request,result){
                 }
             }
             connection.query("SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +users[request.body.username].id+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) " ,function(error,Grouplist){
-                if(Grouplist && request.body.grouplist){
+                if(Grouplist && request.body.grouplist == true){
                     for(var k=0;k<Grouplist.length;k++){
                         var user=Grouplist[k];
                         user.avatar=domain+user.avatar;
@@ -404,10 +406,24 @@ app.post("/updatefirebasetoken",async function (request,result){
 });
 //Update Firebase token api call to return all recent messages to specific user
 app.post("/create_new_group",async function (request,result){
+   console.log("check file");
+   console.log(request.body.file);
+
+    const  query="select * from  message_group_join where name= '" +request.body.groupname+ "'";
+    const groupdata=SelectAllElements(query);
+    if(groupdata){
+        var data={
+            'status':201,
+            'message':'Group Name Already Exist please try another name..',
+            'data':{
+
+            }
+        };
+    }
     var groupavatar=null;
     var base64Data = request.body.file.replace(/^data:image\/png;base64,/, "");
     var filename=Date.now()+".jpg";
-    fs.writeFile("public/files/uploads/"+filename, base64Data, 'base64', function(err) {
+    await fs.writeFile("public/files/uploads/"+filename, base64Data, 'base64', function(err) {
         var response={
             'file_path': temp_url+'/files/uploads/'+filename,
         };

@@ -216,6 +216,7 @@
   <div class="modal fade" id="groupmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
+          <form method="post" action="" enctype="multipart/form-data" id="groupform">
         <div class="carousel-wrap">
             <div class="owl-carousel">
               <div class="item">
@@ -228,7 +229,7 @@
                     <div class="modal-body">
                         <div class="add-image-modal">
                            <a href=""><i class="fas fa-camera" id="group_picture_icon"></i></a>
-                            <input type="file"  name="group_picture_file" id="group_picture_file" onchange="imageUploaded();">
+                            <input type="file" style="display: none"  name="group_picture_file" id="group_picture_file"  onchange="convert_base64();">
                             <input type="hidden" name="g_avatar" id="g_avatar">
                         </div>
                         <div class="input-image-modal">
@@ -260,6 +261,7 @@
 
                     </div>
                     <h6>Suggestions</h6>
+                     <div style="text-align: center;cursor:pointer;"> <i class="fas fa-long-arrow-alt-left d-none" id="group-slide-back"></i></div>
                     <div class="suggestion-list" id="suggestion-list">
 
 
@@ -269,7 +271,15 @@
               </div>
             </div>
           </div>
-            <div><button type="button" class="btn btn-info d-none" name="createGroupButton" id="createGroupButton" onclick="CreateNewGroup()">Create Group</button></div>
+            <div class="row">
+
+
+
+                <div class="col text-center " style="padding-bottom: 5px;">
+                    <button type="button" class="btn btn-info d-none" name="createGroupButton" id="createGroupButton" onclick="CreateNewGroup()">Done</button>
+                </div>
+            </div>
+         </form>
       </div>
     </div>
   </div>
@@ -409,11 +419,17 @@
                 console.log("test"+ e.item.index);
                 $("#createGroupButton").removeClass('d-none');
                 $(".owl-next").addClass('d-none');
+                $("#group-slide-back").removeClass('d-none');
             }else{
                 $("#createGroupButton").addClass('d-none');
                 $(".owl-next").removeClass('d-none');
+                $("#group-slide-back").addClass('d-none');
             }
 
+        });
+
+        $('#group-slide-back').click(function(){
+            owl.trigger('to.owl.carousel', 0)
         });
     });
 </script>
@@ -452,35 +468,25 @@
     }
   }
 
-/*$("#group_picture_icon").click(function (e){
+$("#group_picture_icon").click(function (e){
     $("#group_picture_file").trigger("click");
     e.preventDefault();
-});*/
+});
 
-    let base64String = "";
 
-    function imageUploaded() {
+
+    function convert_base64(){
+        let base64String = "";
         var file = document.querySelector('#group_picture_file')['files'][0];
-
         var reader = new FileReader();
-        console.log("next");
-
         reader.onload = function () {
-           /* base64String = reader.result.replace("data:", "")
-                .replace(/^.+,/, "");*/
             base64String = reader.result;
-
             imageBase64Stringsep = base64String;
-
-            // alert(imageBase64Stringsep);
-            console.log(base64String);
+            $("#g_avatar").val(base64String);
         }
         reader.readAsDataURL(file);
-        $("#g_avatar").val(base64String);
 
     }
-
-
 </script>
 
 </body>

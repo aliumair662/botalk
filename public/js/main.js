@@ -637,55 +637,95 @@ $(".user-list-loader").removeClass("d-none");
         }});
 }
 
-function CreateNewGroup(){
+async function CreateNewGroup(){
     //call an ajax
+    $("#createGroupButton").prop('disabled', true);
     var groupname=$("#groupname").val();
     if(groupname=='' || Group_Users.length===0){
         alert("please fill group name");
+        $("#createGroupButton").prop('disabled', false);
+        return false;
     }
-   if($("#group_picture_file").val()=='' ){
+   if($("#group_picture_file").val()==''  || $("#g_avatar").val()==''){
        alert("please upload an image");
+       $("#createGroupButton").prop('disabled', false);
+       return false;
    }
-
-    Group_Users.push(sender_id);
+   ///start  uploading image data
     $.ajax({
-        url: document.location.origin+"/create_new_group",
+        url: document.location.origin+"/upload-capture-image",
         method:"POST",
         data:{
-            groupname:groupname,
-            Group_Users:Group_Users,
-            user_id:sender_id,
-            file:$("#g_avatar").val()
-
+            file:$("#g_avatar").val(),
+            name:Date.now()+'.png',
         },
         success: function(result){
-            console.log(result);
-            userList.innerHTML='';
             var messages=JSON.parse(result);
-            messages=messages.data;
-            outputUsers({
-                text:'',
-                username:sender,
-                userid:sender_id,
-                time:'',
-                status:'',
-                avatar:messages.avatar,
-                groupid:messages.id,
-                groupname:messages.groupname
-            });
-            SelectGroup(sender,messages.groupname);
-            socket.emit('sendMessage',{
-                sender:sender,
-                receiver:null,
-                message:sender+'has made the chat history visible to everyone',
-                is_file:0,
-                file_path:'',
-                file_type:'text',
-                groupid:messages.groupname
+            if(messages.file_path){
+                ///start create new Group
+                Group_Users.push(sender_id);
+                $.ajax({
+                    url: document.location.origin+"/create_new_group",
+                    method:"POST",
+                    data:{
+                        groupname:groupname,
+                        Group_Users:Group_Users,
+                        user_id:sender_id,
+                        file_path:messages.file_path
 
-            });
-            //$(".user-list-loader").addClass("d-none");
+                    },
+                    success: function(result){
+                        console.log(result);
+                        userList.innerHTML='';
+                        var messages=JSON.parse(result);
+                        if(messages.status=='201'){
+                            alert(messages.message);
+                            $("#createGroupButton").prop('disabled', false);
+                            return false;
+                        }
+                        if(messages.status=='200'){
+                            messages=messages.data;
+                            outputUsers({
+                                text:'',
+                                username:sender,
+                                userid:sender_id,
+                                time:'',
+                                status:'',
+                                avatar:messages.avatar,
+                                groupid:messages.id,
+                                groupname:messages.groupname
+                            });
+                            SelectGroup(sender,messages.groupname);
+                            socket.emit('sendMessage',{
+                                sender:sender,
+                                receiver:null,
+                                message:sender+'has made the chat history visible to everyone',
+                                is_file:0,
+                                file_path:'',
+                                file_type:'text',
+                                groupid:messages.groupname
+
+                            });
+                            //$(".user-list-loader").addClass("d-none");
+                            $("#groupname").val('');
+                            $("#group_picture_file").val('');
+                            $("#g_avatar").val('');
+                            $("#suggestion-list").html('');
+                            Group_Users=[];
+                            $("#createGroupButton").prop('disabled', false);
+                            $(".close").trigger("click");
+                        }
+
+                    }});
+                $("#createGroupButton").prop('disabled', false);
+
+            }else{
+                alert("file not uploaded");
+                return false;
+            }
         }});
+
+
 }
 
 var Group_Users=[];
@@ -732,7 +772,7 @@ function showUserList(){
             username:sender,
             limit:10,
             last_id:0,
-            grouplist:false
+            grouplist:true
 
         },
         success: function(result){
@@ -740,6 +780,9 @@ function showUserList(){
             userList.innerHTML='';
             console.info(result);
             var userlist=JSON.parse(result);
+            if(userlist.status==401){
+                location.reload();
+            }
             userlist=userlist.data;
             for(var a=0;a<userlist.length;a++){
                 outputUsers({
@@ -765,7 +808,7 @@ function showUserList(){
         method:"POST",
         data:{
             username:sender,
-            grouplist:true
+            grouplist:false
         },
         success: function(result){
             userListCreateGroup.innerHTML='';

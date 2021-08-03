@@ -317,6 +317,7 @@ app.post("/get_user_list",async function (request,result){
     //get all messages from database
     console.log("grouplist");
     console.log(request.body.grouplist);
+    if(users[request.body.username]){
         connection.query("SELECT  * FROM   users  where username !='" +request.body.username+ "'  and  username !='admin' order by id asc  "  ,function(error,userlist){
             //json response
             var list=[];
@@ -360,6 +361,13 @@ app.post("/get_user_list",async function (request,result){
 
             });
         });
+    }else{
+        var data={
+            'status':401,
+            'message':"reload the page",
+        };
+    }
+
 
 
 
@@ -406,9 +414,6 @@ app.post("/updatefirebasetoken",async function (request,result){
 });
 //Update Firebase token api call to return all recent messages to specific user
 app.post("/create_new_group",async function (request,result){
-   console.log("check file");
-   console.log(request.body.file);
-
     const  query="select * from  message_group_join where name= '" +request.body.groupname+ "'";
     const groupdata=SelectAllElements(query);
     if(groupdata){
@@ -420,15 +425,15 @@ app.post("/create_new_group",async function (request,result){
             }
         };
     }
-    var groupavatar=null;
-    var base64Data = request.body.file.replace(/^data:image\/png;base64,/, "");
+    var groupavatar=request.body.file_path;
+    /*var base64Data = request.body.file.replace(/^data:image\/png;base64,/, "");
     var filename=Date.now()+".jpg";
     await fs.writeFile("public/files/uploads/"+filename, base64Data, 'base64', function(err) {
         var response={
             'file_path': temp_url+'/files/uploads/'+filename,
         };
         groupavatar = response.file_path;
-    });
+    });*/
     await connection.query("INSERT INTO  message_group (name,user_id,avatar ) values ('" +request.body.groupname+ "','" +request.body.user_id+ "', '"+groupavatar+"')", function(err, resultq, fields) {
         if (err) throw err;
         if(resultq.insertId){

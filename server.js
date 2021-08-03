@@ -85,9 +85,7 @@ app.use(function(request,result,next){
 //Create api call to return all messages
 app.post("/get_messages", function (request,result){
     //get all messages from database
-console.log("bug");
-console.log(users);
-console.log(request.body.sender);
+
     if(users[request.body.sender]){
         var page_number=request.body.page_number;
         if(request.body.page_number >0){
@@ -96,69 +94,72 @@ console.log(request.body.sender);
             request.body.page_number=1;
         }
         var offset = (request.body.page_number-1) * request.body.limit;
-        connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
-            connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')     " ,function(error,totalmessages){
-                var total_records=totalmessages.length;
-                var subtractar='';
-                var order='ASC';
-                if(request.body.first_id >0){
-                    subtractar+="and id < "+request.body.first_id+"";
-                    order='DESC';
-                }
-                //if(request.body.last_id >0){
-                   // subtractar+="and id > "+request.body.last_id+"";
-                //}
-                var offset = total_records - (request.body.limit * request.body.page_number);
-            //console.log("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"   ORDER BY `id` desc  LIMIT   "+request.body.limit+" ");
-            console.log("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" ");
-            /*connection.query("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+" ORDER BY `id` desc  LIMIT   "+request.body.limit+" " ,function(error,messages){*/
-            connection.query("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" " ,function(error,messages){
-                //json response
-                var user_live=false;
-                if(users[request.body.receiver]){
-                    user_live=true;
-                }
-                var list=[];
-                var total_pages=0;
-                var currentPageRecords=0;
-                var has_more_pages=false;
-                if(total_records >0){
-                    total_pages=Math.ceil(total_records /  request.body.limit);
-                    var currentPageRecords=Math.round(request.body.limit *  request.body.page_number);
-                    if(total_records > currentPageRecords){
-                        has_more_pages=true;
+        if(request.body.receiver){
+            connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
+                connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')     " ,function(error,totalmessages){
+                    var total_records=totalmessages.length;
+                    var subtractar='';
+                    var order='ASC';
+                    if(request.body.first_id >0){
+                        subtractar+="and id < "+request.body.first_id+"";
+                        order='DESC';
                     }
+                    //if(request.body.last_id >0){
+                    // subtractar+="and id > "+request.body.last_id+"";
+                    //}
+                    var offset = total_records - (request.body.limit * request.body.page_number);
+                    //console.log("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"   ORDER BY `id` desc  LIMIT   "+request.body.limit+" ");
+                    console.log("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" ");
+                    /*connection.query("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+" ORDER BY `id` desc  LIMIT   "+request.body.limit+" " ,function(error,messages){*/
+                    connection.query("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" " ,function(error,messages){
+                        //json response
+                        var user_live=false;
+                        if(users[request.body.receiver]){
+                            user_live=true;
+                        }
+                        var list=[];
+                        var total_pages=0;
+                        var currentPageRecords=0;
+                        var has_more_pages=false;
+                        if(total_records >0){
+                            total_pages=Math.ceil(total_records /  request.body.limit);
+                            var currentPageRecords=Math.round(request.body.limit *  request.body.page_number);
+                            if(total_records > currentPageRecords){
+                                has_more_pages=true;
+                            }
 
-                }
-                if(messages){
-                    for(var a=0;a<messages.length;a++){
-                        var message=messages[a];
-                        message.status=(users[request.body.receiver] ? 'online' : 'offline');
-                        message.avatar=domain+receiver[0].avatar;
-                        message.username=receiver[0].username;
-                        message.last_seen=(receiver[0].last_seen && !user_live ? timeDifference(receiver[0].last_seen) : '');
-                        message.receiver_avatar=domain+receiver[0].avatar;
-                        message.receiver_username=receiver[0].username;
-                        message.sender_avatar=users[request.body.sender].avatar;
-                        message.sender_username=users[request.body.sender].username;
-                        list[a]=message;
-                    }
-                }
-                var data={
-                    'status':200,
-                    'data':list,
-                    'per_page':request.body.limit,
-                    'total_pages':total_pages,
-                    'current_page':request.body.page_number,
-                    'has_more_pages':has_more_pages,
+                        }
+                        if(messages){
+                            for(var a=0;a<messages.length;a++){
+                                var message=messages[a];
+                                message.status=(users[request.body.receiver] ? 'online' : 'offline');
+                                message.avatar=domain+receiver[0].avatar;
+                                message.username=receiver[0].username;
+                                message.last_seen=(receiver[0].last_seen && !user_live ? timeDifference(receiver[0].last_seen) : '');
+                                message.receiver_avatar=domain+receiver[0].avatar;
+                                message.receiver_username=receiver[0].username;
+                                message.sender_avatar=users[request.body.sender].avatar;
+                                message.sender_username=users[request.body.sender].username;
+                                list[a]=message;
+                            }
+                        }
+                        var data={
+                            'status':200,
+                            'data':list,
+                            'per_page':request.body.limit,
+                            'total_pages':total_pages,
+                            'current_page':request.body.page_number,
+                            'has_more_pages':has_more_pages,
 
 
-                };
-                result.end(JSON.stringify(data));
+                        };
+                        result.end(JSON.stringify(data));
 
+                    });
+                });
             });
-            });
-        });
+        }
+
     }else{
         var data={
           'status':400,
@@ -255,7 +256,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.groupname=recentGroupmessages[k].name;
                     message.status='offline';
                     message.userid=0;
-                    message.avatar=domain+recentGroupmessages[k].avatar;
+                    message.avatar=recentGroupmessages[k].avatar;
                     var query="SELECT * FROM `chatmessages` WHERE `to_group_id`='"+recentGroupmessages[k].id+"' order by id DESC limit 1";
                     const lastmessage = await SelectAllElements(query);
                     if(lastmessage[0]){

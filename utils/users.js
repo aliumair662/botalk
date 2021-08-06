@@ -4,9 +4,9 @@ const groupUsersbysocket = [];
 
 //Join user to chat
 
-function userGroupJoin (id,username,room){
+function userGroupJoin (id,username,groupid){
   /*  groupUsers[username]=id;*/
-    const user ={ id,username ,room };
+    const user ={ id,username ,groupid };
     groupUsers.push(user);
     return user;
 
@@ -27,7 +27,7 @@ function  userGroupLeave(id){
 
 
 function getGroupRoomUsers(room){
-    return groupUsers.filter(user =>user.room === room);
+    return groupUsers.filter(user =>user.groupid === room);
 }
 module.exports = {
     userGroupJoin,

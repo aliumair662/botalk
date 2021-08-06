@@ -15,6 +15,12 @@ var sender_avatar=null;
 var sender_id=null;
 var chatScrollingTop=false;
 var registrationToken=null;
+var opneGroupChat=false;
+var GroupName='';
+var Groupid='';
+var EditMessageFlag=false;
+var EditMessageId=0;
+
 const { u } =Qs.parse(location.search,{
     ignoreQueryPrefix:true
 });
@@ -41,7 +47,7 @@ socket.on('online',function (username){
 socket.on('offline',function (data){
     offlineUsers(data.username);
 });
-var groupid=null;
+
 
 
 var uploader = new SocketIOFileClient(socket);
@@ -64,7 +70,9 @@ $( "#chat-form" ).submit(function( e ) {
             is_file:0,
             file_path:'',
             file_type:'text',
-            groupid:groupid
+            groupid:Groupid,
+            editmessageflag:EditMessageFlag,
+            editmessageid:EditMessageId
 
         });
         //Clear input
@@ -80,11 +88,13 @@ $("#thumbs-up").click(function (e){
     socket.emit('sendMessage',{
         sender:sender,
         receiver:receiver,
-        groupid:groupid,
+        groupid:Groupid,
         message:message,
         is_file:1,
         file_type:'image',
         file_path:'files/images/thumbs-up.png',
+        editmessageflag:EditMessageFlag,
+        editmessageid:EditMessageId
     });
 });
 //Send Giphy
@@ -97,11 +107,13 @@ $('body').on('click', '.gif-gallery-item', function() {
     socket.emit('sendMessage',{
         sender:sender,
         receiver:receiver,
-        groupid:groupid,
+        groupid:Groupid,
         message:message,
         is_file:1,
         file_type:'gif',
         file_path:$(this).attr("data-url"),
+        editmessageflag:EditMessageFlag,
+        editmessageid:EditMessageId
     });
 
     $("#gifmodal").addClass('d-none');
@@ -182,11 +194,13 @@ uploader.on('complete', function(fileInfo) {
         socket.emit('sendMessage',{
             sender:sender,
             receiver:receiver,
-            groupid:groupid,
+            groupid:Groupid,
             message:message,
             is_file:1,
             file_type:file_type,
             file_path:'files/uploads/'+fileInfo.name,
+            editmessageflag:EditMessageFlag,
+            editmessageid:EditMessageId
         });
 
     }
@@ -291,12 +305,12 @@ $(document).ready(function() {
             keypress: function (editor, event) {
 
                 if(event.which !== 13){
-                    socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:true});
+                    socket.emit('typing', {sender:sender,receiver:receiver,groupid:Groupid, typing:true});
                     setTimeout(function(){
-                        socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:false});
+                        socket.emit('typing', {sender:sender,receiver:receiver,groupid:Groupid, typing:false});
                     }, 3000);
                 }else{
-                    socket.emit('typing', {sender:sender,receiver:receiver,groupid:groupid, typing:false});
+                    socket.emit('typing', {sender:sender,receiver:receiver,groupid:Groupid, typing:false});
                     event.preventDefault();
                     $('#chat-form').submit();
                 }
@@ -323,7 +337,7 @@ $(document).ready(function() {
     // initial value for offset
     let offsetVal = 0;
     // set your limit
-    let giphyLimit = 10;
+    let giphyLimit = 5;
     let giphyCallInprogess=false;
     const apiKey = 'pyqgeU33gNSqBeuCS2wZrhnaOnjSKTUP'
     function getGiphy (i){
@@ -406,14 +420,13 @@ function calculateUploadProgress(filesize,filesizesent){
    return perc;
 }
 
+
+//Show if message if edit
 //Start Function //
 //Out put message to Dom
 function outputMessage(message){
-    const div=document.createElement('div');
-        div.classList.add(message.class);
-        div.classList.add('message_'+message.id);
-        div.classList.add('message_box_');
-        div.setAttribute('data-id',message.id);
+    if(EditMessageFlag == true && EditMessageId == message.id){
+        const div=document.createElement('div');
         var html=`<div class="avatar-image chat-details">
                        <img src="${message.avatar}" alt="">
                        <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
@@ -425,28 +438,55 @@ function outputMessage(message){
             html+=`<p>${message.text}</p>`;
         }
         html+=`<span>${message.time}</span></div>`;
-    if(message.username==sender){
-        html+=`<div class="dropdown">`;
-        html+=`<a onclick="openAction('${message.id}');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
-        html+=`<div id="myDropdown_${message.id}" class="dropdown-content"><a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;
-    }
-        /*html+=`<div class="dropdown">`;
-        html+=`<a onclick="myFunction()" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
-        html+=`<div id="myDropdown" class="dropdown-content"><a href="#home">Remove</a></div></div>`;*/
+        if(message.username==sender){
+            html+=`<div class="dropdown">`;
+            html+=`<a onclick="openAction('${message.id}');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
+            html+=`<div id="myDropdown_${message.id}" class="dropdown-content">`;
+            if(message.is_file==0) {
+                html += `<a href="#" onclick="EditMessage('${message.id}','${message.text}');">Edit</a>`;
+            }
+            html+=`<a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;
+        }
         div.innerHTML=html;
-        console.info("scroll");
-        /*console.info(scroll);
-        if(scroll==false){
-            document.querySelector('.chat-messages').appendChild(div);
+        document.querySelector('.message_'+message.id).innerHTML='';
+        document.querySelector('.message_'+message.id).append(div);
 
-        }else{
-            document.querySelector('.chat-messages').prepend(div);
-        }*/
-    if(chatScrollingTop){
-        document.querySelector('.chat-messages').prepend(div);
+        clearEditMessage();
     }else{
-        document.querySelector('.chat-messages').appendChild(div);
+        const div=document.createElement('div');
+        div.classList.add(message.class);
+        div.classList.add('message_'+message.id);
+        div.classList.add('message_box_');
+        div.setAttribute('data-id',message.id);
+
+        var html=`<div class="avatar-image chat-details">
+                       <img src="${message.avatar}" alt="">
+                       <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
+                       </div>
+                       <div class="message-sent">`;
+        if(message.is_file==1){
+            html+=`${message.text}`;
+        }else{
+            html+=`<p>${message.text}</p>`;
+        }
+        html+=`<span>${message.time}</span></div>`;
+        if(message.username==sender){
+            html+=`<div class="dropdown">`;
+            html+=`<a onclick="openAction('${message.id}');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
+            html+=`<div id="myDropdown_${message.id}" class="dropdown-content">`;
+            if(message.is_file==0) {
+                html += `<a href="#" onclick="EditMessage('${message.id}','${message.text}');">Edit</a>`;
+            }
+            html+=`<a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;
+        }
+        div.innerHTML=html;
+        if (chatScrollingTop) {
+            document.querySelector('.chat-messages').prepend(div);
+        } else {
+            document.querySelector('.chat-messages').appendChild(div);
+        }
     }
+
 
 
 }
@@ -469,15 +509,16 @@ function outputFile(message){
     document.querySelector('.chat-messages').appendChild(div);
 }
 //Add room name to Dom
-function outputRoomName(room){
+/*function outputRoomName(room){
     roomName.innerText = room;
-}
+}*/
 //Add Users to Dom
 function  outputUsers(message){
     console.info("outputUsers");
     console.info(message.groupid);
         if(message.groupid){
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="SelectGroup('${sender}','${message.groupname}');"><div class="avatar-image" >
+            /*userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="SelectGroup('${sender}',1,'${message.groupname}','${message.groupid}');"><div class="avatar-image" >*/
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="selectUser('${sender}',0,'${message.groupname}','${message.groupid}');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span></span>
 </div>
@@ -486,7 +527,7 @@ function  outputUsers(message){
 <span >${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
         }else{
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}','${message.userid}',false);"><div class="avatar-image" >
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}',0,'','');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
@@ -502,46 +543,55 @@ var LIMIT_MESSAGE=10;
 var PAGE_NO=1;
 var HAS_MORE_PAGE=false;
 var InprogressRequest=false;
-function selectUser(username,userid){
+function selectUser(username,scrolling,groupname,groupid){
     if(InprogressRequest==true){
         return false;
     }
-    if(userid>0){
+    if(scrolling==0){
         chatScrollingTop=false;
-    }
-    console.info("dsds");
-    console.info($(".message_box_" ).first().attr("data-id"));
-    var first_id=($('.message_box_').length > 0 && chatScrollingTop==true ? $(".message_box_" ).first().attr("data-id") : 0);
-
-    /*if(scroll==false){
         PAGE_NO=1;
-        HAS_MORE_PAGE=false;
-    }*/
-    document.getElementById('room-name').innerText=username;
-    receiver=username;
+        document.querySelector('.chat-messages').innerHTML = '';
+    }else{
+        chatScrollingTop=true;
+    }
+
+    document.getElementById('room-name').innerText=(groupname) ? groupname :username;
     $(".show-chat-area").removeClass('d-none');
     $(".no-message-found").addClass('d-none');
-    $("#status_circle").removeClass('d-none');
-    $("#room_status").removeClass('d-none');
-    $("#last_seen").removeClass('d-none');
-    if(chatScrollingTop==false){ //if scrolling call
-    document.querySelector('.chat-messages').innerHTML = '';
+    if(groupname){
+        $("#status_circle").addClass('d-none');
+        $("#room_status").addClass('d-none');
+        $("#last_seen").addClass('d-none');
+        opneGroupChat=true;
+        GroupName=groupname;
+        Groupid=groupid;
+        receiver=null;
+    }else{
+        $("#status_circle").removeClass('d-none');
+        $("#room_status").removeClass('d-none');
+        $("#last_seen").removeClass('d-none');
+        opneGroupChat=false;
+        GroupName='';
+        Groupid='';
+        receiver=username;
     }
+
+
     //call an ajax
-    groupid=null;
     $(".chat-messages-loader").removeClass("d-none");
     InprogressRequest=true;
     $.ajax({
-        //url: "http://localhost:3000/get_messages",
         url: document.location.origin+"/get_messages",
         method:"POST",
         async: false,
         data:{
           sender:sender,
-            receiver:receiver,
+            receiver:(GroupName != '') ? '' :receiver,
+            groupname:GroupName,
+            groupid:Groupid,
             limit:LIMIT_MESSAGE,
-            first_id:first_id,
-
+            first_id:($('.message_box_').length > 0 && chatScrollingTop==true ? $(".message_box_" ).first().attr("data-id") : 0),
+            page_number:PAGE_NO,
         },
         success: function(result){
             var messages=JSON.parse(result);
@@ -549,20 +599,22 @@ function selectUser(username,userid){
                 messages=messages.data;
                 var last_seen=messages[0].last_seen;
                 //console.info(last_seen);
-                $("#last_seen").text(last_seen);
+                if(GroupName!=''){
+                    $("#last_seen").text('');
+                }else{
+                    $("#last_seen").text(last_seen);
+                }
                 for(var a=0;a<messages.length;a++){
                     var messageclass='user-receive-message';
                     var status=messages[a].status;
                     var avatar=messages[a].receiver_avatar;
                     var username=messages[a].receiver_username;
-                    console.info(messages[a].sender+'=='+sender+'=='+status);
                     if(messages[a].sender==sender){
                         messageclass='user-sent-message';
                         status='online';
                         avatar=messages[a].sender_avatar;
                         username=messages[a].sender_username;
                     }
-
                     outputMessage({
                         class:messageclass,
                         text:messages[a].text,
@@ -574,37 +626,31 @@ function selectUser(username,userid){
                         file_path:messages[a].file_path,
                         id:messages[a].id,
                     });
-                    /*chatMessages.scrollTop=chatMessages.scrollHeight;*/
-                    /*if(scroll==false){
-                        chatMessages.scrollTop=chatMessages.scrollHeight;
-                    }else{
-
-                    }*/
-                    if(chatScrollingTop==false){
-                        chatMessages.scrollTop=chatMessages.scrollHeight;
-                    }
-
                 }
-
-
-
+                PAGE_NO++;
             }
             InprogressRequest=false;
         }});
-
-        if( $(".user_"+username).find('.fa-circle').hasClass('online')){
-            $("#room_status").text('online');
-            $("#status_circle").addClass('online');
-            $("#status_circle").addClass('status_circle_'+username);
+        if(GroupName!=''){
+            var avatar=$(".user_"+GroupName).find('.avatar-image').find('img').attr('src');
+            socket.emit('joinRoom',{username:sender,groupid:Groupid});
         }else{
-            $("#room_status").text('offline');
-            $("#status_circle").removeClass('online');
-            $("#status_circle").removeClass('status_circle_'+username);
+            if( $(".user_"+username).find('.fa-circle').hasClass('online')){
+                $("#room_status").text('online');
+                $("#status_circle").addClass('online');
+                $("#status_circle").addClass('status_circle_'+username);
+            }else{
+                $("#room_status").text('offline');
+                $("#status_circle").removeClass('online');
+                $("#status_circle").removeClass('status_circle_'+username);
+            }
+            var avatar=$(".user_"+username).find('.avatar-image').find('img').attr('src');
         }
-        var avatar=$(".user_"+username).find('.avatar-image').find('img').attr('src');
         $("#room_avatar").attr("src",avatar);
     $(".chat-messages-loader").addClass("d-none");
-
+    if(scrolling==0){
+        chatMessages.scrollTop=chatMessages.scrollHeight;
+    }
 }
 function getrecentMessages(userid){
     //call an ajax
@@ -676,7 +722,7 @@ async function CreateNewGroup(){
                     },
                     success: function(result){
                         console.log(result);
-                        userList.innerHTML='';
+                        //userList.innerHTML='';
                         var messages=JSON.parse(result);
                         if(messages.status=='201'){
                             alert(messages.message);
@@ -695,15 +741,17 @@ async function CreateNewGroup(){
                                 groupid:messages.id,
                                 groupname:messages.groupname
                             });
-                            SelectGroup(sender,messages.groupname);
+                            //SelectGroup(sender,messages.groupname);
                             socket.emit('sendMessage',{
                                 sender:sender,
                                 receiver:null,
-                                message:sender+'has made the chat history visible to everyone',
+                                message:sender+' has made the chat history visible to everyone',
                                 is_file:0,
                                 file_path:'',
                                 file_type:'text',
-                                groupid:messages.groupname
+                                groupid:messages.groupid,
+                                editmessageflag:EditMessageFlag,
+                                editmessageid:EditMessageId
 
                             });
                             //$(".user-list-loader").addClass("d-none");
@@ -711,9 +759,12 @@ async function CreateNewGroup(){
                             $("#group_picture_file").val('');
                             $("#g_avatar").val('');
                             $("#suggestion-list").html('');
+                            $("#selected-people").html('');
                             Group_Users=[];
                             $("#createGroupButton").prop('disabled', false);
+                            $("#group-slide-back").trigger("click");
                             $(".close").trigger("click");
+
                         }
 
                     }});
@@ -772,7 +823,8 @@ function showUserList(){
             username:sender,
             limit:10,
             last_id:0,
-            grouplist:true
+            grouplist:1,
+            keyword:$("#main_user_search").val()
 
         },
         success: function(result){
@@ -808,7 +860,9 @@ function showUserList(){
         method:"POST",
         data:{
             username:sender,
-            grouplist:false
+            grouplist:0,
+            limit:10,
+            keyword: $("#main_user_search_group").val()
         },
         success: function(result){
             userListCreateGroup.innerHTML='';
@@ -853,7 +907,7 @@ function deleteMessage(id){
 
             var data={
                 id:id,
-                groupid:groupid,
+                groupid:Groupid,
                 receiver:receiver
             }
             socket.emit('messageDeleted',data);
@@ -861,9 +915,26 @@ function deleteMessage(id){
 
         }});
 
-
+    clearEditMessage();
 
 }
+
+function EditMessage(id,text){
+
+    $(".emojionearea-editor").html(text);
+    EditMessageFlag=true;
+    EditMessageId=id;
+    $("#cancel-edit").removeClass('d-none');
+}
+function clearEditMessage(event){
+
+    EditMessageFlag=false;
+    EditMessageId=0;
+    $(".emojionearea-editor").html('');
+    $("#cancel-edit").addClass('d-none');
+    event.preventDefault();
+}
+
 function updateRegistrationTokenWeb(sender){
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
@@ -937,15 +1008,18 @@ $(chatMessages).scroll(function(event){
     if (st > lastScrollTop){
         // downscroll code
     } else {
+
         // upscroll code
-        if(receiver!=null){
-            chatScrollingTop=true;
-            selectUser(receiver,0);
+        if((receiver || GroupName) && $( ".chat-messages" ).scrollTop()==0){
+            console.info("scroll calling");
+            setTimeout(function(){ selectUser(receiver,1,GroupName,Groupid); }, 1000);
+
         }
     }
-
-
     lastScrollTop = st;
+
+
+
 });
 $("body").on('click', '.closeimage', function() {
     $("#ImagePopModal").addClass('d-none');

@@ -326,11 +326,13 @@ function uploadVoiceClip(dataURI){
                 socket.emit('sendMessage',{
                     sender:sender,
                     receiver:receiver,
-                    groupid:groupid,
+                    groupid:Groupid,
                     message:message,
                     is_file:1,
                     file_type:'audio',
-                    file_path:result.file_path
+                    file_path:result.file_path,
+                    editmessageflag:EditMessageFlag,
+                    editmessageid:EditMessageId
                 });
 
             }
@@ -352,10 +354,13 @@ function uploadCaptureSnapshot(dataBases64){
                 socket.emit('sendMessage',{
                     sender:sender,
                     receiver:receiver,
+                    groupid:Groupid,
                     message:message,
                     is_file:1,
                     file_type:'image',
-                    file_path:result.file_path
+                    file_path:result.file_path,
+                    editmessageflag:EditMessageFlag,
+                    editmessageid:EditMessageId
                 });
 
             }

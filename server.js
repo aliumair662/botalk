@@ -85,6 +85,8 @@ app.use(function(request,result,next){
 //Create api call to return all messages
 app.post("/get_messages", function (request,result){
     //get all messages from database
+        console.log("get_messages");
+        console.log(request.body);
 
     if(users[request.body.sender]){
         var page_number=request.body.page_number;

@@ -426,7 +426,7 @@ function calculateUploadProgress(filesize,filesizesent){
 //Out put message to Dom
 function outputMessage(message){
     if(EditMessageFlag == true && EditMessageId == message.id){
-        const div=document.createElement('div');
+       // const div=document.createElement('div');
         var html=`<div class="avatar-image chat-details">
                        <img src="${message.avatar}" alt="">
                        <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
@@ -447,17 +447,18 @@ function outputMessage(message){
             }
             html+=`<a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;
         }
-        div.innerHTML=html;
+        //div.innerHTML=html;
         document.querySelector('.message_'+message.id).innerHTML='';
-        document.querySelector('.message_'+message.id).append(div);
+        document.querySelector('.message_'+message.id).append(html);
         clearEditMessage();
     }else{
+        console.info("message");
+        console.info(message);
         const div=document.createElement('div');
         div.classList.add(message.class);
         div.classList.add('message_'+message.id);
         div.classList.add('message_box_');
         div.setAttribute('data-id',message.id);
-
         var html=`<div class="avatar-image chat-details">
                        <img src="${message.avatar}" alt="">
                        <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>

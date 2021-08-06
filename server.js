@@ -726,19 +726,43 @@ io.on('connection',socket => {
                             var query="update  chatmessages set sender='" +users[data.sender].username+ "',receiver='" +group[0].name+ "',text='" +message+ "',from_id='" +users[data.sender].id+ "' ,to_id=0,message_time='" +formatedMessage.time+ "',is_file='" +data.is_file+ "',file_path='" +data.file_path+ "',to_group_id='" +group[0].id+ "',file_type='" +data.file_type+ "' where id='" +data.editmessageid+ "' ";
                         }
 
-                        await connection.query(query ,function(error,result){
+                        await connection.query(query ,async function(error,result){
                             if (error) {
                                 console.error('error connecting: ' + error.stack);
                                 return;
                             }
-                            formatedMessage.status='online';
+                            if (result) {
+                                var query = "SELECT  * FROM   chatmessages WHERE  id ='" + result.insertId + "'";
+                                if (data.editmessageid > 0) {
+                                    var query = "SELECT  * FROM   chatmessages WHERE  id ='" + data.editmessageid + "' ";
+                                }
+                                await connection.query(query ,function(error,thismessages){
+                                    if(thismessages){
+                                        var message=thismessages[0];
+                                        message.status='online';
+                                        message.receiver_avatar=group[0].avatar;
+                                        message.receiver_username=group[0].name;
+                                        message.sender_avatar=users[message.sender].avatar;
+                                        message.sender_username=users[message.sender].username;
+                                        message.time=message.message_time;
+                                        message.last_seen='';
+                                        message.avatar=users[message.sender].avatar;
+                                        message.username=users[message.sender].username;
+                                        message.groupid=message.to_group_id;
+                                        io.to(data.groupid).emit('Groupmessage',message);
+                                    }
+
+                                });
+
+                            }
+                           /* formatedMessage.status='online';
                             formatedMessage.avatar=users[data.sender].avatar;
                             formatedMessage.username=users[data.sender].username;
                             formatedMessage.is_file=data.is_file;
                             formatedMessage.file_path=data.file_path;
                             formatedMessage.id=result.insertId;
-                            formatedMessage.groupid=data.groupid;
-                            io.to(data.groupid).emit('Groupmessage',formatedMessage);
+                            formatedMessage.groupid=data.groupid;*/
+                            //io.to(data.groupid).emit('Groupmessage',formatedMessage);
                             //send data for group notigication
                             /*formatedMessage.groupname=group[0].name;
                             formatedMessage.avatar=domain+group[0].avatar;

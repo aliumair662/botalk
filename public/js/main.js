@@ -240,7 +240,7 @@ socket.on('showmemessage',message => {
 
 
 socket.on('message',message => {
-
+    chatScrollingTop=false;
     message.class='user-receive-message';
     if(message.username==receiver){
         outputMessage(message);
@@ -337,7 +337,7 @@ $(document).ready(function() {
     // initial value for offset
     let offsetVal = 0;
     // set your limit
-    let giphyLimit = 5;
+    let giphyLimit = 10;
     let giphyCallInprogess=false;
     const apiKey = 'pyqgeU33gNSqBeuCS2wZrhnaOnjSKTUP'
     function getGiphy (i){
@@ -450,7 +450,6 @@ function outputMessage(message){
         div.innerHTML=html;
         document.querySelector('.message_'+message.id).innerHTML='';
         document.querySelector('.message_'+message.id).append(div);
-
         clearEditMessage();
     }else{
         const div=document.createElement('div');

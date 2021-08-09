@@ -304,6 +304,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.groupid=null;
                     message.groupname=null;
                     message.last_message={};
+                    message.chat_name=message.username;
                     try{
                         var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
                         const lastmessages = await SelectAllElements(query);
@@ -333,6 +334,7 @@ app.post("/get_recent_messages",async function (request,result){
                     var message={};
                     message.groupid=recentGroupmessages[k].id;
                     message.groupname=recentGroupmessages[k].name;
+                    message.chat_name=recentGroupmessages[k].name;
                     message.status='offline';
                     message.userid=0;
                     message.avatar=recentGroupmessages[k].avatar;

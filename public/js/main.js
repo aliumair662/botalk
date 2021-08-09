@@ -668,16 +668,19 @@ $(".user-list-loader").removeClass("d-none");
             var messages=JSON.parse(result);
             messages=messages.data;
             for(var a=0;a<messages.length;a++){
-                outputUsers({
-                    text:(messages[a].last_message ? messages[a].last_message.text : ''),
-                    username:messages[a].username,
-                    userid:messages[a].userid,
-                    time:(messages[a].last_message ? messages[a].last_message.message_time : ''),
-                    status:messages[a].status,
-                    avatar:messages[a].avatar,
-                    groupid:messages[a].groupid,
-                    groupname:messages[a].groupname
-                });
+               if(messages[a]){
+                   outputUsers({
+                       text:(messages[a].last_message ? messages[a].last_message.text : ''),
+                       username:messages[a].username,
+                       userid:messages[a].userid,
+                       time:(messages[a].last_message ? messages[a].last_message.message_time : ''),
+                       status:messages[a].status,
+                       avatar:messages[a].avatar,
+                       groupid:messages[a].groupid,
+                       groupname:messages[a].groupname
+                   });
+               }
+
             }
             $(".user-list-loader").addClass("d-none");
         }});

@@ -326,7 +326,7 @@ app.post("/get_recent_messages",async function (request,result){
         try{
             //var query="SELECT   chatmessages.text,chatmessages.message_time as time,message_group.name as groupname ,message_group.id as groupid,message_group.avatar as avatar ,chatmessages.to_group_id,chatmessages.id,users.username FROM   chatmessages,users,message_group,message_group_join  WHERE   users.id ='" +request.body.userid+ "' and  users.id = message_group_join.user_id and  message_group_join.groupid=message_group.id    and chatmessages.to_group_id=message_group.id  and  chatmessages.id IN ( SELECT MAX(id) FROM chatmessages GROUP BY to_group_id ) ";
             //var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN chatmessages ON message_group.id = chatmessages.to_group_id and (chatmessages.to_id ='" +request.body.userid+ "' or  chatmessages.from_id ='" +request.body.userid+ "') GROUP by id ";
-            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN message_group_join ON message_group.id = message_group_join.groupid and message_group_join.user_id='" +request.body.userid+ "' GROUP by id";
+            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group , message_group_join where message_group.id = message_group_join.groupid and message_group_join.user_id='" +request.body.userid+ "' GROUP by id";
             const recentGroupmessages = await SelectAllElements(query);
             if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){

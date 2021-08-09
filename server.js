@@ -295,28 +295,31 @@ app.post("/get_recent_messages",async function (request,result){
         if(recentmessages){
             var allusersdata=[];
             for(var a=0;a<recentmessages.length;a++){
-                var message=recentmessages[a];
-                message.status='offline';
-                message.userid=message.id;
-                message.avatar=domain+message.avatar;
-                message.status=(users[message.username] ? 'online' : 'offline');
-                message.groupid=null;
-                message.groupname=null;
-                message.last_message={};
-                try{
-                    var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
-                    const lastmessages = await SelectAllElements(query);
-                    if(lastmessages){
-                        var messages = lastmessages[0];
-                        if(messages.is_file==1){
-                            messages.text=messages.file_type;
+                if(recentmessages[a]){
+                    var message=recentmessages[a];
+                    message.status='offline';
+                    message.userid=message.id;
+                    message.avatar=domain+message.avatar;
+                    message.status=(users[message.username] ? 'online' : 'offline');
+                    message.groupid=null;
+                    message.groupname=null;
+                    message.last_message={};
+                    try{
+                        var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
+                        const lastmessages = await SelectAllElements(query);
+                        if(lastmessages){
+                            var messages = lastmessages[0];
+                            if(messages.is_file==1){
+                                messages.text=messages.file_type;
+                            }
+                            message.last_message=messages;
                         }
-                        message.last_message=messages;
+                    }catch (e) {
+                        console.log("something wrong",e);
                     }
-                }catch (e) {
-                    console.log("something wrong",e);
+                    list[a]=message;
                 }
-                list[a]=message;
+
             }
         }
         //Group messages
@@ -451,13 +454,20 @@ app.post("/get_user_list",async function (request,result){
             });*/
             var limit=request.body.limit - list.length;
             if(request.body.grouplist == 1){
-            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN message_group_join ON  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"   GROUP by id limit " +limit+ " ";
+            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN message_group_join ON  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"  and message_group.is_community_group=0     GROUP by id limit " +limit+ " ";
            if(groupsearch!=''){
-               var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group RIGHT JOIN message_group_join ON  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"   GROUP by id limit " +limit+ " ";
+               var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group RIGHT JOIN message_group_join ON  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+" and message_group.is_community_group=0    GROUP by id limit " +limit+ " ";
            }
             console.log(query);
+
             const recentGroupmessages = await SelectAllElements(query);
-            if(recentGroupmessages){
+               /* var query="SELECT name, avatar,id FROM message_group where  is_community_group=1   GROUP by id limit 1 ";
+                const communityGroup = await SelectAllElements(query);
+                console.log("community");
+                console.log(communityGroup);
+
+                recentGroupmessages.push(communityGroup[0]);*/
+                if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
                     if(recentGroupmessages[k].name){
                         var user={};

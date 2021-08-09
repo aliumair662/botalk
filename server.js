@@ -455,9 +455,9 @@ app.post("/get_user_list",async function (request,result){
             });*/
             var limit=request.body.limit - list.length;
             if(request.body.grouplist == 1){
-            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group LEFT JOIN message_group_join ON  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"       GROUP by id limit " +limit+ " ";
+            var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group , message_group_join WHERE  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"       GROUP by id limit " +limit+ " ";
            if(groupsearch!=''){
-               var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group RIGHT JOIN message_group_join ON  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"     GROUP by id limit " +limit+ " ";
+               var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group , message_group_join WHERE  message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+"     GROUP by id limit " +limit+ " ";
            }
             console.log(query);
 

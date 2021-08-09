@@ -417,6 +417,7 @@ app.post("/get_user_list",async function (request,result){
                     user.avatar=domain+user.avatar;
                     user.groupid='';
                     user.groupname='';
+                    user.chat_name=user.username;
                     //console.log(user);
                     user.status=(users[user.username] ? 'online' : 'offline');
                     list[a]=user;
@@ -474,6 +475,7 @@ app.post("/get_user_list",async function (request,result){
                         user.username='';
                         user.groupid=recentGroupmessages[k].id;
                         user.groupname=recentGroupmessages[k].name;
+                        user.chat_name=recentGroupmessages[k].name;
                         user.status='offline';
                         user.userid=0;
                         user.avatar=recentGroupmessages[k].avatar;

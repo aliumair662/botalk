@@ -518,7 +518,7 @@ function  outputUsers(message){
     console.info(message.groupid);
         if(message.groupid){
             /*userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="SelectGroup('${sender}',1,'${message.groupname}','${message.groupid}');"><div class="avatar-image" >*/
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname}" onclick="selectUser('${sender}',0,'${message.groupname}','${message.groupid}');"><div class="avatar-image" >
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.groupname} group_${message.groupid} " onclick="selectUser('${sender}',0,'${message.groupname}','${message.groupid}');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span></span>
 </div>
@@ -527,7 +527,7 @@ function  outputUsers(message){
 <span >${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
         }else{
-            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username}" onclick="selectUser('${message.username}',0,'','');"><div class="avatar-image" >
+            userList.innerHTML += `<div class="row message-grid user-grid user_${message.username} user_${message.userid}" onclick="selectUser('${message.username}',0,'','');"><div class="avatar-image" >
 <img src="${message.avatar}" alt="">
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
@@ -632,7 +632,7 @@ function selectUser(username,scrolling,groupname,groupid){
             InprogressRequest=false;
         }});
         if(GroupName!=''){
-            var avatar=$(".user_"+GroupName).find('.avatar-image').find('img').attr('src');
+            var avatar=$(".group_"+Groupid).find('.avatar-image').find('img').attr('src');
             socket.emit('joinRoom',{username:sender,groupid:Groupid});
         }else{
             if( $(".user_"+username).find('.fa-circle').hasClass('online')){

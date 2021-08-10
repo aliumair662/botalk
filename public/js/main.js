@@ -668,7 +668,7 @@ $(".user-list-loader").removeClass("d-none");
             var messages=JSON.parse(result);
             messages=messages.data;
             for(var a=0;a<messages.length;a++){
-               //if(messages[a]){
+               if(messages[a]){
                    outputUsers({
                        text:(messages[a].last_message ? messages[a].last_message.text : ''),
                        username:messages[a].username,
@@ -679,7 +679,7 @@ $(".user-list-loader").removeClass("d-none");
                        groupid:messages[a].groupid,
                        groupname:messages[a].groupname
                    });
-               //}
+               }
 
             }
             $(".user-list-loader").addClass("d-none");

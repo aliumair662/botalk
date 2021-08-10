@@ -418,8 +418,8 @@ app.post("/get_user_list",async function (request,result){
                 for(var a=0;a<userlist.length;a++){
                     var user=userlist[a];
                     user.avatar=domain+user.avatar;
-                    user.groupid='';
-                    user.groupname='';
+                    user.groupid=null;
+                    user.groupname=null;
                     user.chat_name=user.username;
                     //console.log(user);
                     user.status=(users[user.username] ? 'online' : 'offline');

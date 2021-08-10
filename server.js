@@ -577,6 +577,9 @@ app.post("/create_new_group",async function (request,result){
     const groupdatauser=await SelectAllElements(queryuser);
     console.log("groupdatauser");
     console.log(groupdatauser);
+    console.log("create group send ");
+    console.log(request.body);
+
     if(groupdatauser.length >0 || groupdatauser.length >0){
         request.body.groupname=request.body.groupname+'_';
     }
@@ -586,6 +589,8 @@ app.post("/create_new_group",async function (request,result){
             if(resultq.insertId){
                 var Group_Users=request.body.Group_Users;
                 for(var a=0;a<Group_Users.length;a++){
+                    console.log("Group_Users[a] ");
+                    console.log(Group_Users[a]);
                     const  query="INSERT INTO  message_group_join (groupid,user_id) values ('" +resultq.insertId+ "','" +Group_Users[a]+ "')";
                     SelectAllElements(query);
                 }

@@ -346,11 +346,12 @@ app.post("/get_recent_messages",async function (request,result){
                             lastmessage[0].text=lastmessage[0].file_type;
                         }
                         message.last_message=lastmessage[0];
-                        if(lastmessage){
+                       /* if(lastmessage){
                             list[a]=message;
-                        }
-                    }
+                        }*/
 
+                    }
+                    list[a]=message;
                     a++;
                 }
             }

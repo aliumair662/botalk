@@ -587,8 +587,12 @@ app.post("/create_new_group",async function (request,result){
         await connection.query("INSERT INTO  message_group (name,user_id,avatar ) values ('" +request.body.groupname+ "','" +request.body.user_id+ "', '"+groupavatar+"')", function(err, resultq, fields) {
             if (err) throw err;
             if(resultq.insertId){
-                var data=request.body.Group_Users;
-                var Group_Users=data.replace(/["']/g, "");
+                var Group_Users=request.body.Group_Users;
+                if($.isArray(Group_Users)){
+                }else{
+                    var Group_Users = Group_Users.split(",");
+                }
+
 console.log("Group_Users");
 console.log(Group_Users);
                 for(var a=0;a<Group_Users.length;a++){

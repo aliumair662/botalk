@@ -589,12 +589,14 @@ app.post("/create_new_group",async function (request,result){
             if(resultq.insertId){
                 var Group_Users=request.body.Group_Users;
                 if($.isArray(Group_Users)){
+                    console.log("array");
                 }else{
+                    console.log("string");
                     var Group_Users = Group_Users.split(",");
                 }
 
-console.log("Group_Users");
-console.log(Group_Users);
+                console.log("Group_Users");
+                console.log(Group_Users);
                 for(var a=0;a<Group_Users.length;a++){
                     console.log("Group_Users[a] ");
                     console.log(Group_Users[a]);

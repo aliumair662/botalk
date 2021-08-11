@@ -588,7 +588,7 @@ app.post("/create_new_group",async function (request,result){
             if (err) throw err;
             if(resultq.insertId){
                 var Group_Users=request.body.Group_Users;
-                if($.isArray(Group_Users)){
+                if(Array.isArray(Group_Users)){
                     console.log("array");
                 }else{
                     console.log("string");

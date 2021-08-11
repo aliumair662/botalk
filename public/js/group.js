@@ -1,6 +1,7 @@
 
 //Message from server
 socket.on('Groupmessage',message => {
+    chatScrollingTop=false;
     console.info("Groupmessage Message from server");
         message.class='user-receive-message';
         if(sender==message.username){

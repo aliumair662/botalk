@@ -379,7 +379,7 @@ $(document).ready(function() {
             }
         });
     }
-    getGiphy(0);
+    //getGiphy(0);
     var lastGifScrollTop = 0;
     $("#gif-gallery-wrapper").scroll(function(event){
         var st = $(this).scrollTop();

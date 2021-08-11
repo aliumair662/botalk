@@ -303,7 +303,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.status=(users[message.username] ? 'online' : 'offline');
                     message.groupid=null;
                     message.groupname=null;
-                    message.last_message={};
+                    message.last_message=null;
                     message.chat_name=message.username;
                     try{
                         var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
@@ -331,14 +331,14 @@ app.post("/get_recent_messages",async function (request,result){
             const recentGroupmessages = await SelectAllElements(query);
             if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
-                    var message={};
+                    var message=null;
                     message.groupid=recentGroupmessages[k].id;
                     message.groupname=recentGroupmessages[k].name;
                     message.chat_name=recentGroupmessages[k].name;
                     message.status='offline';
                     message.userid=0;
                     message.avatar=recentGroupmessages[k].avatar;
-                    message.last_message={};
+                    message.last_message=null;
                     var query="SELECT * FROM `chatmessages` WHERE `to_group_id`='"+recentGroupmessages[k].id+"' order by id DESC limit 1";
                     const lastmessage = await SelectAllElements(query);
                     if(lastmessage[0]){
@@ -474,7 +474,7 @@ app.post("/get_user_list",async function (request,result){
                 if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
                     if(recentGroupmessages[k].name){
-                        var user={};
+                        var user=null;
                         user.username='';
                         user.groupid=recentGroupmessages[k].id;
                         user.groupname=recentGroupmessages[k].name;

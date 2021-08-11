@@ -195,7 +195,7 @@ app.post("/get_messages", function (request,result){
                                 var query="SELECT id,avatar,username from users where id  ='" +message.from_id + "' limit 0,1     ";
                                 const user = await SelectAllElements(query);
                                 message.status='online';
-                                message.avatar='';
+                                message.avatar=domain+user[0].avatar;
                                 message.username=request.body.groupname;
                                 message.last_seen= '';
                                 message.receiver_avatar='';

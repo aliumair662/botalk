@@ -331,7 +331,7 @@ app.post("/get_recent_messages",async function (request,result){
             const recentGroupmessages = await SelectAllElements(query);
             if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
-                    var message=null;
+                    var message={};
                     message.groupid=recentGroupmessages[k].id;
                     message.groupname=recentGroupmessages[k].name;
                     message.chat_name=recentGroupmessages[k].name;

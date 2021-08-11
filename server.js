@@ -588,7 +588,8 @@ app.post("/create_new_group",async function (request,result){
             if (err) throw err;
             if(resultq.insertId){
                 var data=request.body.Group_Users;
-                var Group_Users=request.body.Group_Users.replace(/["']/g, "");
+                var Group_Users=data.replace(/["']/g, "");
+                
                 for(var a=0;a<Group_Users.length;a++){
                     console.log("Group_Users[a] ");
                     console.log(Group_Users[a]);

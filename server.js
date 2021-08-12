@@ -704,7 +704,7 @@ io.on('connection',socket => {
         connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
             console.log(user);
 
-            if(user){
+            if(user.length > 0){
                 users[user[0].username]={
                     socketid:socket.id,
                     id:user[0].id,

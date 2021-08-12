@@ -783,18 +783,23 @@ io.on('connection',socket => {
                                         message.avatar=users[message.sender].avatar;
                                         message.username=users[message.sender].username;
                                         message.groupid=message.to_group_id;
-                                       // io.to(data.groupid).emit('Groupmessage',message);
-                                        const  query="select users.username,message_group_join.user_id from  message_group_join,users where message_group_join.groupid='" +data.groupid+ "' and message_group_join.user_id=users.id ";
-                                        const groupusers=await SelectAllElements(query);
-                                        if(groupusers){
-                                            for(var j=0;j<groupusers.length;j++){
-                                                var userdata=groupusers[j];
-                                                if(users[userdata.username]){
-                                                    io.to(users[userdata.username].socketid).emit('Groupmessage', message);
-                                                }
+                                        if(group[0].is_community_group==1){
+                                            io.to(data.groupid).emit('Groupmessage',message);
+                                        }else{
+                                            const  query="select users.username,message_group_join.user_id from  message_group_join,users where message_group_join.groupid='" +data.groupid+ "' and message_group_join.user_id=users.id ";
+                                            const groupusers=await SelectAllElements(query);
+                                            if(groupusers){
+                                                for(var j=0;j<groupusers.length;j++){
+                                                    var userdata=groupusers[j];
+                                                    if(users[userdata.username]){
+                                                        io.to(users[userdata.username].socketid).emit('Groupmessage', message);
+                                                    }
 
+                                                }
                                             }
                                         }
+
+
 
                                     }
 
@@ -1000,6 +1005,7 @@ io.on('connection',socket => {
 
     //Start Group Chat Working//
     socket.on('joinRoom',({username ,groupid}) => {
+        console.log("calling join room"+username+"=>"+groupid)
         const user = userGroupJoin(socket.id,username ,groupid);
         socket.join(user.groupid);
         var formatedMessage=formateMessage(botName,`${ user.username } has joined the chat`);

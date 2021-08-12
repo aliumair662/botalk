@@ -784,7 +784,21 @@ io.on('connection',socket => {
                                         message.username=users[message.sender].username;
                                         message.groupid=message.to_group_id;
                                         if(group[0].is_community_group==1){
-                                            io.to(data.groupid).emit('Groupmessage',message);
+                                            console.log(group[0].id);
+                                            var groupusers=getGroupRoomUsers(group[0].id);
+                                            console.log(groupusers);
+
+                                            if(groupusers.length >0 ){
+                                                console.log(groupusers.length);
+                                                for(var l=0;l<groupusers.length;l++){
+                                                    var userdata=groupusers[l];
+                                                    console.log(userdata);
+                                                    io.to(userdata.id).emit('Groupmessage', message);
+
+                                                }
+                                            }
+
+                                            //io.to(data.groupid).emit('Groupmessage',message);
                                         }else{
                                             const  query="select users.username,message_group_join.user_id from  message_group_join,users where message_group_join.groupid='" +data.groupid+ "' and message_group_join.user_id=users.id ";
                                             const groupusers=await SelectAllElements(query);
@@ -806,19 +820,6 @@ io.on('connection',socket => {
                                 });
 
                             }
-                           /* formatedMessage.status='online';
-                            formatedMessage.avatar=users[data.sender].avatar;
-                            formatedMessage.username=users[data.sender].username;
-                            formatedMessage.is_file=data.is_file;
-                            formatedMessage.file_path=data.file_path;
-                            formatedMessage.id=result.insertId;
-                            formatedMessage.groupid=data.groupid;*/
-                            //io.to(data.groupid).emit('Groupmessage',formatedMessage);
-                            //send data for group notigication
-                            /*formatedMessage.groupname=group[0].name;
-                            formatedMessage.avatar=domain+group[0].avatar;
-                            socket.broadcast.emit('groupnotification',formatedMessage);*/
-                            return;
                         });
                     });
 

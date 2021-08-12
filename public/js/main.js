@@ -17,7 +17,7 @@ var chatScrollingTop=false;
 var registrationToken=null;
 var opneGroupChat=false;
 var GroupName='';
-var Groupid='';
+var Groupid=0;
 var EditMessageFlag=false;
 var EditMessageId=0;
 

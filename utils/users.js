@@ -16,6 +16,8 @@ function getCurrentGroupUser(id){
     return groupUsers.find(user => user.id === id);
 
 }
+
+
 //user leaves chat
 function  userGroupLeave(id){
     const index =groupUsers.findIndex(user => user.id === id);
@@ -27,6 +29,9 @@ function  userGroupLeave(id){
 
 
 function getGroupRoomUsers(room){
+    console.log(groupUsers);
+    console.log(room);
+    room=room.toString();
     return groupUsers.filter(user =>user.groupid === room);
 }
 module.exports = {

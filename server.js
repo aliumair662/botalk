@@ -85,8 +85,8 @@ app.use(function(request,result,next){
 //Create api call to return all messages
 app.post("/get_messages", function (request,result){
     //get all messages from database
-        console.log("get_messages");
-        console.log(request.body);
+        //console.log("get_messages");
+        //console.log(request.body);
 
     if(users[request.body.sender]){
         var page_number=request.body.page_number;
@@ -111,7 +111,7 @@ app.post("/get_messages", function (request,result){
                     //}
                     var offset = total_records - (request.body.limit * request.body.page_number);
                     //console.log("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"   ORDER BY `id` desc  LIMIT   "+request.body.limit+" ");
-                    console.log("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" ");
+                    //console.log("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" ");
                     /*connection.query("SELECT  * FROM   chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+" ORDER BY `id` desc  LIMIT   "+request.body.limit+" " ,function(error,messages){*/
                     connection.query("SELECT * FROM (SELECT * FROM chatmessages WHERE ((from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')) "+subtractar+"  ORDER BY id DESC LIMIT "+request.body.limit+")Var1 ORDER BY id "+order+" " ,function(error,messages){
                         //json response
@@ -316,7 +316,7 @@ app.post("/get_recent_messages",async function (request,result){
                             message.last_message=messages;
                         }
                     }catch (e) {
-                        console.log("something wrong",e);
+                        //console.log("something wrong",e);
                     }
                     list[a]=message;
                 }
@@ -356,22 +356,22 @@ app.post("/get_recent_messages",async function (request,result){
                 }
             }
         }catch (e) {
-            console.log("something wrong",e);
+            //console.log("something wrong",e);
         }
-        console.log("list");
-        console.log(list);
+        //console.log("list");
+        //console.log(list);
         var data={
             'status':200,
             'data':list,
 
         };
-        console.log("list");
-        console.log(list);
+       // console.log("list");
+        //console.log(list);
 
         result.end(JSON.stringify(data));
         //res.status(200).json({elements: resultElements}); // send a json response
     } catch(e) {
-        console.log(e); // console log the error so we can see it in the console
+        //console.log(e); // console log the error so we can see it in the console
         //res.sendStatus(500);
     }
 
@@ -401,8 +401,8 @@ queryPromise1 = (query) =>{
 //Get all user list
 app.post("/get_user_list",async function (request,result){
     //get all messages from database
-    console.log("grouplist");
-    console.log(request.body.grouplist);
+    //console.log("grouplist");
+    //console.log(request.body.grouplist);
     var search='';
     var groupsearch='';
 
@@ -462,7 +462,7 @@ app.post("/get_user_list",async function (request,result){
            if(groupsearch!=''){
                var query="SELECT message_group.name, message_group.avatar,message_group.id FROM message_group , message_group_join WHERE  (message_group.id = message_group_join.groupid and message_group_join.user_id='" +users[request.body.username].id+ "' "+groupsearch+" ) or (message_group.is_community_group=1)    GROUP by id limit " +limit+ " ";
            }
-            console.log(query);
+            //console.log(query);
 
             const recentGroupmessages = await SelectAllElements(query);
                /* var query="SELECT name, avatar,id FROM message_group where  is_community_group=1   GROUP by id limit 1 ";
@@ -490,8 +490,8 @@ app.post("/get_user_list",async function (request,result){
                             }
                             user.last_message=lastmessage[0];
                         }
-                        console.log("list")
-                        console.log(user)
+                        //console.log("list")
+                       // console.log(user)
                         list.push(user);
                     }
 
@@ -571,14 +571,14 @@ app.post("/updatefirebasetoken",async function (request,result){
 app.post("/create_new_group",async function (request,result){
     const  query="select * from  message_group where name= '" +request.body.groupname+ "'";
     const groupdata=await SelectAllElements(query);
-    console.log("groupdata");
-    console.log(groupdata);
+    //console.log("groupdata");
+    //console.log(groupdata);
     const  queryuser="select * from  users where username= '" +request.body.groupname+ "'";
     const groupdatauser=await SelectAllElements(queryuser);
-    console.log("groupdatauser");
-    console.log(groupdatauser);
-    console.log("create group send ");
-    console.log(request.body);
+    //console.log("groupdatauser");
+   // console.log(groupdatauser);
+   // console.log("create group send ");
+   // console.log(request.body);
 
     if(groupdatauser.length >0 || groupdatauser.length >0){
         request.body.groupname=request.body.groupname+'_';
@@ -589,17 +589,17 @@ app.post("/create_new_group",async function (request,result){
             if(resultq.insertId){
                 var Group_Users=request.body.Group_Users;
                 if(Array.isArray(Group_Users)){
-                    console.log("array");
+                    //console.log("array");
                 }else{
-                    console.log("string");
+                    //console.log("string");
                     var Group_Users = Group_Users.split(",");
                 }
 
-                console.log("Group_Users");
-                console.log(Group_Users);
+                //console.log("Group_Users");
+               // console.log(Group_Users);
                 for(var a=0;a<Group_Users.length;a++){
-                    console.log("Group_Users[a] ");
-                    console.log(Group_Users[a]);
+                    //console.log("Group_Users[a] ");
+                    //console.log(Group_Users[a]);
                     const  query="INSERT INTO  message_group_join (groupid,user_id) values ('" +resultq.insertId+ "','" +Group_Users[a]+ "')";
                     SelectAllElements(query);
                 }
@@ -636,11 +636,11 @@ app.post("/create_new_group",async function (request,result){
 
 //upload voice clip to sever //
 app.post("/upload-voice-clip",function (request,result){
-    console.log(request.body.file);
+    //console.log(request.body.file);
 
     var base64Data = request.body.file.replace("data:", "")
         .replace(/^.+,/, "");
-    console.log(base64Data);
+    //console.log(base64Data);
 
    // var base64Data = request.body.file.replace(/^data:audio\/webm;codecs=opus;base64,/, "");
     fs.writeFile("public/files/uploads/"+request.body.name, base64Data, 'base64', function(err) {
@@ -700,9 +700,9 @@ const botName='Botalk Bot';
 //Run when client connect
 io.on('connection',socket => {
     socket.on('userConnected',(sessionid) => {
-        console.log(`sessionid`+sessionid);
+        //console.log(`sessionid`+sessionid);
         connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
-            console.log(user);
+           // console.log(user);
 
             if(user.length > 0){
                 users[user[0].username]={
@@ -828,11 +828,11 @@ io.on('connection',socket => {
 
             }
             if(data.receiver!='' && data.receiver!=null) {
-                console.log("data recived");
-                console.log(users);
+                //console.log("data recived");
+                //console.log(users);
                  connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", async function (error, user) {
                     var query="INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,file_type ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "', '" + data.file_type + "')";
-                   console.log(query);
+                   //console.log(query);
                     if(data.editmessageid > 0){
                         var query="update  chatmessages set sender='" +users[data.sender].username+ "',receiver='" +user[0].username+ "',text='" +message+ "',from_id='" +users[data.sender].id+ "' ,to_id='" + user[0].id + "',message_time='" +formatedMessage.time+ "',is_file='" +data.is_file+ "',file_path='" +data.file_path+ "',file_type='" +data.file_type+ "' where id='" +data.editmessageid+ "' ";
                     }
@@ -897,6 +897,7 @@ io.on('connection',socket => {
                                 },
                                 token: registrationToken
                             };*/
+                            //sendFirbaseNotification();
                             var alldevice=[];
                             if(user[0].registrationTokenWeb){
                                 alldevice.push(user[0].registrationTokenWeb)
@@ -919,10 +920,10 @@ io.on('connection',socket => {
                                 admin.messaging().send(message)
                                     .then((response) => {
                                         // Response is a message ID string.
-                                        console.log('Successfully sent message:', response);
+                                       // console.log('Successfully sent message:', response);
                                     })
                                     .catch((error) => {
-                                        console.log('Error sending message:', error);
+                                        //console.log('Error sending message:', error);
                                     });
                             }
 
@@ -1015,8 +1016,8 @@ io.on('connection',socket => {
         formatedMessage.username=users[username].username;
         formatedMessage.groupid=user.groupid;
         formatedMessage.socket=socket.id;
-        console.log("formatedMessage");
-        console.log(formatedMessage);
+        //console.log("formatedMessage");
+        //console.log(formatedMessage);
         socket.broadcast.to(user.groupid).emit('Groupmessage',formatedMessage);
     });
 

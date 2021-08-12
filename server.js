@@ -1026,7 +1026,7 @@ io.on('connection',socket => {
         formatedMessage.socket=socket.id;
         //console.log("formatedMessage");
         //console.log(formatedMessage);
-        socket.broadcast.to(user.groupid).emit('Groupmessage',formatedMessage);
+        //socket.broadcast.to(user.groupid).emit('Groupmessage',formatedMessage);
     });
 
 });

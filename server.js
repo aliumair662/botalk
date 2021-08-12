@@ -785,7 +785,7 @@ io.on('connection',socket => {
                                         message.groupid=message.to_group_id;
                                         if(group[0].is_community_group==1){
                                             console.log(group[0].id);
-                                            var groupusers=getGroupRoomUsers(group[0].id);
+                                            var groupusers=getGroupRoomUsers(parseInt(group[0].id));
                                             console.log(groupusers);
 
                                             if(groupusers.length >0 ){
@@ -1008,7 +1008,7 @@ io.on('connection',socket => {
     //Start Group Chat Working//
     socket.on('joinRoom',({username ,groupid}) => {
         console.log("calling join room"+username+"=>"+groupid)
-        const user = userGroupJoin(socket.id,username ,groupid);
+        const user = userGroupJoin(socket.id,username ,parseInt(groupid));
         socket.join(user.groupid);
         var formatedMessage=formateMessage(botName,`${ user.username } has joined the chat`);
         formatedMessage.status='online';

@@ -30,8 +30,6 @@ function  userGroupLeave(id){
 
 function getGroupRoomUsers(room){
     console.log(groupUsers);
-    console.log(room);
-    room=room.toString();
     return groupUsers.filter(user =>user.groupid === room);
 }
 module.exports = {

@@ -753,25 +753,31 @@ io.on('connection',socket => {
         if(users){
             var formatedMessage=formateMessage(data.sender,message);
             if(data.groupid >0){
+                console.log("1");
                 if(users[data.sender]){
+                    console.log("2");
                     connection.query("SELECT  * FROM   message_group WHERE id='" +data.groupid+ "'" ,async function(error,group){
                         var query="INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')";
                         if(data.editmessageid > 0){
                             var query="update  chatmessages set sender='" +users[data.sender].username+ "',receiver='" +group[0].name+ "',text='" +message+ "',from_id='" +users[data.sender].id+ "' ,to_id=0,message_time='" +formatedMessage.time+ "',is_file='" +data.is_file+ "',file_path='" +data.file_path+ "',to_group_id='" +group[0].id+ "',file_type='" +data.file_type+ "' where id='" +data.editmessageid+ "' ";
                         }
-
+                        console.log("3");
                         await connection.query(query ,async function(error,result){
                             if (error) {
                                 console.error('error connecting: ' + error.stack);
                                 return;
                             }
                             if (result) {
+                                console.log("4");
                                 var query = "SELECT  * FROM   chatmessages WHERE  id ='" + result.insertId + "'";
                                 if (data.editmessageid > 0) {
                                     var query = "SELECT  * FROM   chatmessages WHERE  id ='" + data.editmessageid + "' ";
                                 }
+                                console.log(query);
                                 await connection.query(query ,async function(error,thismessages){
+                                    console.log("5");
                                     if(thismessages){
+                                        console.log("6");
                                         var message=thismessages[0];
                                         message.status='online';
                                         message.receiver_avatar=group[0].avatar;
@@ -784,15 +790,17 @@ io.on('connection',socket => {
                                         message.username=users[message.sender].username;
                                         message.groupid=message.to_group_id;
                                         if(group[0].is_community_group==1){
+                                            console.log("7");
                                             console.log(group[0].id);
                                             var groupusers=getGroupRoomUsers(parseInt(group[0].id));
                                             console.log(groupusers);
-
+                                            console.log("8");
                                             if(groupusers.length >0 ){
                                                 console.log(groupusers.length);
                                                 for(var l=0;l<groupusers.length;l++){
                                                     var userdata=groupusers[l];
                                                     console.log(userdata);
+                                                    console.log("9");
                                                     io.to(userdata.id).emit('Groupmessage', message);
 
                                                 }

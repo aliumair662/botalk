@@ -752,7 +752,7 @@ io.on('connection',socket => {
         var message = message.replace(/'/g, "\\'");
         if(users){
             var formatedMessage=formateMessage(data.sender,message);
-            if(data.groupid){
+            if(data.groupid >0){
                 if(users[data.sender]){
                     connection.query("SELECT  * FROM   message_group WHERE id='" +data.groupid+ "'" ,async function(error,group){
                         var query="INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')";
@@ -826,7 +826,7 @@ io.on('connection',socket => {
 
 
             }
-            if(data.receiver) {
+            if(data.receiver!='' && data.receiver!=null) {
                 console.log("data recived");
                 console.log(users);
                  connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", async function (error, user) {
@@ -1013,6 +1013,7 @@ io.on('connection',socket => {
         formatedMessage.avatar=users[username].avatar;
         formatedMessage.username=users[username].username;
         formatedMessage.groupid=user.groupid;
+        formatedMessage.socket=socket.id;
         console.log("formatedMessage");
         console.log(formatedMessage);
         socket.broadcast.to(user.groupid).emit('Groupmessage',formatedMessage);

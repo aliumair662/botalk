@@ -770,7 +770,7 @@ io.on('connection',socket => {
                                 if (data.editmessageid > 0) {
                                     var query = "SELECT  * FROM   chatmessages WHERE  id ='" + data.editmessageid + "' ";
                                 }
-                                await connection.query(query ,function(error,thismessages){
+                                await connection.query(query ,async function(error,thismessages){
                                     if(thismessages){
                                         var message=thismessages[0];
                                         message.status='online';
@@ -783,7 +783,19 @@ io.on('connection',socket => {
                                         message.avatar=users[message.sender].avatar;
                                         message.username=users[message.sender].username;
                                         message.groupid=message.to_group_id;
-                                        io.to(data.groupid).emit('Groupmessage',message);
+                                       // io.to(data.groupid).emit('Groupmessage',message);
+                                        const  query="select users.username,message_group_join.user_id from  message_group_join,users where message_group_join.groupid='" +data.groupid+ "' and message_group_join.user_id=users.id ";
+                                        const groupusers=await SelectAllElements(query);
+                                        if(groupusers){
+                                            for(var j=0;j<groupusers.length;j++){
+                                                var userdata=groupusers[j];
+                                                if(users[userdata.username]){
+                                                    io.to(users[userdata.username].socketid).emit('Groupmessage', message);
+                                                }
+
+                                            }
+                                        }
+
                                     }
 
                                 });
@@ -866,6 +878,7 @@ io.on('connection',socket => {
                                         message.file_path = data.file_path;
                                         message.id = result.insertId;*/
                                         io.to(users[data.sender].socketid).emit('showmemessage', message);
+
                                     }
                                 }
 

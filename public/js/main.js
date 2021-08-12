@@ -426,30 +426,31 @@ function calculateUploadProgress(filesize,filesizesent){
 //Out put message to Dom
 function outputMessage(message){
     if(EditMessageFlag == true && EditMessageId == message.id){
-       // const div=document.createElement('div');
-        var html=`<div class="avatar-image chat-details">
-                       <img src="${message.avatar}" alt="">
-                       <span><i class="fas fa-circle ${message.status} status_circle_${message.username}"></i></span>
-                       </div>
-                       <div class="message-sent">`;
+
+        var html="<div class='avatar-image chat-details'>";
+        html+="<img src='"+message.avatar+"'>";
+
+        html+="<span><i class='fas fa-circle "+message.status+" status_circle_"+message.username+"'></i></span></div>";
+
+        html+="<div class='message-sent'>";
         if(message.is_file==1){
-            html+=`${message.text}`;
-        }else{
-            html+=`<p>${message.text}</p>`;
+            html+=message.text;
         }
-        html+=`<span>${message.time}</span></div>`;
+        else{
+            html+="<p>"+message.text+"</p>";
+        }
+        html+="<span>"+message.time+"</span></div>";
         if(message.username==sender){
-            html+=`<div class="dropdown">`;
-            html+=`<a onclick="openAction('${message.id}');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
-            html+=`<div id="myDropdown_${message.id}" class="dropdown-content">`;
+            html+="<div class='dropdown'>";
+            html+='<a onclick="openAction('+message.id+');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>';
+            html+='<div id="myDropdown_'+message.id+'" class="dropdown-content">';
             if(message.is_file==0) {
-                html += `<a href="#" onclick="EditMessage('${message.id}','${message.text}');">Edit</a>`;
+                html += '<a href="#" onclick="EditMessage('+message.id+','+message.text+');">Edit</a>';
             }
-            html+=`<a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;
+            html+='<a href="#" onclick="deleteMessage('+message.id+');">Remove</a></div></div>';
         }
-        //div.innerHTML=html;
         document.querySelector('.message_'+message.id).innerHTML='';
-        document.querySelector('.message_'+message.id).append(html);
+        document.querySelector('.message_'+message.id).innerHTML=html;
         clearEditMessage();
     }else{
         console.info("message");

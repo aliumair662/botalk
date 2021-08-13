@@ -758,6 +758,7 @@ io.on('connection',socket => {
                     console.log("2");
                     connection.query("SELECT  * FROM   message_group WHERE id='" +data.groupid+ "'" ,async function(error,group){
                         var query="INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,to_group_id,file_type ) values ('" +users[data.sender].username+ "', '" +group[0].name+ "', '" +message+ "','" +users[data.sender].id+ "', 0, '" +formatedMessage.time+ "', '" +data.is_file+ "', '" +data.file_path+ "', '" +group[0].id+ "', '" +data.file_type+ "')";
+                        console.log(query);
                         if(data.editmessageid > 0){
                             var query="update  chatmessages set sender='" +users[data.sender].username+ "',receiver='" +group[0].name+ "',text='" +message+ "',from_id='" +users[data.sender].id+ "' ,to_id=0,message_time='" +formatedMessage.time+ "',is_file='" +data.is_file+ "',file_path='" +data.file_path+ "',to_group_id='" +group[0].id+ "',file_type='" +data.file_type+ "' where id='" +data.editmessageid+ "' ";
                         }
@@ -840,7 +841,7 @@ io.on('connection',socket => {
                 //console.log(users);
                  connection.query("SELECT  * FROM   users WHERE username='" + data.receiver + "'", async function (error, user) {
                     var query="INSERT INTO  chatmessages (sender,receiver,text,from_id ,to_id,message_time,is_file,file_path,file_type ) values ('" + users[data.sender].username + "', '" + user[0].username + "', '" + message + "','" + users[data.sender].id + "', '" + user[0].id + "', '" + formatedMessage.time + "', '" + data.is_file + "', '" + data.file_path + "', '" + data.file_type + "')";
-                   //console.log(query);
+                     console.log(query);
                     if(data.editmessageid > 0){
                         var query="update  chatmessages set sender='" +users[data.sender].username+ "',receiver='" +user[0].username+ "',text='" +message+ "',from_id='" +users[data.sender].id+ "' ,to_id='" + user[0].id + "',message_time='" +formatedMessage.time+ "',is_file='" +data.is_file+ "',file_path='" +data.file_path+ "',file_type='" +data.file_type+ "' where id='" +data.editmessageid+ "' ";
                     }

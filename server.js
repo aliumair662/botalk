@@ -474,7 +474,7 @@ app.post("/get_user_list",async function (request,result){
                 if(recentGroupmessages){
                 for(var k=0;k<recentGroupmessages.length;k++){
                     if(recentGroupmessages[k].name){
-                        var user=null;
+                        var user={};
                         user.username='';
                         user.groupid=recentGroupmessages[k].id;
                         user.groupname=recentGroupmessages[k].name;

@@ -258,12 +258,12 @@ socket.on('message',message => {
 //Start Firebase Workign
 
 const firebaseConfig = {
-    apiKey: "AIzaSyACeSf208P1--gIggBSZnUJSWBlk_RsNUU",
-    authDomain: "vyzmo-d9cc0.firebaseapp.com",
-    projectId: "vyzmo-d9cc0",
-    storageBucket: "vyzmo-d9cc0.appspot.com",
-    messagingSenderId: "48070594104",
-    appId: "1:48070594104:web:92ed76ce56d3be514460cd"
+    apiKey: "AIzaSyAqo8trzy5iSmZak2gs0axG62JvBPpuTRY",
+    authDomain: "vyzmo-bf2fb.firebaseapp.com",
+    projectId: "vyzmo-bf2fb",
+    storageBucket: "vyzmo-bf2fb.appspot.com",
+    messagingSenderId: "753239092223",
+    appId: "1:753239092223:web:eb51370469b51f560a15ca"
 };
 var firebaseapp= firebase.initializeApp(firebaseConfig);
 var messaging = firebase.messaging();
@@ -379,7 +379,7 @@ $(document).ready(function() {
             }
         });
     }
-    //getGiphy(0);
+    getGiphy(0);
     var lastGifScrollTop = 0;
     $("#gif-gallery-wrapper").scroll(function(event){
         var st = $(this).scrollTop();
@@ -942,7 +942,8 @@ function clearEditMessage(event){
 function updateRegistrationTokenWeb(sender){
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
-    messaging.getToken({ vapidKey: 'BCcO2B3eznrtEsXnPzjdH0mxgWb1xlSAe_ZrfY7SWYjFbIhSaUFYaqh4qY8Z5E_8qwVo7fghMnti7AMkF67s9ZY' }).then((currentToken) => {
+    //messaging.getToken({ vapidKey: 'BCcO2B3eznrtEsXnPzjdH0mxgWb1xlSAe_ZrfY7SWYjFbIhSaUFYaqh4qY8Z5E_8qwVo7fghMnti7AMkF67s9ZY' }).then((currentToken) => {
+    messaging.getToken({ vapidKey: 'BGBGNT76kRfBwmGUm2OeoHyvhKaIkG0ZGlXYadFoZwa8SUh_98oVC-N_ed1krHax_y_QaGrNvKAPb8YN9x5pN_I' }).then((currentToken) => {
         if (currentToken) {
             console.info("currentToken");
             console.info(currentToken);

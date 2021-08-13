@@ -1,12 +1,12 @@
 importScripts('https://www.gstatic.com/firebasejs/8.8.0/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/8.8.0/firebase-messaging.js');
 const firebaseConfig = {
-    apiKey: "AIzaSyACeSf208P1--gIggBSZnUJSWBlk_RsNUU",
-    authDomain: "vyzmo-d9cc0.firebaseapp.com",
-    projectId: "vyzmo-d9cc0",
-    storageBucket: "vyzmo-d9cc0.appspot.com",
-    messagingSenderId: "48070594104",
-    appId: "1:48070594104:web:92ed76ce56d3be514460cd"
+    apiKey: "AIzaSyAqo8trzy5iSmZak2gs0axG62JvBPpuTRY",
+    authDomain: "vyzmo-bf2fb.firebaseapp.com",
+    projectId: "vyzmo-bf2fb",
+    storageBucket: "vyzmo-bf2fb.appspot.com",
+    messagingSenderId: "753239092223",
+    appId: "1:753239092223:web:eb51370469b51f560a15ca"
 };
 var firebaseapp= firebase.initializeApp(firebaseConfig);
 var messaging = firebase.messaging();

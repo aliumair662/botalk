@@ -59,7 +59,7 @@ var timeout=undefined;
 //Submit Message
 $( "#chat-form" ).submit(function( e ) {
     e.preventDefault();
-    const message = $(".emojionearea-editor").html();
+    const message = $(".emojionearea-editor").text();
 
     //Emit message to server
     if(message!=''){
@@ -300,7 +300,7 @@ $(document).ready(function() {
         pickerPosition: "top",
         filtersPosition: "bottom",
         tonesStyle: "checkbox",
-
+        saveEmojisAs:'unicode',
         events: {
             keypress: function (editor, event) {
 
@@ -425,6 +425,7 @@ function calculateUploadProgress(filesize,filesizesent){
 //Start Function //
 //Out put message to Dom
 function outputMessage(message){
+    message.time=formatAMPMTimeZone(message.time);
     if(EditMessageFlag == true && EditMessageId == message.id){
 
         var html="<div class='avatar-image chat-details'>";
@@ -492,6 +493,7 @@ function outputMessage(message){
 
 }
 function outputFile(message){
+    message.time=formatAMPMTimeZone(message.time);
     console.info("outputFile");
     const div=document.createElement('div');
     div.classList.add(message.class);
@@ -515,6 +517,10 @@ function outputFile(message){
 }*/
 //Add Users to Dom
 function  outputUsers(message){
+    if(message.time!=''){
+        message.time=formatAMPMTimeZone(message.time);
+    }
+
     console.info("outputUsers");
     console.info(message.groupid);
         if(message.groupid){
@@ -807,7 +813,21 @@ function removefromGroupUser(userid){
         var Index = Group_Users.indexOf(userid);
          Group_Users.splice(Index, 1);
 }
+function formatAMPMTimeZone(date) {
+    var date = new Date(date);
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+}
 function formatAMPM(date) {
+    if(date==''){
+        return ;
+    }
     var hours = date.getHours();
     var minutes = date.getMinutes();
     var ampm = hours >= 12 ? 'pm' : 'am';

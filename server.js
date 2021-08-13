@@ -306,7 +306,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.last_message=null;
                     message.chat_name=message.username;
                     try{
-                        var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "')  order BY chatmessages.id desc limit 0,1 ";
+                        var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "') and to_group_id is NULL  order BY chatmessages.id desc limit 0,1 ";
                         const lastmessages = await SelectAllElements(query);
                         if(lastmessages){
                             var messages = lastmessages[0];

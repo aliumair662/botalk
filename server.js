@@ -809,13 +809,14 @@ io.on('connection',socket => {
 
                                             //io.to(data.groupid).emit('Groupmessage',message);
                                         }else{
-                                            const  query="select users.username,message_group_join.user_id from  message_group_join,users where message_group_join.groupid='" +data.groupid+ "' and message_group_join.user_id=users.id ";
+                                            const  query="select users.username,users.id,message_group_join.user_id from  message_group_join,users where message_group_join.groupid='" +data.groupid+ "' and message_group_join.user_id=users.id ";
                                             const groupusers=await SelectAllElements(query);
                                             if(groupusers){
                                                 for(var j=0;j<groupusers.length;j++){
                                                     var userdata=groupusers[j];
                                                     if(users[userdata.username]){
                                                         io.to(users[userdata.username].socketid).emit('Groupmessage', message);
+                                                        sendFireBaseNotifications(userdata.id);
                                                     }
 
                                                 }
@@ -907,34 +908,8 @@ io.on('connection',socket => {
                                 token: registrationToken
                             };*/
                             //sendFirbaseNotification();
-                            var alldevice=[];
-                            if(user[0].registrationTokenWeb){
-                                alldevice.push(user[0].registrationTokenWeb)
-                            }
-                            if(user[0].registrationTokenAndroid){
-                                alldevice.push(user[0].registrationTokenAndroid)
-                            }
-                            if(user[0].registrationTokenIos){
-                                alldevice.push(user[0].registrationTokenIos)
-                            }
-                            var i;
-                            for (i = 0; i < alldevice.length; ++i) {
-                                const message = {
-                                    notification: {
-                                        title: data.sender,
-                                        body:(data.is_file === 1) ? 'File' :data.message
-                                    },
-                                    token: alldevice[i]
-                                };
-                                admin.messaging().send(message)
-                                    .then((response) => {
-                                        // Response is a message ID string.
-                                       // console.log('Successfully sent message:', response);
-                                    })
-                                    .catch((error) => {
-                                        //console.log('Error sending message:', error);
-                                    });
-                            }
+                            sendFireBaseNotifications(user[0].id);
+
 
 
                     }
@@ -1031,6 +1006,40 @@ io.on('connection',socket => {
     });
 
 });
+
+// Send notification Firebase
+async function sendFireBaseNotifications(id){
+    const  queryuser="select * from  users where id= '" +id+ "'";
+    const user=await SelectAllElements(queryuser);
+    var alldevice=[];
+    if(user[0].registrationTokenWeb){
+        alldevice.push(user[0].registrationTokenWeb)
+    }
+    if(user[0].registrationTokenAndroid){
+        alldevice.push(user[0].registrationTokenAndroid)
+    }
+    if(user[0].registrationTokenIos){
+        alldevice.push(user[0].registrationTokenIos)
+    }
+    var i;
+    for (i = 0; i < alldevice.length; ++i) {
+        const message = {
+            notification: {
+                title: data.sender,
+                body:(data.is_file === 1) ? 'File' :data.message
+            },
+            token: alldevice[i]
+        };
+        admin.messaging().send(message)
+            .then((response) => {
+                // Response is a message ID string.
+                // console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+                //console.log('Error sending message:', error);
+            });
+    }
+}
 //user leaves chat
 function  userLeave(id){
     const user=usersbysocket[id];

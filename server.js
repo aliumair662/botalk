@@ -806,7 +806,7 @@ io.on('connection',socket => {
                                                     io.to(userdata.id).emit('Groupmessage', message);
                                                     const  query="select * from  users where username='" +userdata.username+ "' ";
                                                     const user=await SelectAllElements(query);
-                                                    sendFireBaseNotifications(user[0].id,thismessages);
+                                                    sendFireBaseNotifications(user[0].id,thismessages[0]);
 
                                                 }
                                             }
@@ -820,7 +820,7 @@ io.on('connection',socket => {
                                                     var userdata=groupusers[j];
                                                     if(users[userdata.username]){
                                                         io.to(users[userdata.username].socketid).emit('Groupmessage', message);
-                                                        sendFireBaseNotifications(userdata.id,thismessages);
+                                                        sendFireBaseNotifications(userdata.id,thismessages[0]);
                                                     }
 
                                                 }
@@ -912,7 +912,7 @@ io.on('connection',socket => {
                                 token: registrationToken
                             };*/
                             //sendFirbaseNotification();
-                            sendFireBaseNotifications(user[0].id,thismessages);
+                            sendFireBaseNotifications(user[0].id,thismessages[0]);
 
 
 
@@ -1036,6 +1036,7 @@ async function sendFireBaseNotifications(id,data){
             },
             token: alldevice[i]
         };
+        console.log(message);
         admin.messaging().send(message)
             .then((response) => {
                 // Response is a message ID string.

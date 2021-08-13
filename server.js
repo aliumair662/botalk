@@ -901,7 +901,7 @@ io.on('connection',socket => {
 
                                     }
                                 }
-
+                                sendFireBaseNotifications(user[0].id,data);
                             });
 
                             /*const message = {
@@ -912,7 +912,7 @@ io.on('connection',socket => {
                                 token: registrationToken
                             };*/
                             //sendFirbaseNotification();
-                            sendFireBaseNotifications(user[0].id,thismessages[0]);
+
 
 
 

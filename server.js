@@ -699,9 +699,9 @@ const botName='Botalk Bot';
 
 //Run when client connect
 io.on('connection',socket => {
-    socket.on('userConnected',(sessionid) => {
+    socket.on('userConnected',async (sessionid) => {
         //console.log(`sessionid`+sessionid);
-        connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
+        await connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
            // console.log(user);
 
             if(user.length > 0){

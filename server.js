@@ -692,12 +692,17 @@ app.post("/upload-media",function (request,result){
 
 //Get all user list
 app.post("/vyzmo_notification_firebase", function (request,result){
+    console.log(request);
     console.log(request.body);
         var data={};
-        data.message=request.body.title+' '+request.body.sender+' '+request.body.message;
+        data.message=request.body.title+' '+request.body.message;
         data.is_file=0;
         data.sender=request.body.sender;
     sendFireBaseNotificationsFromVyzmo(request.body.receiver_id,data);
+    var response={
+        'message':'message send',
+    };
+    result.end(JSON.stringify(response));
 });
 
 app.use(express.static(path.join(__dirname,'public')));
@@ -1033,25 +1038,28 @@ async function sendFireBaseNotificationsFromVyzmo(id,data){
     if(user[0].registrationTokenIos){
         alldevice.push(user[0].registrationTokenIos)
     }
-    var i;
-    for (i = 0; i < alldevice.length; ++i) {
-        const message = {
-            notification: {
-                title: data.sender,
-                body:(data.is_file === 1) ? 'File' :data.message,
-            },
-            token: alldevice[i]
-        };
-        console.log(message);
-        admin.messaging().send(message)
-            .then((response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
-            })
-            .catch((error) => {
-                console.log('Error sending message:', error);
-            });
+    if(alldevice.length > 0){
+        var i;
+        for (i = 0; i < alldevice.length; ++i) {
+            const message = {
+                notification: {
+                    title: data.sender,
+                    body:(data.is_file === 1) ? 'File' :data.message,
+                },
+                token: alldevice[i]
+            };
+            console.log(message);
+            admin.messaging().send(message)
+                .then((response) => {
+                    // Response is a message ID string.
+                    console.log('Successfully sent message:', response);
+                })
+                .catch((error) => {
+                    console.log('Error sending message:', error);
+                });
+        }
     }
+
 }
 // Send notification Firebase
 async function sendFireBaseNotifications(id,data){

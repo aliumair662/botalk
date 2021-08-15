@@ -691,7 +691,14 @@ app.post("/upload-media",function (request,result){
 });
 
 //Get all user list
-
+app.post("/vyzmo_notification_firebase", function (request,result){
+    console.log(request.body);
+        var data={};
+        data.message=request.body.title+' '+request.body.sender+' '+request.body.message;
+        data.is_file=0;
+        data.sender=request.body.sender;
+    sendFireBaseNotificationsFromVyzmo(request.body.receiver_id,data);
+});
 
 app.use(express.static(path.join(__dirname,'public')));
 const botName='Botalk Bot';
@@ -1010,7 +1017,42 @@ io.on('connection',socket => {
     });
 
 });
+// Send notification Firebase
+async function sendFireBaseNotificationsFromVyzmo(id,data){
+    console.log(data);
+    const  queryuser="select * from  users where id= '" +id+ "'";
 
+    const user=await SelectAllElements(queryuser);
+    var alldevice=[];
+    if(user[0].registrationTokenWeb){
+        alldevice.push(user[0].registrationTokenWeb)
+    }
+    if(user[0].registrationTokenAndroid){
+        alldevice.push(user[0].registrationTokenAndroid)
+    }
+    if(user[0].registrationTokenIos){
+        alldevice.push(user[0].registrationTokenIos)
+    }
+    var i;
+    for (i = 0; i < alldevice.length; ++i) {
+        const message = {
+            notification: {
+                title: data.sender,
+                body:(data.is_file === 1) ? 'File' :data.message,
+            },
+            token: alldevice[i]
+        };
+        console.log(message);
+        admin.messaging().send(message)
+            .then((response) => {
+                // Response is a message ID string.
+                console.log('Successfully sent message:', response);
+            })
+            .catch((error) => {
+                console.log('Error sending message:', error);
+            });
+    }
+}
 // Send notification Firebase
 async function sendFireBaseNotifications(id,data){
     console.log(data);

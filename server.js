@@ -714,9 +714,9 @@ io.on('connection',socket => {
     socket.on('userConnected',async (sessionid) => {
         //console.log(`sessionid`+sessionid);
         await connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
-           // console.log(user);
+            console.log(user);
 
-            if(user){
+            if(user.length){
                 users[user[0].username]={
                     socketid:socket.id,
                     id:user[0].id,

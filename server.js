@@ -55,6 +55,7 @@ var db_config={
      'user':process.env.USER,
      'password':process.env.PASSWORD,
      'database':process.env.DATABASE,
+      'charset':'utf8'
     // 'host':'vyzmo.com',
     // 'user':"mybotalkuser",
     // 'password':"develope_botafoga",

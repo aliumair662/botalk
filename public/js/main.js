@@ -59,7 +59,7 @@ var timeout=undefined;
 //Submit Message
 $( "#chat-form" ).submit(function( e ) {
     e.preventDefault();
-    const message = $(".emojionearea-editor").text();
+    const message = $(".emojionearea-editor").html();
 
     //Emit message to server
     if(message!=''){

@@ -88,6 +88,8 @@ app.post("/get_messages", function (request,result){
         //console.log("get_messages");
         //console.log(request.body);
 
+
+
     if(users[request.body.sender]){
         var page_number=request.body.page_number;
         if(request.body.page_number >0){
@@ -98,7 +100,9 @@ app.post("/get_messages", function (request,result){
         var offset = (request.body.page_number-1) * request.body.limit;
         if(request.body.receiver){
             connection.query("SELECT  * FROM   users WHERE username='" +request.body.receiver+ "'" ,function(error,receiver){
-                connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')     " ,function(error,totalmessages){
+                connection.query("SELECT  * FROM   chatmessages WHERE (from_id ='" +users[request.body.sender].id+ "' and to_id = '" +receiver[0].id+ "') OR (from_id= '" +receiver[0].id+ "' and to_id='" +users[request.body.sender].id+ "')     " ,async function(error,totalmessages){
+                    var query="update  chatmessages set seen=1 where to_id ='" +users[request.body.sender].id+ "' and from_id='" +receiver[0].id+ "' ";
+                    await SelectAllElements(query);
                     var total_records=totalmessages.length;
                     var subtractar='';
                     var order='ASC';
@@ -288,6 +292,10 @@ SelectAllElements = (query) =>{
 //Create api call to return all recent messages to specific user
 app.post("/get_recent_messages",async function (request,result){
    /* if(users[request.body.username]){*/
+    /*count unseen messages */
+
+
+
     var list=[];
     try {
         var query="SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     ";
@@ -318,6 +326,20 @@ app.post("/get_recent_messages",async function (request,result){
                     }catch (e) {
                         //console.log("something wrong",e);
                     }
+                    message.totalunseen=null;
+                    try{
+                        var query="SELECT count(*) as unseen from chatmessages where to_id ='" +request.body.userid+ "' and from_id='" +message.id+ "'  and seen=0 ";
+                        var totalunseen = await SelectAllElements(query);
+                        console.log(totalunseen);
+                        if(totalunseen){
+                            message.totalunseen=totalunseen[0].unseen;
+
+                        }
+                    }catch (e) {
+                        //console.log("something wrong",e);
+                    }
+
+
                     list[a]=message;
                 }
 
@@ -339,6 +361,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.userid=0;
                     message.avatar=recentGroupmessages[k].avatar;
                     message.last_message=null;
+                    message.totalunseen=null;
                     var query="SELECT * FROM `chatmessages` WHERE `to_group_id`='"+recentGroupmessages[k].id+"' order by id DESC limit 1";
                     const lastmessage = await SelectAllElements(query);
                     if(lastmessage[0]){
@@ -715,7 +738,6 @@ io.on('connection',socket => {
         //console.log(`sessionid`+sessionid);
         await connection.query("SELECT  users.*,sessions.user_id  FROM   users,sessions WHERE sessions.session_id='" +sessionid+ "' and users.id=sessions.user_id" ,function(error,user){
             console.log(user);
-
             if(user.length){
                 users[user[0].username]={
                     socketid:socket.id,
@@ -786,10 +808,12 @@ io.on('connection',socket => {
                                 if (data.editmessageid > 0) {
                                     var query = "SELECT  * FROM   chatmessages WHERE  id ='" + data.editmessageid + "' ";
                                 }
+
                                 console.log(query);
                                 await connection.query(query ,async function(error,thismessages){
                                     console.log("5");
                                     if(thismessages){
+
                                         console.log("6");
                                         var message=thismessages[0];
                                         message.status='online';
@@ -873,7 +897,7 @@ io.on('connection',socket => {
                             if(data.editmessageid > 0){
                                 var query="SELECT  * FROM   chatmessages WHERE  id ='" +data.editmessageid+ "' ";
                             }
-                            await connection.query(query ,function(error,thismessages){
+                            await connection.query(query ,async function(error,thismessages){
                                 if(thismessages){
                                     var user_live=false;
 
@@ -888,6 +912,15 @@ io.on('connection',socket => {
                                     message.sender_username=users[message.sender].username;
                                     message.time=message.message_time;
                                     message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
+                                    message.totalunseen=null;
+                                    var query="SELECT count(*) as unseen from chatmessages where to_id ='" +user[0].id+ "' and from_id='" +users[data.sender].id+ "'  and seen=0 ";
+                                    console.info(query);
+                                    var totalunseen = await SelectAllElements(query);
+                                    console.log(totalunseen);
+                                    if(totalunseen){
+                                        console.log("in");
+                                        message.totalunseen=totalunseen[0].unseen;
+                                    }
                                     if (users[data.receiver]) {
                                         var socketId = users[data.receiver].socketid;
                                         if (socketId) {

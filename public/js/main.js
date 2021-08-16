@@ -248,6 +248,7 @@ socket.on('message',message => {
         if($(".user-grid").hasClass("user_"+message.username)){
             $(".user_"+message.username).remove();
         }
+        console.info(message);
         outputUsers(message);
     }
     //Scroll down
@@ -517,6 +518,7 @@ function outputFile(message){
 }*/
 //Add Users to Dom
 function  outputUsers(message){
+    var unseen=(message.totalunseen > 0) ? message.totalunseen :'';
     if(message.time!=''){
         message.time=formatAMPMTimeZone(message.time);
     }
@@ -539,7 +541,7 @@ function  outputUsers(message){
 <span><i class="fas fa-circle ${message.status}"></i></span>
 </div>
 <div class="user-chat">
-<h5>${message.username} <span class="typing_${message.username}"></span></h5>
+<h5>${message.username} <span class="unseen_${message.username}">${unseen}</span> <span class="typing_${message.username}"></span></h5>
 <span>${message.text}</span><div class="time-message text-right"><p>${message.time}</p><span><i class="fas fa-check-circle"></i></span></div></div>
 `;
         }
@@ -652,6 +654,8 @@ function selectUser(username,scrolling,groupname,groupid){
                 $("#status_circle").removeClass('status_circle_'+username);
             }
             var avatar=$(".user_"+username).find('.avatar-image').find('img').attr('src');
+            setTimeout(function(){ $(".unseen_"+username).text(''); }, 3000);
+
         }
         $("#room_avatar").attr("src",avatar);
     $(".chat-messages-loader").addClass("d-none");
@@ -684,7 +688,8 @@ $(".user-list-loader").removeClass("d-none");
                        status:messages[a].status,
                        avatar:messages[a].avatar,
                        groupid:messages[a].groupid,
-                       groupname:messages[a].groupname
+                       groupname:messages[a].groupname,
+                       totalunseen:messages[a].totalunseen
                    });
                }
 

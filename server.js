@@ -299,7 +299,7 @@ app.post("/get_recent_messages",async function (request,result){
 
     var list=[];
     try {
-        var query="SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' )     ";
+        var query="SELECT id,avatar,username from users,chatmessages where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' ) ";
         const recentmessages = await SelectAllElements(query);
         if(recentmessages){
             var allusersdata=[];
@@ -1135,7 +1135,7 @@ async function sendFireBaseNotifications(id,data){
         const message = {
             notification: {
                 title: data.sender,
-                body:(data.is_file === 1 || string.includes("emojioneemoji")) ? 'File' :data.message,
+                body:(data.is_file === 1 || data.message.includes("emojioneemoji")) ? 'File' :data.message,
             },
             token: alldevice[i]
         };

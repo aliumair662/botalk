@@ -68,7 +68,7 @@ var connection =mysql.createConnection(db_config);
 connection.connect(function (error){
     //show if any error
     if(error) {                                     // or restarting (takes a while sometimes).
-        console.log('error when connecting to db:', error);
+        //console.log('error when connecting to db:', error);
         setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
     }
 });
@@ -299,7 +299,7 @@ app.post("/get_recent_messages",async function (request,result){
 
     var list=[];
     try {
-        var query="SELECT id,avatar,username from users,chatmessages where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' ) ";
+        var query="SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' ) ";
         const recentmessages = await SelectAllElements(query);
         if(recentmessages){
             var allusersdata=[];
@@ -331,7 +331,7 @@ app.post("/get_recent_messages",async function (request,result){
                     try{
                         var query="SELECT count(*) as unseen from chatmessages where to_id ='" +request.body.userid+ "' and from_id='" +message.id+ "'  and seen=0 ";
                         var totalunseen = await SelectAllElements(query);
-                        console.log(totalunseen);
+                        //console.log(totalunseen);
                         if(totalunseen){
                             message.totalunseen=totalunseen[0].unseen;
 
@@ -735,8 +735,8 @@ app.post("/upload-media",function (request,result){
 
 //Get all user list
 app.post("/vyzmo_notification_firebase", function (request,result){
-    console.log(request);
-    console.log(request.body);
+    //console.log(request);
+    //console.log(request.body);
         var data={};
         data.message=request.body.title+' '+request.body.message;
         data.is_file=0;
@@ -1077,7 +1077,7 @@ io.on('connection',socket => {
 });
 // Send notification Firebase
 async function sendFireBaseNotificationsFromVyzmo(id,data){
-    console.log(data);
+    //console.log(data);
     const  queryuser="select * from  users where id= '" +id+ "'";
 
     const user=await SelectAllElements(queryuser);
@@ -1116,7 +1116,7 @@ async function sendFireBaseNotificationsFromVyzmo(id,data){
 }
 // Send notification Firebase
 async function sendFireBaseNotifications(id,data){
-    console.log(data);
+    //console.log(data);
     const  queryuser="select * from  users where id= '" +id+ "'";
 
     const user=await SelectAllElements(queryuser);
@@ -1139,7 +1139,7 @@ async function sendFireBaseNotifications(id,data){
             },
             token: alldevice[i]
         };
-        console.log(message);
+        //console.log(message);
         admin.messaging().send(message)
             .then((response) => {
                 // Response is a message ID string.

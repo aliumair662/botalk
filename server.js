@@ -570,6 +570,25 @@ app.post("/delete_message",function (request,result){
     });
 
 });
+app.post("/total_unseen_messages",async function (request,result){
+    //get  message from database
+
+    var total_unseen=null;
+    //result.end(JSON.stringify(list));
+    var query="SELECT count(*) as unseen from chatmessages where to_id ='" +request.body.userid+ "'   and seen=0 ";
+    var totalunseen = await SelectAllElements(query);
+    if(totalunseen){
+        total_unseen=totalunseen[0].unseen;
+    }
+    var data={
+        'status':200,
+        'total_unseen':total_unseen,
+    };
+    result.end(JSON.stringify(data));
+
+
+
+});
 //Update Firebase token api call to return all recent messages to specific user
 app.post("/updatefirebasetoken",async function (request,result){
 
@@ -1116,7 +1135,7 @@ async function sendFireBaseNotifications(id,data){
         const message = {
             notification: {
                 title: data.sender,
-                body:(data.is_file === 1) ? 'File' :data.message,
+                body:(data.is_file === 1 || string.includes("emojioneemoji")) ? 'File' :data.message,
             },
             token: alldevice[i]
         };

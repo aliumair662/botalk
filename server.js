@@ -299,8 +299,8 @@ app.post("/get_recent_messages",async function (request,result){
 
     var list=[];
     try {
-       // var query="SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' ) ";
-        var query="SELECT users.id,users.avatar,users.username from users,chatmessages where users.id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "') and (users.id=chatmessages.from_id or users.id=chatmessages.to_id) GROUP BY users.id order by chatmessages.id desc ";
+        var query="SELECT id,avatar,username from users where id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "' ) ";
+        //var query="SELECT users.id,users.avatar,users.username from users,chatmessages where users.id IN(SELECT distinct from_id FROM chatmessages WHERE to_id ='" +request.body.userid+ "' union SELECT distinct to_id FROM chatmessages WHERE from_id ='" +request.body.userid+ "') and (users.id=chatmessages.from_id or users.id=chatmessages.to_id) GROUP BY users.id order by chatmessages.id desc ";
         const recentmessages = await SelectAllElements(query);
         if(recentmessages){
             var allusersdata=[];

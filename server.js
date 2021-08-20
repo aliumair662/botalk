@@ -314,6 +314,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.groupid=null;
                     message.groupname=null;
                     message.last_message=null;
+                    message.last_message_id=0;
                     message.chat_name=message.username;
                     try{
                         var query="SELECT  * FROM   chatmessages WHERE  (chatmessages.to_id ='" +message.id+ "' or  chatmessages.from_id ='" +message.id+ "') and to_group_id is NULL  order BY chatmessages.id desc limit 0,1 ";
@@ -324,6 +325,7 @@ app.post("/get_recent_messages",async function (request,result){
                                 messages.text=messages.file_type;
                             }
                             message.last_message=messages;
+                            message.last_message_id=messages.id;
                         }
                     }catch (e) {
                         //console.log("something wrong",e);
@@ -364,6 +366,7 @@ app.post("/get_recent_messages",async function (request,result){
                     message.avatar=recentGroupmessages[k].avatar;
                     message.last_message=null;
                     message.totalunseen=null;
+                    message.last_message_id=0;
                     var query="SELECT * FROM `chatmessages` WHERE `to_group_id`='"+recentGroupmessages[k].id+"' order by id DESC limit 1";
                     const lastmessage = await SelectAllElements(query);
                     if(lastmessage[0]){
@@ -371,6 +374,7 @@ app.post("/get_recent_messages",async function (request,result){
                             lastmessage[0].text=lastmessage[0].file_type;
                         }
                         message.last_message=lastmessage[0];
+                        message.last_message_id=lastmessage[0].id;
                        /* if(lastmessage){
                             list[a]=message;
                         }*/
@@ -385,13 +389,16 @@ app.post("/get_recent_messages",async function (request,result){
         }
         //console.log("list");
         //console.log(list);
+        list.sort(function(a, b) {
+            return parseFloat(b.last_message_id) - parseFloat(a.last_message_id)  ;
+        });
         var data={
             'status':200,
             'data':list,
 
         };
        // console.log("list");
-        //console.log(list);
+        console.log(list);
 
         result.end(JSON.stringify(data));
         //res.status(200).json({elements: resultElements}); // send a json response

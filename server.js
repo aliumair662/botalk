@@ -435,6 +435,7 @@ app.post("/get_user_list",async function (request,result){
     //get all messages from database
     //console.log("grouplist");
     //console.log(request.body.grouplist);
+    request.body.limit=10;
     var search='';
     var groupsearch='';
 

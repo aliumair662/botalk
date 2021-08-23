@@ -885,7 +885,10 @@ io.on('connection',socket => {
                                                     var userdata=groupusers[j];
                                                     if(users[userdata.username]){
                                                         io.to(users[userdata.username].socketid).emit('Groupmessage', message);
-                                                        sendFireBaseNotifications(userdata.id,thismessages[0]);
+                                                        if(userdata.id!=users[data.sender].id){
+                                                            sendFireBaseNotifications(userdata.id,thismessages[0]);
+                                                        }
+
                                                     }
 
                                                 }

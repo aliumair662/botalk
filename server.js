@@ -563,23 +563,22 @@ app.post("/get_user_list",async function (request,result){
 
 });
 //Create api call to return all recent messages to specific user
-app.post("/delete_message",async function (request,result){
+app.post("/delete_message",function (request,result){
     //get  message from database
 
-    await  connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,async function(error,message){
+    connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,message){
 
-        await connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
+        connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
             if(message[0].is_file && str.indexOf("uploads/") >= 0){
                 var filePath = 'public/'+message[0].file_path;
                 fs.unlinkSync(filePath);
             }
 
             var data={
-                'status':200,
-                'message':'message deleted succesfully',
+                'status':401,
+                'message':"reload the page",
             };
             result.end(JSON.stringify(data));
-
         });
     });
 
@@ -861,6 +860,8 @@ io.on('connection',socket => {
                                         message.avatar=users[message.sender].avatar;
                                         message.username=users[message.sender].username;
                                         message.groupid=message.to_group_id;
+                                        message.editmessageid=data.editmessageid;
+
                                         if(group[0].is_community_group==1){
                                             console.log("7");
                                             console.log(group[0].id);
@@ -891,9 +892,8 @@ io.on('connection',socket => {
                                                     if(users[userdata.username]){
                                                         io.to(users[userdata.username].socketid).emit('Groupmessage', message);
                                                         if(userdata.id!=users[data.sender].id){
-                                                            sendFireBaseNotifications(userdata.id,thismessages[0]);
+                                                        sendFireBaseNotifications(userdata.id,thismessages[0]);
                                                         }
-
                                                     }
 
                                                 }
@@ -950,6 +950,7 @@ io.on('connection',socket => {
                                     message.time=message.message_time;
                                     message.last_seen=(user[0].last_seen && !user_live ? timeDifference(user[0].last_seen) : '');
                                     message.totalunseen=null;
+                                    message.editmessageid=data.editmessageid;
                                     var query="SELECT count(*) as unseen from chatmessages where to_id ='" +user[0].id+ "' and from_id='" +users[data.sender].id+ "'  and seen=0 ";
                                     console.info(query);
                                     var totalunseen = await SelectAllElements(query);

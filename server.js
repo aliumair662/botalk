@@ -563,18 +563,23 @@ app.post("/get_user_list",async function (request,result){
 
 });
 //Create api call to return all recent messages to specific user
-app.post("/delete_message",function (request,result){
+app.post("/delete_message",async function (request,result){
     //get  message from database
 
-    connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,message){
+    await  connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,async function(error,message){
 
-        connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
+        await connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
             if(message[0].is_file && str.indexOf("uploads/") >= 0){
                 var filePath = 'public/'+message[0].file_path;
                 fs.unlinkSync(filePath);
             }
-            var list=[];
-            result.end(JSON.stringify(list));
+
+            var data={
+                'status':200,
+                'message':'message deleted succesfully',
+            };
+            result.end(JSON.stringify(data));
+
         });
     });
 

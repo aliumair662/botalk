@@ -570,8 +570,18 @@ app.post("/delete_message",async function (request,result){
 
         await connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
             if(message[0].is_file && message[0].file_path.indexOf("uploads/") >= 0){
-                var filePath = 'public/'+message[0].file_path;
-                fs.unlinkSync(filePath);
+               var str=message[0].file_path;
+               if (str.indexOf(process.env.HOST_URL) >= 0){
+                   str=str.split(process.env.HOST_URL);
+                   var filePath = 'public/'+str[1];
+                   fs.unlinkSync(filePath);
+               }else{
+                   var filePath = 'public/'+message[0].file_path;
+                   fs.unlinkSync(filePath);
+               }
+
+
+
             }
 
             var data={

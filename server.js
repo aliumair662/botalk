@@ -569,7 +569,7 @@ app.post("/delete_message",async function (request,result){
     await connection.query("SELECT  *   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,async function(error,message){
 
         await connection.query("delete   FROM   chatmessages WHERE id ='" +request.body.id+ "' " ,function(error,deleteduser){
-            if(message[0].is_file && str.indexOf("uploads/") >= 0){
+            if(message[0].is_file && message[0].file_path.indexOf("uploads/") >= 0){
                 var filePath = 'public/'+message[0].file_path;
                 fs.unlinkSync(filePath);
             }

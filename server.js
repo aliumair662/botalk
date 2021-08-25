@@ -800,12 +800,13 @@ io.on('connection',socket => {
 
     //Listen Delete Message
     socket.on('messageDeleted',function(data){
-        if(data.groupid){
+        /*if(data.groupid){
             io.to(data.groupid).emit('messageDeleted',data.id);
         }else{
             io.to(socket.id).emit('messageDeleted',data.id);
-        }
 
+        }*/
+        io.emit('messageDeleted',data.id);
 
     });
 

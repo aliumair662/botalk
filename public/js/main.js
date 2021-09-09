@@ -267,8 +267,10 @@ const firebaseConfig = {
     appId: "1:753239092223:web:eb51370469b51f560a15ca"
 };
 var firebaseapp= firebase.initializeApp(firebaseConfig);
-var messaging = firebase.messaging();
-
+let messaging=null;
+if (firebase.messaging.isSupported()) {
+    messaging = firebase.messaging();
+}
 messaging.onMessage(function(payload){
     console.info(payload);
     const notificationOption={
@@ -446,7 +448,7 @@ function outputMessage(message){
             html+="<div class='dropdown'>";
             html+='<a onclick="openAction('+message.id+');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>';
             html+='<div id="myDropdown_'+message.id+'" class="dropdown-content">';
-            if(message.is_file==0) {
+            if(message.is_file==0 && message.text.includes("emojioneemoji")==false) {
                 html += '<a href="#" onclick="EditMessage('+message.id+','+message.text+');">Edit</a>';
             }
             html+='<a href="#" onclick="deleteMessage('+message.id+');">Remove</a></div></div>';
@@ -477,7 +479,7 @@ function outputMessage(message){
             html+=`<div class="dropdown">`;
             html+=`<a onclick="openAction('${message.id}');" class="dropbtn"><i class="fal fa-ellipsis-v ml-2"></i></a>`;
             html+=`<div id="myDropdown_${message.id}" class="dropdown-content">`;
-            if(message.is_file==0) {
+            if(message.is_file==0 && message.text.includes("emojioneemoji")==false ) {
                 html += `<a href="#" onclick="EditMessage('${message.id}','${message.text}');">Edit</a>`;
             }
             html+=`<a href="#" onclick="deleteMessage('${message.id}');">Remove</a></div></div>`;

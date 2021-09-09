@@ -968,6 +968,9 @@ function clearEditMessage(event){
 }
 
 function updateRegistrationTokenWeb(sender){
+    if(!firebase.messaging.isSupported()){
+        return;
+    }
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
     //messaging.getToken({ vapidKey: 'BCcO2B3eznrtEsXnPzjdH0mxgWb1xlSAe_ZrfY7SWYjFbIhSaUFYaqh4qY8Z5E_8qwVo7fghMnti7AMkF67s9ZY' }).then((currentToken) => {

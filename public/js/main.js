@@ -270,27 +270,28 @@ var firebaseapp= firebase.initializeApp(firebaseConfig);
 let messaging=null;
 if (firebase.messaging.isSupported()) {
     messaging = firebase.messaging();
-}
-messaging.onMessage(function(payload){
-    console.info(payload);
-    const notificationOption={
-        body:payload.notification.body,
-        icon:payload.notification.icon,
-    };
-    if(Notification.permission==="granted"){
-        var notification=new Notification(payload.notification.title,notificationOption);
-        notification.onclick=function (ev) {
-            ev.preventDefault();
-            window.open(payload.notification.click_action,'_blank');
-            notification.close();
+    messaging.onMessage(function(payload){
+        console.info(payload);
+        const notificationOption={
+            body:payload.notification.body,
+            icon:payload.notification.icon,
+        };
+        if(Notification.permission==="granted"){
+            var notification=new Notification(payload.notification.title,notificationOption);
+            notification.onclick=function (ev) {
+                ev.preventDefault();
+                window.open(payload.notification.click_action,'_blank');
+                notification.close();
 
+            }
         }
-    }
 
-});
-messaging.onTokenRefresh(function(payload){
-   updateRegistrationTokenWeb(sender)
-});
+    });
+    messaging.onTokenRefresh(function(payload){
+        updateRegistrationTokenWeb(sender)
+    });
+}
+
 
 
 //start typing function
